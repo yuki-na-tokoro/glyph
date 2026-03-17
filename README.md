@@ -8,4 +8,4 @@ Notizen
 
 ## Resources
 - Networking in C: [Beej's guide to Network Programming](https://beej.us/guide/bgnet/)
-- IRC Protocol -> for Communication: [IRC](https://www.rfc-editor.org/rfc/rfc1459)
+- IRC Protocol -> for Communication: [Better IRC Guide](https://modern.ircdocs.horse/) [IRC](https://www.rfc-editor.org/rfc/rfc1459)
