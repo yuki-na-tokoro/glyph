@@ -3,3 +3,5 @@
 .vscode/settings.json
 client
 server
+/flake.lock
+/flake.nix
