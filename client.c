@@ -9,8 +9,10 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include "client.h"
 #include <poll.h>
+
+#include "client.h"
+#include "protocol.h"
 
 void *send_and_receive(char* msg, int sockfd, char *answer){
     int len = strlen(msg);  // Länge der MSG
