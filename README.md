@@ -5,6 +5,7 @@
 Notizen
 - IRC läuft Standardmäßig auf Port 6667 
 - irc.libera.chat -> öffentliches IRC-Netzwerk
+- IRC-Nachrichten haben eine maximale Größe von 512 Bytes
 
 ## Resources
 - Networking in C: [Beej's guide to Network Programming](https://beej.us/guide/bgnet/)
