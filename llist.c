@@ -5,7 +5,7 @@
 
 typedef struct node {
   int value;
-  struct node *succ;
+  struct node *next;
 } Node;
 
 typedef struct llist {
@@ -20,6 +20,9 @@ LinkedList* llist_new(int head);
 void llist_append(LinkedList*, int);
 
 void llist_prepend(LinkedList*, int);
+
+//removes element with specified index
+void llist_remove(LinkedList*, int);
 
 // frees all allocated segments and the struct
 void llist_free(LinkedList*);
@@ -63,7 +66,7 @@ void llist_append(LinkedList* llist, int value) {
 
   seg->value = value;
 
-  llist->tail->succ = seg;
+  llist->tail->next = seg;
   llist->tail = seg;
   llist->length++;
     
@@ -78,7 +81,7 @@ void llist_prepend(LinkedList* llist, int value) {
   }
 
   seg->value = value;
-  seg->succ = llist->head;
+  seg->next = llist->head;
 
   llist->head = seg;
   llist->length++;
@@ -90,9 +93,31 @@ void llist_free(LinkedList* llist) {
   free(llist);
 }
 
+void llist_remove(LinkedList* inp, int index){
+  if (inp == NULL){
+      perror("#remove(): empty list given");
+  }
+  
+  Node *head,*prev;
+  head = inp->head;
+  uint ind;
+  
+  while (head != NULL){
+    if (ind == index){
+      prev->next = head->next;
+      break;
+    }else {
+      ind++;
+      prev = head;
+      head = head->next;
+      if (head->next == NULL) perror("#remove(): index out of bounds");
+    }
+  }
+}
+
 static void _segfree(Node* node) {
-  if (node->succ != NULL) {
-    _segfree(node->succ);
+  if (node->next != NULL) {
+    _segfree(node->next);
   }
   free(node);
 }
