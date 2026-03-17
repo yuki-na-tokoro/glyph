@@ -93,26 +93,29 @@ void llist_free(LinkedList* llist) {
   free(llist);
 }
 
-void llist_remove(LinkedList* inp, int index){
-  if (inp == NULL){
-      perror("#remove(): empty list given");
+void llist_remove(LinkedList* llist, int index){
+
+  if (index == 0) {
+    llist->head = llist->head->next;
+    llist->length--;
+    return;
   }
   
-  Node *head,*prev;
-  head = inp->head;
-  uint ind;
+  Node *node = llist->head;
+  uint i = 1;
   
-  while (head != NULL){
-    if (ind == index){
-      prev->next = head->next;
-      break;
-    }else {
-      ind++;
-      prev = head;
-      head = head->next;
-      if (head->next == NULL) perror("#remove(): index out of bounds");
+  while (node != NULL){
+    if (i-1 == index) {
+      node->next = node->next->next;
+      llist->length--;
+      return;
+    } else {
+      node = node->next;
+      i++;
     }
   }
+  perror("#remove(): index out of bounds");
+  exit(1);
 }
 
 static void _segfree(Node* node) {
