@@ -1,0 +1,43 @@
+{
+  "nodes": {
+    "neat-flakes": {
+      "locked": {
+        "lastModified": 1760464765,
+        "narHash": "sha256-Qhiw9lblpkj8Gw5sM+/0FiNJ4zI6YH5gxLJJRqKmndg=",
+        "owner": "wawwior",
+        "repo": "neat-flakes",
+        "rev": "cee2f04c44fb654f847e9f6bc586a1ce56d0aa27",
+        "type": "github"
+      },
+      "original": {
+        "owner": "wawwior",
+        "repo": "neat-flakes",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1772927210,
+        "narHash": "sha256-FdRDRoV0jRTiPK5ID22BaUX5P0wdsclpxtIOjaEy9Lo=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "0e6cdd5be64608ef630c2e41f8d51d484468492f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixpkgs-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "neat-flakes": "neat-flakes",
+        "nixpkgs": "nixpkgs"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
