@@ -82,14 +82,53 @@ int connect_to_server(){
     return sockfd;
 }
 
+/**
+ * @brief   Wartet auf Eingaben vom User und Nachrichten vom Server
+ *
+ * @param sockfd    File Descriptor vom Socket
+ */
+void poll_loop(int sockfd){
+    // Beej Abschnitt 7.2
+    struct pollfd pfds[2];
+    pfds[0].fd = 0;
+    pfds[0].events = POLLIN;
+
+    pfds[1].fd = sockfd;
+    pfds[1].events = POLLIN;
+
+    while (true){
+        int count = poll(pfds, 2, 2500);
+
+        if(count == 0){
+            printf("Poll timed out");
+            continue;
+        }
+        else{
+            if(pfds[0].revents & POLLIN){
+                printf("File descriptor %d is ready to read\n", pfds[0].fd);    // Nachricht vom Server 
+            }
+
+            if(pfds[1].revents & POLLIN){
+                printf("File descriptor %d is ready to read\n", pfds[1].fd);    // User Input
+            }
+        }
+    }
+}
+
 int main(void){
     int sockfd = connect_to_server();
 
-    char nickname[10];
+    char nickname[11];
     char nickmsg[32];
+    char usermsg[32];
     while(true){
         printf("Nickname eingeben (Maximal 9 Zeichen): ");
-        fgets(nickname, sizeof(nickname), stdin);
+        
+        if(fgets(nickname, sizeof(nickname), stdin) == NULL){
+        printf("Fehler beim Lesen.\n");
+        continue;
+        }
+
 
         if(strchr(nickname, '\n') == NULL){ // Falls der Nick von fgets() abgeschnitten wurde
             int c;
@@ -104,6 +143,7 @@ int main(void){
 
         if(strlen(nickname) >= 1){
             snprintf(nickmsg, sizeof(nickmsg), "NICK %s\r\n", nickname);    // Nickname korrekt formatieren
+            snprintf(usermsg, sizeof(usermsg), "USER guest 0 * : %s\r\n", nickname);    // USER Message korrekt formatieren
             break;
         }
         else{
@@ -112,11 +152,11 @@ int main(void){
         }
     }
 
-    int buffersize = 128;
+    int buffersize = 512;   
     char *answer = malloc(buffersize);
 
     // USER
-    send_msg(sockfd, "USER guest artemis servername : Artemis \r\n");
+    send_msg(sockfd, usermsg);
     recv_msg(sockfd, answer, buffersize);
     printf("%s", answer);
 
@@ -125,6 +165,8 @@ int main(void){
     recv_msg(sockfd, answer, buffersize);
     printf("%s", answer);
 
+    poll_loop(sockfd);
+    
     free(answer);
     close(sockfd);
 }
