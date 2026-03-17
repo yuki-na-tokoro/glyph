@@ -14,24 +14,41 @@
 #include "client.h"
 #include "protocol.h"
 
-void *send_and_receive(char* msg, int sockfd, char *answer){
+
+/**
+ * @brief   Sendet Nachricht über Socket
+ *
+ * @param sockfd    File Descriptor vom Socket
+ * @param msg   Nachricht die versendet werden soll
+ */
+void send_msg(int sockfd, char *msg){
     int len = strlen(msg);  // Länge der MSG
     send(sockfd, msg, len, 0); // Nachricht versenden
+}
 
-    sleep(1);
-
-    if (recv(sockfd, answer, 128, 0) <= 0) { // Auf Antwort warten
-        perror("connection closed / failed");   // Error Handling falls Fehlercode
+/**
+ * @brief   Empfängt Nachricht über Socket
+ *
+ * @param sockfd    File Descriptor vom Socket
+ * @param msg   Buffer in der die empfangene Nachricht gespeichert wird
+ * @param buffersize    Größe des msg Buffers
+ */
+void recv_msg(int sockfd, char *msg, int buffersize){
+    int count = recv(sockfd, msg, buffersize - 1, 0);   // recv() gibt die Menge der empfangenen Zeichen zurück
+    if(count <= 0){
+        perror("Connection lost / closed");
         exit(1);
     }
 
-    return answer;
+    msg[count] = '\0';
 }
 
-
-
-int main(void){
-
+/**
+ * @brief   Stellt Verbindung mit dem Server her
+ *
+ * @return sockfd    File Descriptor vom Socket
+ */
+int connect_to_server(){
     // Beej Abschnitt 5.1
     int status;
     struct addrinfo hints;  // Parameter für getaddrinfo()
@@ -59,8 +76,14 @@ int main(void){
        perror("socket connection error");
        exit(1);
     }
-    
-    char *answer = malloc(128);
+
+    freeaddrinfo(servinfo);
+
+    return sockfd;
+}
+
+int main(void){
+    int sockfd = connect_to_server();
 
     char nickname[10];
     char nickmsg[32];
@@ -89,16 +112,19 @@ int main(void){
         }
     }
 
-    send_and_receive("USER guest artemis servername : Artemis \r\n", sockfd, answer);
+    int buffersize = 128;
+    char *answer = malloc(buffersize);
+
+    // USER
+    send_msg(sockfd, "USER guest artemis servername : Artemis \r\n");
+    recv_msg(sockfd, answer, buffersize);
     printf("%s", answer);
 
-    send_and_receive(nickmsg, sockfd, answer);
-    printf("%s", answer);
-
-    send_and_receive("TIME \r\n", sockfd, answer);
+    // NICK
+    send_msg(sockfd, nickmsg);
+    recv_msg(sockfd, answer, buffersize);
     printf("%s", answer);
 
     free(answer);
     close(sockfd);
-    freeaddrinfo(servinfo);
 }
