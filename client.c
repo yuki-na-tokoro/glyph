@@ -20,7 +20,7 @@ void *send_and_receive(char* msg, int sockfd, char *answer){
 
     sleep(1);
 
-    if (recv(sockfd, answer, 60000000, 0) <= 0) { // Auf Antwort warten
+    if (recv(sockfd, answer, 128, 0) <= 0) { // Auf Antwort warten
         perror("connection closed / failed");   // Error Handling falls Fehlercode
         exit(1);
     }
@@ -36,7 +36,6 @@ int main(void){
     int status;
     struct addrinfo hints;  // Parameter für getaddrinfo()
     struct addrinfo *servinfo;  // Ausgabe von getaddrinfo()
-    struct addrinfo *res; // local
     int sockfd;
 
     memset(&hints, 0, sizeof hints);
@@ -47,41 +46,46 @@ int main(void){
         fprintf(stderr, "gai error : %s\n", gai_strerror(status));
         exit(1);
     }
-
-    hints.ai_flags = AI_PASSIVE;
-
-    if ((status = getaddrinfo(NULL, PORT, &hints, &res)) != 0) { // Fehlerbehandlung für getaddrinfo()
-        fprintf(stderr, "gai error : %s\n", gai_strerror(status));
-        exit(1);
-    }
     
-    sockfd = socket(res -> ai_family, res -> ai_socktype, res -> ai_protocol);
+    // Beej Abschnitt 5.2
+    sockfd = socket(servinfo -> ai_family, servinfo -> ai_socktype, servinfo -> ai_protocol);   // File Descriptor für den Socket erstellen
     if (sockfd == -1) {
         perror("local socket error");
         exit(1);
     }
 
-    if (connect(sockfd, servinfo->ai_addr, servinfo->ai_addrlen) == -1) {
-       perror("server socket connect error");
+    // Beej Abschnitt 5.4
+    if (connect(sockfd, servinfo -> ai_addr, servinfo -> ai_addrlen) == -1) {   // Über Socket mir Server verbinden
+       perror("socket connection error");
        exit(1);
-    } else {
-        printf("server socket connected succesfully\n");
-    };
-
+    }
     
     char *answer = malloc(128);
-    char nickname[9];
+
+    char nickname[10];
     char nickmsg[32];
     while(true){
-        printf("Nickname eingeben (Maximal 8 Zeichen): ");
+        printf("Nickname eingeben (Maximal 9 Zeichen): ");
         fgets(nickname, sizeof(nickname), stdin);
-        nickname[strcspn(nickname, "\n")] = '\0';
-        snprintf(nickmsg, sizeof(nickmsg), "NICK %s\r\n", nickname);
-        if(strlen(nickname) >= 1 && strlen(nickname) <= 9){
+
+        if(strchr(nickname, '\n') == NULL){ // Falls der Nick von fgets() abgeschnitten wurde
+            int c;
+            printf("Nickname zu lang.\n");
+            
+            while((c = getchar()) != '\n' && c != EOF); // Buffer für erneute Eingabe leeren
+
+            continue;
+        }
+
+        nickname[strcspn(nickname, "\n")] = '\0';   // Ersetzt Newline mit Stringende
+
+        if(strlen(nickname) >= 1){
+            snprintf(nickmsg, sizeof(nickmsg), "NICK %s\r\n", nickname);    // Nickname korrekt formatieren
             break;
         }
         else{
-            printf("Nickname zu lang bzw. kurz\n");
+            printf("Kein Nickname eingegeben.\n");
+            continue;
         }
     }
 
