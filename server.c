@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <stdbool.h>
 
 #include "server.h"
 #include "protocol.h"
@@ -36,7 +37,6 @@ int main(void) {
     fprintf(stderr, "socket error\n");
     exit(1);
   }
-
 
   const int enable = 1;
 
@@ -81,27 +81,13 @@ int main(void) {
   fd.fd = sockfd;
   fd.events = POLLIN;
 
+  struct client* clients[MAX_CONN]; 
+  int ccount = 0;
+
   for (;;) {
 
-    poll(&fd, 1, 0);
+    poll_listening(sockfd, clients, &ccount);
 
-    if (fd.revents == POLLIN) {
-
-      struct client *c = accept_client(sockfd);
-
-      while (c != NULL) {
-
-        int bytes_sent = msg_client(c, "pew\n");
-
-        printf("sent %d bytes\n", bytes_sent);
-
-        close(c->fd);
-        free(c);
-        
-        c = accept_client(sockfd);
-
-      }
-    }
   }
   
   close(sockfd);
@@ -133,4 +119,39 @@ struct client* accept_client(int sockfd) {
 
 int msg_client(struct client *c, char *msg) {
   return send(c->fd, msg, strlen(msg), 0);
+}
+
+void poll_listening(int sockfd, struct client* clients[MAX_CONN], int *ccount) {
+   
+  struct pollfd fd = {sockfd, POLLIN, 0};
+
+  poll(&fd, 1, 0);
+  
+  if (fd.revents == POLLIN) {
+
+    struct client *c = accept_client(sockfd);
+
+    while (c != NULL) {
+
+      if (!push_client(clients, ccount, c)) {
+        fprintf(stderr, "rejecting incoming connection: MAX_CONN reached");
+
+        close(c->fd);
+        free(c);
+      };
+      
+      c = accept_client(sockfd);
+
+    }
+  }
+}
+
+bool push_client(struct client* clients[MAX_CONN], int *ccount, struct client *c) {
+  if (*ccount >= MAX_CONN) {
+    return false;
+  }
+
+  clients[*ccount] = c;
+  (*ccount)++;
+  return true;
 }
