@@ -4,3 +4,10 @@ server
 server.d
 !client/
 !server/
+.vscode/c_cpp_properties.json
+.vscode/launch.json
+.vscode/settings.json
+/flake.lock
+/flake.nix
+/.envrc
+/.direnv/bin/nix-direnv-reload

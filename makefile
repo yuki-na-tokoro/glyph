@@ -5,8 +5,11 @@ all: server client
 
 -include *.d
 
-%.o: %.d
-%.d: ;
+client: src/client/client.c
+	$(CC) $(CFLAGS) -o $@ $^
+
+server: src/server/server.c src/server/commands.c
+	$(CC) $(CFLAGS) -o $@ $^
 
 clean:
 	@$(RM) -v server client *.o *.d
