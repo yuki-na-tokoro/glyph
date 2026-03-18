@@ -6,6 +6,7 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <poll.h>
+#include <ncurses.h>
 
 #include "client.h"
 #include "../protocol.h"
@@ -121,7 +122,7 @@ char *introduce(int sockfd){
     while(true){
         printf("Nickname eingeben (Maximal 9 Zeichen): ");
         
-        if(fgets(nickname, sizeof(nickname), stdin) == NULL){
+        if(fgets(nickname, 11, stdin) == NULL){
         printf("Fehler beim Lesen.\n");
         continue;
         }

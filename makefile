@@ -6,7 +6,7 @@ all: server client
 -include *.d
 
 client: src/client/client.c
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $^ -lncurses
 
 server: src/server/server.c src/server/commands.c
 	$(CC) $(CFLAGS) -o $@ $^
