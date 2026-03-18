@@ -3,9 +3,6 @@ CPPFLAGS=-MMD -MF $*.d
 
 all: server client
 
-server: src/server/main.c
-client: src/client/main.c
-
 -include *.d
 
 %.o: %.d
@@ -14,5 +11,5 @@ client: src/client/main.c
 clean:
 	@$(RM) -v server client *.o *.d
 	
-.PHONY: all clean server client
+.PHONY: all clean
 .PRECIOUS: *.o *.d

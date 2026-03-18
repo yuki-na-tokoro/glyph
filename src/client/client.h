@@ -9,7 +9,7 @@
  * @param answer    Nachricht vom Server
  * @param nickname  Nickname vom Nutzer
  */
-void print_answer(char *answer, char *nickname)
+void print_answer(char *answer, char *nickname);
 
 /**
  * @brief   Sendet Nachricht über Socket

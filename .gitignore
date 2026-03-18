@@ -1,9 +1,0 @@
-.vscode/c_cpp_properties.json
-.vscode/launch.json
-.vscode/settings.json
-client
-server
-/flake.lock
-/flake.nix
-/.envrc
-/.direnv/bin/nix-direnv-reload
