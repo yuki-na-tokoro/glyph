@@ -4,6 +4,14 @@
 #define HOST "irc.libera.chat"
 
 /**
+ * @brief   Formatiert die Nachrichten vom Server 
+ *
+ * @param answer    Nachricht vom Server
+ * @param nickname  Nickname vom Nutzer
+ */
+void print_answer(char *answer, char *nickname)
+
+/**
  * @brief   Sendet Nachricht über Socket
  *
  * @param sockfd    File Descriptor vom Socket
@@ -32,7 +40,7 @@ int connect_to_server();
  *
  * @param sockfd    File Descriptor vom Socket
  */
-void introduce(int sockfd);
+char *introduce(int sockfd);
 
 /**
  * @brief   Wartet auf Eingaben vom User und Nachrichten vom Server
