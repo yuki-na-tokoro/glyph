@@ -1,22 +1,43 @@
-// sendet ein connection passwort
+/*
+* @brief Setzt das Connection Passwort
+* 
+*
+*/
 int pass();
 
-// zur setzung von Nicknames
+/**
+* @brief Setzt einen Nichnamen und verelicht mit vorhandenen Nicknamen
+* 
+*
+*/
 int nick();
 
-// am anfang der verbindung zum sagen "ich bin der user $(USER)."
+/**
+* @brief Setzt einen Nutzername bei verbindung.
+*
+*/
 int user();
 
-// int server();
-
+/**
+* @brief
+*
+*/
 int oper();
+
+/**
+*
+*/
 int quit();
+
+/**
+*
+*/
 int squit();
 
+/**
+*
+*/
 int join();
-int pass();
-int pass();
-int pass();
 
 
 
