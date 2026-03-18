@@ -1,6 +1,9 @@
 # glyph
 
 ## table of contents
+  1. [notes](#notes)
+  2. [resources](#resources)
+  3. [server-todos](#server)
 
 ## notes
 - IRC läuft Standardmäßig auf Port 6667 
