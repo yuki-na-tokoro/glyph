@@ -1,14 +1,10 @@
-#include <netinet/in.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
-#include <arpa/inet.h>
 #include <unistd.h>
-#include <fcntl.h>
 #include <poll.h>
 
 #include "client.h"
@@ -26,8 +22,13 @@ void printanswer(char *answer, char *nickname){
 
 }
 
+int main(void){
+    int sockfd = connect_to_server();   // Socket eröffnen und mit Server verbinden
 
+    poll_loop(sockfd);  // Interaktion mit dem Server
 
+    close(sockfd);
+}
 
 void send_msg(int sockfd, char *msg){
     int len = strlen(msg);  // Länge der MSG
@@ -41,7 +42,7 @@ void recv_msg(int sockfd, char *msg, int buffersize){
         exit(1);
     }
 
-    msg[count] = '\0';
+    msg[count] = '\0';  // String abschließen
 }
 
 int connect_to_server(){
@@ -76,6 +77,47 @@ int connect_to_server(){
     freeaddrinfo(servinfo);
 
     return sockfd;
+}
+
+void poll_loop(int sockfd){
+    int step = 1;
+
+    // Beej Abschnitt 7.2
+    struct pollfd pfds[2];
+    pfds[0].fd = 0; // Ausgehende Nachrichten
+    pfds[0].events = POLLIN;
+
+    pfds[1].fd = sockfd;    // Eingehende Nachrichten
+    pfds[1].events = POLLIN;
+
+    while (true){
+        int count = poll(pfds, 2, 2500);    // Anzahl an einkommenden bzw. ausgehenden Nachrichten
+        char input[MSG_SIZE];
+        char answer[MSG_SIZE];
+
+        if(count == 0){
+            printf("Poll timed out");
+            continue;
+        }
+        else{
+            if(step == 1){
+                introduce(sockfd);
+                step++;
+            }
+            if(pfds[0].revents & POLLIN){
+                if(fgets(input, sizeof(input), stdin) == NULL){ //Nachricht vom Nutzer einlesen
+                    printf("Fehler beim Einlesen.");
+                    continue;
+                }
+                send_msg(sockfd, input);    
+            }
+
+            if(pfds[1].revents & POLLIN){
+                recv_msg(sockfd, answer, MSG_SIZE);   // Nachricht vom Server erhalten
+                printf("%s", answer);
+            }
+        }
+    }
 }
 
 void introduce(int sockfd){
@@ -115,18 +157,19 @@ void introduce(int sockfd){
    
     char *answer = malloc(MSG_SIZE);
 
-    // USER
-    send_msg(sockfd, usermsg);
-    recv_msg(sockfd, answer, MSG_SIZE);
-    printf("%s", answer);
-
     // NICK
     send_msg(sockfd, nickmsg);
     recv_msg(sockfd, answer, MSG_SIZE);
     printf("%s", answer);
 
+    // USER
+    send_msg(sockfd, usermsg);
+    recv_msg(sockfd, answer, MSG_SIZE);
+    printf("%s", answer);
+
     free(answer);
 }
+<<<<<<< HEAD
 
 void poll_loop(int sockfd){
     int step = 1;
@@ -177,3 +220,5 @@ int main(void){
 
     close(sockfd);
 }
+=======
+>>>>>>> 202f328ea6bcc6eb6a0bdc92966bbb3282389f62

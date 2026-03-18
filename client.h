@@ -1,3 +1,5 @@
+#ifndef CLIENT_H
+#define CLIENT_H
 
 #define HOST "irc.libera.chat"
 
@@ -39,3 +41,4 @@ void introduce(int sockfd);
  */
 void poll_loop(int sockfd);
 
+#endif // CLIENT_H

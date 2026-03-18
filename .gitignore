@@ -3,3 +3,7 @@
 .vscode/settings.json
 client
 server
+/flake.lock
+/flake.nix
+/.envrc
+/.direnv/bin/nix-direnv-reload
