@@ -82,46 +82,13 @@ int connect_to_server(){
     return sockfd;
 }
 
+
 /**
- * @brief   Wartet auf Eingaben vom User und Nachrichten vom Server
+ * @brief   Sendet NICK und USER an Server basierend auf Nutzereingabe
  *
  * @param sockfd    File Descriptor vom Socket
  */
-void poll_loop(int sockfd){
-    // Beej Abschnitt 7.2
-    struct pollfd pfds[2];
-    pfds[0].fd = 0;
-    pfds[0].events = POLLIN;
-
-    pfds[1].fd = sockfd;
-    pfds[1].events = POLLIN;
-
-    while (true){
-        int count = poll(pfds, 2, 2500);    // Anzahl an einkommenden bzw. ausgehenden Nachrichten
-        char input[MSG_SIZE];
-        char answer[MSG_SIZE];
-
-        if(count == 0){
-            printf("Poll timed out");
-            continue;
-        }
-        else{
-            if(pfds[0].revents & POLLIN){
-                fgets(input, sizeof(input), stdin); //Nachricht vom Nutzer einlesen
-                send_msg(sockfd, input);    
-            }
-
-            if(pfds[1].revents & POLLIN){
-                recv_msg(sockfd, answer, MSG_SIZE);   // Nachricht vom Server erhalten
-                printf("%s", answer);
-            }
-        }
-    }
-}
-
-int main(void){
-    int sockfd = connect_to_server();
-
+void init(int sockfd){
     char nickname[11];
     char nickmsg[MSG_SIZE];
     char usermsg[MSG_SIZE];
@@ -168,8 +135,59 @@ int main(void){
     recv_msg(sockfd, answer, MSG_SIZE);
     printf("%s", answer);
 
-    poll_loop(sockfd);
-    
     free(answer);
+}
+
+/**
+ * @brief   Wartet auf Eingaben vom User und Nachrichten vom Server
+ *
+ * @param sockfd    File Descriptor vom Socket
+ */
+void poll_loop(int sockfd){
+    int step = 1;
+
+    // Beej Abschnitt 7.2
+    struct pollfd pfds[2];
+    pfds[0].fd = 0;
+    pfds[0].events = POLLIN;
+
+    pfds[1].fd = sockfd;
+    pfds[1].events = POLLIN;
+
+    while (true){
+        int count = poll(pfds, 2, 2500);    // Anzahl an einkommenden bzw. ausgehenden Nachrichten
+        char input[MSG_SIZE];
+        char answer[MSG_SIZE];
+
+        if(count == 0){
+            printf("Poll timed out");
+            continue;
+        }
+        else{
+            if(step == 1){
+                init(sockfd);
+                step++;
+            }
+            if(pfds[0].revents & POLLIN){
+                if(fgets(input, sizeof(input), stdin) == NULL){ //Nachricht vom Nutzer einlesen
+                    printf("Fehler beim Einlesen.");
+                    continue;
+                }
+                send_msg(sockfd, input);    
+            }
+
+            if(pfds[1].revents & POLLIN){
+                recv_msg(sockfd, answer, MSG_SIZE);   // Nachricht vom Server erhalten
+                printf("%s", answer);
+            }
+        }
+    }
+}
+
+int main(void){
+    int sockfd = connect_to_server();
+
+    poll_loop(sockfd);
+
     close(sockfd);
 }
