@@ -10,6 +10,18 @@
 #include "client.h"
 #include "protocol.h"
 
+void printanswer(char *answer, char *nickname){
+
+
+    char *posnick = strstr(answer, nickname); //  sucht position vom Nickname in der Antwort
+    char *poscol = strchr(posnick, ":");
+    if (posnick != NULL && poscol != NULL){
+         printf("%s\n" poscol);
+    }
+
+
+}
+
 int main(void){
     int sockfd = connect_to_server();   // Socket eröffnen und mit Server verbinden
 
@@ -110,7 +122,7 @@ void poll_loop(int sockfd){
 
 void introduce(int sockfd){
     char nickname[11];
-    char nickmsg[MSG_SIZE];
+    char nickmsg[MSG_SIZEchar nickname[11];];
     char usermsg[MSG_SIZE];
     while(true){
         printf("Nickname eingeben (Maximal 9 Zeichen): ");
@@ -153,3 +165,56 @@ void introduce(int sockfd){
 
     free(answer);
 }
+<<<<<<< HEAD
+
+void poll_loop(int sockfd){
+    int step = 1;
+
+    // Beej Abschnitt 7.2
+    struct pollfd pfds[2];
+    pfds[0].fd = 0;
+    pfds[0].events = POLLIN;
+
+    pfds[1].fd = sockfd;
+    pfds[1].events = POLLIN;
+
+    while (true){
+        int count = poll(pfds, 2, 2500);    // Anzahl an einkommenden bzw. ausgehenden Nachrichten
+        char input[MSG_SIZE];
+        char answer[MSG_SIZE];
+
+        if(count == 0){
+            printf("Poll timed out");
+            continue;
+        }
+        else{
+            if(step == 1){
+                introduce(sockfd);
+                step++;
+            }
+            if(pfds[0].revents & POLLIN){
+                if(fgets(input, sizeof(input), stdin) == NULL){ //Nachricht vom Nutzer einlesen
+                    printf("Fehler beim Einlesen.");
+                    continue;
+                }
+                send_msg(sockfd, input);    
+            }
+
+            if(pfds[1].revents & POLLIN){
+                recv_msg(sockfd, answer, MSG_SIZE);   // Nachricht vom Server erhalten
+
+                printf("%s", answer);
+            }
+        }
+    }
+}
+
+int main(void){
+    int sockfd = connect_to_server();
+
+    poll_loop(sockfd);
+
+    close(sockfd);
+}
+=======
+>>>>>>> 202f328ea6bcc6eb6a0bdc92966bbb3282389f62
