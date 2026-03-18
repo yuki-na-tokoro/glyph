@@ -8,7 +8,7 @@ all: server client
 client: src/client/client.c
 	$(CC) $(CFLAGS) -o $@ $^ -lncurses
 
-server: src/server/server.c src/server/commands.c src/server/networking.c
+server: src/server/server.c src/server/commands.c src/server/networking.c src/server/client.c
 	$(CC) $(CFLAGS) -o $@ $^
 
 clean:

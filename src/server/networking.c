@@ -1,7 +1,16 @@
-#include "networking.h"
+#include <errno.h>
 #include <fcntl.h>
-#include <stdio.h>
+#include <netinet/in.h>
 #include <stdlib.h>
+#include <sys/poll.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <stdbool.h>
+
+#include "networking.h"
 
 int init_socket(struct addrinfo* res) {
 
@@ -39,5 +48,67 @@ int init_socket(struct addrinfo* res) {
     exit(1);
   }
 
+  // set socket to listening
+  if (listen(sockfd, BACKLOG) == -1) {
+    perror("listen error");
+    exit(1);
+  }
+
   return sockfd;
 }
+
+void poll_listening(int sockfd, struct client* clients[MAX_CONN], int *ccount) {
+   
+
+  struct pollfd fd = {sockfd, POLLIN, 0};
+
+  poll(&fd, 1, TIMEOUT);
+  
+  if (fd.revents == POLLIN) {
+
+    struct client *c = accept_client(sockfd);
+    printf("trying client");
+
+    while (c != NULL) {
+
+      if (!push_client(clients, MAX_CONN, ccount, c)) {
+        fprintf(stderr, "rejecting incoming connection: MAX_CONN reached");
+
+        close(c->fd);
+        free(c);
+
+      } else {
+
+        printf("accepted client");
+
+      };
+      
+      c = accept_client(sockfd);
+      printf("trying client");
+
+    }
+  }
+}
+
+struct client* accept_client(int sockfd) {
+  struct sockaddr_storage client_addr;
+
+  socklen_t addr_size = sizeof client_addr;
+  int fd = accept(sockfd, (struct sockaddr *) &client_addr, &addr_size);
+
+  if (fd == -1) {
+    if (errno != EWOULDBLOCK) {
+      perror("accept error");
+      exit(1);
+    }
+    return NULL;
+  }
+
+  struct client *c = malloc(sizeof(struct client));
+
+  c->addr = (struct sockaddr *) &client_addr;
+  c->fd = fd;
+
+  return c;
+}
+
