@@ -43,6 +43,13 @@ int connect_to_server();
 char *introduce(int sockfd);
 
 /**
+ * @brief   Sendet JOIN an Server basierend auf Nutzereingabe
+ *
+ * @param sockfd    File Descriptor vom Socket
+ */
+char *channel(int sockfd);
+
+/**
  * @brief   Wartet auf Eingaben vom User und Nachrichten vom Server
  *
  * @param sockfd    File Descriptor vom Socket

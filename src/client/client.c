@@ -68,6 +68,8 @@ int connect_to_server(){
     return sockfd;
 }
 
+//TODO :  Terminal User Interface für den Client mithilfe von ncurses implementieren.
+
 void poll_loop(int sockfd){
     int step = 1;
 
@@ -80,6 +82,7 @@ void poll_loop(int sockfd){
     pfds[1].events = POLLIN;
 
     char *nickname;
+    char *channelname;
 
     while (true){
         poll(pfds, 2, -1);
@@ -91,7 +94,8 @@ void poll_loop(int sockfd){
             step++;
         }
         if(step == 2){
-            // TODO
+            channelname = channel(sockfd);
+            step++;
         }
         if(pfds[0].revents & POLLIN){
             if(fgets(input, sizeof(input), stdin) == NULL){ //Nachricht vom Nutzer einlesen
@@ -106,12 +110,13 @@ void poll_loop(int sockfd){
             if(strncmp(answer, "PING", 4) == 0){
                 send_msg(sockfd, "PONG");
             }
-            // printf("%s", answer);
+            printf("%s", answer);
 
-            print_answer(answer, nickname);
+            //print_answer(answer, nickname);
         }
     }
 
+    free(channelname);
     free(nickname);
 }
 
@@ -159,11 +164,51 @@ char *introduce(int sockfd){
     return nickname;
 }
 
+char *channel(int sockfd){
+    char *channelname= malloc(202);
+    char channelmsg[MSG_SIZE];
+
+    while(true){
+        printf("Channelname: ");
+        
+        if(fgets(channelname, 202, stdin) == NULL){
+        printf("Fehler beim Lesen.\n");
+        continue;
+        }
+
+
+        if(strchr(channelname, '\n') == NULL){ // Falls der Channelname von fgets() abgeschnitten wurde
+            int c;
+            printf("Channelname zu lang.\n");
+            
+            while((c = getchar()) != '\n' && c != EOF); // Buffer für erneute Eingabe leeren
+
+            continue;
+        }
+
+        channelname[strcspn(channelname, "\n")] = '\0';   // Ersetzt Newline mit Stringende
+
+        if(strlen(channelname) >= 1){
+            snprintf(channelmsg, sizeof(channelmsg), "JOIN %s\r\n", channelname);    // Channelname korrekt formatieren
+            break;
+        }
+        else{
+            printf("Kein Channelname eingegeben.\n");
+            continue;
+        }
+    }
+
+    // JOIN
+    send_msg(sockfd, channelmsg);
+
+    return channelname;
+}
+
 /*
 TODO :  Nachrichten kommen in answer teilweise nicht als einzelne Zeilen sondern als ein großter Block im Buffer. 
         Dementsprechend muss der Buffer am Zeilenende aufgeteilt werden um die einzelnen Zeilen zu erhalten und 
         entsprechend zu formatieren. Vermutlich mit Schleife die jeden String bis zu einem Newline entsprechend
-        formatiert und printet. Schleife endet dann am EOF. 
+        formatiert und printet. Schleife endet dann am EOF. Zudem noch irrelevante Nachrichten rausfiltern. 
 
         -> Auch noch entsprechende print_msg bei der ausgehende Nachrichten formatiert ausgegeben werden
 */
