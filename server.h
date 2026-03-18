@@ -5,10 +5,11 @@
 #define BACKLOG 10
  
 struct client {
-  int sockfd;
+  int fd;
   struct sockaddr *addr;
 };
 
 struct client* accept_client(int);
 
 #endif // SERVER_H
+int msg_client(struct client*, char*);
