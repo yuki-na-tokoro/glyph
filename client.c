@@ -14,6 +14,21 @@
 #include "client.h"
 #include "protocol.h"
 
+void printanswer(char *answer, char *nickname){
+
+
+    char *posnick = strstr(answer, nickname); //  sucht position vom Nickname in der Antwort
+    char *poscol = strchr(posnick, ":");
+    if (posnick != NULL && poscol != NULL){
+         printf("%s\n" poscol);
+    }
+
+
+}
+
+
+
+
 void send_msg(int sockfd, char *msg){
     int len = strlen(msg);  // Länge der MSG
     send(sockfd, msg, len, 0); // Nachricht versenden
@@ -65,7 +80,7 @@ int connect_to_server(){
 
 void introduce(int sockfd){
     char nickname[11];
-    char nickmsg[MSG_SIZE];
+    char nickmsg[MSG_SIZEchar nickname[11];];
     char usermsg[MSG_SIZE];
     while(true){
         printf("Nickname eingeben (Maximal 9 Zeichen): ");
@@ -148,6 +163,7 @@ void poll_loop(int sockfd){
 
             if(pfds[1].revents & POLLIN){
                 recv_msg(sockfd, answer, MSG_SIZE);   // Nachricht vom Server erhalten
+
                 printf("%s", answer);
             }
         }
