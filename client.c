@@ -14,25 +14,11 @@
 #include "client.h"
 #include "protocol.h"
 
-
-/**
- * @brief   Sendet Nachricht über Socket
- *
- * @param sockfd    File Descriptor vom Socket
- * @param msg   Nachricht die versendet werden soll
- */
 void send_msg(int sockfd, char *msg){
     int len = strlen(msg);  // Länge der MSG
     send(sockfd, msg, len, 0); // Nachricht versenden
 }
 
-/**
- * @brief   Empfängt Nachricht über Socket
- *
- * @param sockfd    File Descriptor vom Socket
- * @param msg   Buffer in der die empfangene Nachricht gespeichert wird
- * @param buffersize    Größe des msg Buffers
- */
 void recv_msg(int sockfd, char *msg, int buffersize){
     int count = recv(sockfd, msg, buffersize - 1, 0);   // recv() gibt die Menge der empfangenen Zeichen zurück
     if(count <= 0){
@@ -43,11 +29,6 @@ void recv_msg(int sockfd, char *msg, int buffersize){
     msg[count] = '\0';
 }
 
-/**
- * @brief   Stellt Verbindung mit dem Server her
- *
- * @return sockfd    File Descriptor vom Socket
- */
 int connect_to_server(){
     // Beej Abschnitt 5.1
     int status;
@@ -82,13 +63,7 @@ int connect_to_server(){
     return sockfd;
 }
 
-
-/**
- * @brief   Sendet NICK und USER an Server basierend auf Nutzereingabe
- *
- * @param sockfd    File Descriptor vom Socket
- */
-void init(int sockfd){
+void introduce(int sockfd){
     char nickname[11];
     char nickmsg[MSG_SIZE];
     char usermsg[MSG_SIZE];
@@ -138,11 +113,6 @@ void init(int sockfd){
     free(answer);
 }
 
-/**
- * @brief   Wartet auf Eingaben vom User und Nachrichten vom Server
- *
- * @param sockfd    File Descriptor vom Socket
- */
 void poll_loop(int sockfd){
     int step = 1;
 
@@ -165,7 +135,7 @@ void poll_loop(int sockfd){
         }
         else{
             if(step == 1){
-                init(sockfd);
+                introduce(sockfd);
                 step++;
             }
             if(pfds[0].revents & POLLIN){
