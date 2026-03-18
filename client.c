@@ -97,7 +97,9 @@ void poll_loop(int sockfd){
     pfds[1].events = POLLIN;
 
     while (true){
-        int count = poll(pfds, 2, 2500);
+        int count = poll(pfds, 2, 2500);    // Anzahl an einkommenden bzw. ausgehenden Nachrichten
+        char input[MSG_SIZE];
+        char answer[MSG_SIZE];
 
         if(count == 0){
             printf("Poll timed out");
@@ -105,11 +107,13 @@ void poll_loop(int sockfd){
         }
         else{
             if(pfds[0].revents & POLLIN){
-                printf("File descriptor %d is ready to read\n", pfds[0].fd);    // Nachricht vom Server 
+                fgets(input, sizeof(input), stdin); //Nachricht vom Nutzer einlesen
+                send_msg(sockfd, input);    
             }
 
             if(pfds[1].revents & POLLIN){
-                printf("File descriptor %d is ready to read\n", pfds[1].fd);    // User Input
+                recv_msg(sockfd, answer, MSG_SIZE);   // Nachricht vom Server erhalten
+                printf("%s", answer);
             }
         }
     }
@@ -119,8 +123,8 @@ int main(void){
     int sockfd = connect_to_server();
 
     char nickname[11];
-    char nickmsg[32];
-    char usermsg[32];
+    char nickmsg[MSG_SIZE];
+    char usermsg[MSG_SIZE];
     while(true){
         printf("Nickname eingeben (Maximal 9 Zeichen): ");
         
@@ -151,18 +155,17 @@ int main(void){
             continue;
         }
     }
-
-    int buffersize = 512;   
-    char *answer = malloc(buffersize);
+   
+    char *answer = malloc(MSG_SIZE);
 
     // USER
     send_msg(sockfd, usermsg);
-    recv_msg(sockfd, answer, buffersize);
+    recv_msg(sockfd, answer, MSG_SIZE);
     printf("%s", answer);
 
     // NICK
     send_msg(sockfd, nickmsg);
-    recv_msg(sockfd, answer, buffersize);
+    recv_msg(sockfd, answer, MSG_SIZE);
     printf("%s", answer);
 
     poll_loop(sockfd);
