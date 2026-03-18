@@ -79,31 +79,31 @@ void poll_loop(int sockfd){
     pfds[1].events = POLLIN;
 
     while (true){
-        int count = poll(pfds, 2, 2500);    // Anzahl an einkommenden bzw. ausgehenden Nachrichten
+        poll(pfds, 2, -1);
         char input[MSG_SIZE];
         char answer[MSG_SIZE];
 
-        if(count == 0){
-            printf("Poll timed out");
-            continue;
+        if(step == 1){
+            introduce(sockfd);
+            step++;
         }
-        else{
-            if(step == 1){
-                introduce(sockfd);
-                step++;
+        if(step == 2){
+            // TODO
+        }
+        if(pfds[0].revents & POLLIN){
+            if(fgets(input, sizeof(input), stdin) == NULL){ //Nachricht vom Nutzer einlesen
+                printf("Fehler beim Einlesen.");
+                continue;
             }
-            if(pfds[0].revents & POLLIN){
-                if(fgets(input, sizeof(input), stdin) == NULL){ //Nachricht vom Nutzer einlesen
-                    printf("Fehler beim Einlesen.");
-                    continue;
-                }
-                send_msg(sockfd, input);    
-            }
+            send_msg(sockfd, input);    
+        }
 
-            if(pfds[1].revents & POLLIN){
-                recv_msg(sockfd, answer, MSG_SIZE);   // Nachricht vom Server erhalten
-                printf("%s", answer);
+        if(pfds[1].revents & POLLIN){
+            recv_msg(sockfd, answer, MSG_SIZE);   // Nachricht vom Server erhalten
+            if(strncmp(answer, "PING", 4) == 0){
+                send_msg(sockfd, "PONG");
             }
+            printf("%s", answer);
         }
     }
 }
@@ -147,13 +147,9 @@ void introduce(int sockfd){
 
     // NICK
     send_msg(sockfd, nickmsg);
-    recv_msg(sockfd, answer, MSG_SIZE);
-    printf("%s", answer);
 
     // USER
     send_msg(sockfd, usermsg);
-    recv_msg(sockfd, answer, MSG_SIZE);
-    printf("%s", answer);
 
     free(answer);
 }
