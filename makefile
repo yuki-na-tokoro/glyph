@@ -1,1 +1,2 @@
-CFLAGS=-Wall -Wextra -O2 -g
+CFLAGS=-Og -g -fsanitize=address,undefined -Wall -Wextra -pedantic
+
