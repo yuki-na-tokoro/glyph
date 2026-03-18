@@ -14,6 +14,10 @@
 #include "server.h"
 #include "protocol.h"
 
+// TODO:
+// clean up main func
+// write declarations in commands.h 
+
 int main(void) {
 
   int status;

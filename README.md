@@ -16,6 +16,3 @@
 
 ## server:
 
-### TODO:
-  - clean up main func
-  - write declarations in commands.h 
