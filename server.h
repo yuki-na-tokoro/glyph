@@ -1,5 +1,5 @@
 #ifndef SERVER_H
-#define SERVER_h
+#define SERVER_H
 
 #include <sys/socket.h>
 #define BACKLOG 10
@@ -11,5 +11,5 @@ struct client {
 
 struct client* accept_client(int);
 
-#endif // SERVER_H
 int msg_client(struct client*, char*);
+#endif // SERVER_H
