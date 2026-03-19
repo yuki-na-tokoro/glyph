@@ -14,7 +14,12 @@
 #include "networking.h"
 #include "../logging.h"
 #include "client.h"
+#include "commands.h"
 
+
+// TODO: Add extra Data to Client struct
+
+        
 int init_socket(struct addrinfo* res) {
 
   int sockfd;
@@ -165,10 +170,13 @@ void poll_clients(struct client* clients[MAX_CONN], int *ccount) {
       strcat(buffer, cbuffer);
       size_t buflen = strlen(cbuffer);
       if (cbuffer[buflen-1] == '\n' && cbuffer[buflen-2] == '\r') {
-        // TODO: send command
+        cbuffer[buflen-2] = '\0';
+
+        raw_msg(clients[i],cbuffer);
+
         debugmsg("received message: ", cbuffer);
-        cbuffer[0] = '\0';
-      }
+
+        cbuffer[0] = '\0'; }
     }
 
     if (closedmask[i]) _close = 1;
