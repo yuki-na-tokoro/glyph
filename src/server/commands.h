@@ -1,3 +1,24 @@
+typedef struct message {
+  char *prefix;
+  char *command;
+  char **argv;
+  int argc;
+}msg;
+
+typedef struct user{
+  char *username;
+  char *nichname;
+  char *hostname;
+  char *password;
+  bool connected;
+  bool isop; 
+}usr;
+
+typedef struct channel{
+  unsigned int id;
+  
+}ch;
+
 /*
 * @brief Setzt das Connection Passwort
 * 
