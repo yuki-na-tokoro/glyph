@@ -118,9 +118,9 @@ void poll_loop(int sockfd){
             if(strncmp(answer, "PING", 4) == 0){
                 send_msg(sockfd, "PONG");
             }
-            printf("%s", answer);
+            //printf("%s", answer);
 
-            //print_answer(answer, nickname);
+            print_answer(answer, nickname);
         }
     }
 
@@ -274,12 +274,24 @@ TODO:   Nachrichten kommen in answer teilweise nicht als einzelne Zeilen sondern
 */
 
 void print_answer(char *answer, char *nickname){
-    char *posnick = strstr(answer, nickname); //  Sucht Position vom Nickname in der Antwort
-    if(posnick == NULL) return;
 
-    char *poscol = strchr(posnick, ':');
-    if(poscol == NULL) return;
 
-    printf("%s\n", poscol + 1);
+    char *dupl = strdup(answer);
+    char *line = strtok(dupl, "\n");
+    while (line != NULL){
+        char *posnick = strstr(line, nickname);
+        char *poscol = (posnick != NULL) ? strchr(posnick, ':') : NULL;
+
+        if(posnick == NULL || poscol == NULL){
+            printf("%s\n",line);
+
+        }else{
+            printf("%s\n", poscol + 1);
+        }
+
+        line = strtok(NULL, "\n");
+    }
+    free(dupl);
+
 }
 
