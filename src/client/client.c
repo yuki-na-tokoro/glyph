@@ -10,6 +10,7 @@
 
 #include "client.h"
 #include "../protocol.h"
+#include "commands.h"
 
 int main(void){
     int sockfd = connect_to_server();   // Socket eröffnen und mit Server verbinden
@@ -69,10 +70,9 @@ int connect_to_server(){
 }
 
 /*
-TODO :  - Terminal User Interface für den Client mithilfe von ncurses implementieren
+TODO:   - Terminal User Interface für den Client mithilfe von ncurses implementieren
         - Festlegen welche Befehle implementiert werden sollen und entsprechend implementieren
 */
-
 
 void poll_loop(int sockfd){
     int step = 1;
@@ -106,7 +106,7 @@ void poll_loop(int sockfd){
                 printf("Fehler beim Einlesen.");
                 continue;
             }
-            if(strncmp(input, "/quit", 5) == 0){
+            if(strncmp(input, "/quit", 5) == 0 || strncmp(input, "/q", 2) == 0){
                 send_msg(sockfd, "QUIT\r\n");
                 break;
             }
@@ -129,11 +129,51 @@ void poll_loop(int sockfd){
 }
 
 /*
-TODO :  Funktionen für Commands (introduce, channel) zusammenfassen um Code zu komprimieren :
-            1. Funktion die Input des Nutzers annimmt
-            2. Funktion die den Input und das Format des Befehls übergeben bekommt, den Input
-                formatiert und dann versendet
+TODO:  Funktion für Commands (introduce, channel) zusammenfassen um Code zu komprimieren :
+            1. Funktion nimmt den Input des Nutzers und liest diesen in einen Buffer ein
+            2. Funktion erkennt den Command und trennt diesen vom Input
+            3. Dann wird der Command in das korrekt format gebraucht und dann versendet
 */
+
+/*
+char *send_command(void){
+    char *input = malloc(size);
+    while(true){
+        
+        if(fgets(input, size, stdin) == NULL){
+        printf("Fehler beim Lesen.\n");
+        continue;
+        }
+
+
+        if(strchr(input, '\n') == NULL){ // Falls der Nick von fgets() abgeschnitten wurde
+            int c;
+            printf("Nickname zu lang.\n");
+            
+            while((c = getchar()) != '\n' && c != EOF); // Buffer für erneute Eingabe leeren
+
+            continue;
+        }
+
+        input[strcspn(input, "\n")] = '\0';   // Ersetzt Newline mit Stringende
+
+        if(strlen(input) >= 1){
+            snprintf(channelmsg, sizeof(channelmsg), "JOIN %s\r\n", input);    // Channelname korrekt formatieren
+            break;
+        }
+        else{
+            printf("Kein Channelname eingegeben.\n");
+            continue;
+        }
+    }
+
+    // JOIN
+    send_msg(sockfd, channelmsg);   
+
+    }
+}
+*/
+
 
 char *introduce(int sockfd){
     char *nickname = malloc(11);
@@ -159,8 +199,10 @@ char *introduce(int sockfd){
 
         nickname[strcspn(nickname, "\n")] = '\0';   // Ersetzt Newline mit Stringende
 
+        char *format = "NICK %s\r\n";
+
         if(strlen(nickname) >= 1){
-            snprintf(nickmsg, sizeof(nickmsg), "NICK %s\r\n", nickname);    // Nickname korrekt formatieren
+            snprintf(nickmsg, sizeof(nickmsg), format, nickname);    // Nickname korrekt formatieren
             snprintf(usermsg, sizeof(usermsg), "USER guest 0 * : %s\r\n", nickname);    // USER Message korrekt formatieren
             break;
         }
@@ -220,7 +262,7 @@ char *channel(int sockfd){
 }
 
 /*
-TODO :  Nachrichten kommen in answer teilweise nicht als einzelne Zeilen sondern als ein großter Block im Buffer. 
+TODO:   Nachrichten kommen in answer teilweise nicht als einzelne Zeilen sondern als ein großter Block im Buffer. 
         Dementsprechend muss der Buffer am Zeilenende aufgeteilt werden um die einzelnen Zeilen zu erhalten und 
         entsprechend zu formatieren. Vermutlich mit Schleife die jeden String bis zu einem Newline entsprechend
         formatiert und printet. Schleife endet dann am EOF. Zudem noch irrelevante Nachrichten rausfiltern. 
