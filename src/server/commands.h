@@ -1,4 +1,5 @@
 #include "../protocol.h"
+#include "client.h"
 
 typedef struct User usr;
 typedef struct Message msg;
@@ -16,9 +17,9 @@ struct Channel{
   char name[];
   char topic[];
 
-  Membership *members;
+  struct Membership *members;
 
-  Channel *next;
+  struct Channel *next;
 };
 
 struct User {
@@ -27,12 +28,12 @@ struct User {
   char username[32];
 
   struct Membership *channels;
-  User *next; 
+  struct User *next; 
 };
 
 struct Membership {
   struct User *user;
-  Channel *channel;
+  struct Channel *channel;
 
   bool is_op;
   
@@ -40,23 +41,34 @@ struct Membership {
   Membership *next_channel;
 };
 
-/*
-* @brief Setzt das Connection Passwort
+/**
+* @brief Parsed die raw Msg des Clients
 * 
-*
+* @param client struct
+* @param Buffer mit der Nachricht des Clients
 */
-int pass(char *password);
+int raw_msg(struct client *client, char *buffer);
+
+/**
+* @brief Parsed die raw Msg des Clients
+* 
+* @param Buffer mit der Nachricht des Clients
+* @param struct zum Eintragen der Daten nach dem auswerten
+*/
+void parse_msg(char *raw, struct Message msg);
+
+/**
+* @brief Setzt das Connection Passwort 
+*/
+int pass(struct User *usr, char *password);
 
 /**
 * @brief Setzt einen Nichnamen und vergleicht mit vorhandenen Nicknamen
-* 
-*
 */
 int nick(int *mode, char *nickname);
 
 /**
 * @brief Setzt einen Nutzername bei verbindung.
-*
 */
 int user(char *username, char *hostname, char *servername, char *realname);
 
@@ -77,7 +89,7 @@ int oper(char *username, char *pass);
 int quit(char *quitmsg);
 
 
-/*
+/**
 *######################################
 * Channel Operations
 *######################################
@@ -92,7 +104,7 @@ int quit(char *quitmsg);
 */
 int join(char *user, char *channel, char * key);
 
-/*
+/**
 * @brief Bricht die Verbindung des Nutzers zu allen gegebenen Channels ab.
 *
 * @param user
@@ -100,142 +112,102 @@ int join(char *user, char *channel, char * key);
 */
 int part(char * user, char *channels);
 
-/*
+/**
 *######################################
 * Server Queries and Commands
 *######################################
 */
 
-/*
-*
-*
-*
+/**
 */
 int version();
 
-/*
-*
-*
-*
+/**
 */
 int stats();
 
-/*
-*
-*
+/**
 *
 */
 
 int time();
 
-/*
-*
-*
+/**
 *
 */
 int admin();
 
-/*
-*
-*
+/**
 *
 */
 int info();
 
-/*
-*
-*
+/**
 *
 */
 int privmsg();
 
-/*
-*
-*
+/**
 *
 */
 int notice();
 
-/*
-*
-*
+/**
 *
 */
 int who();
 
-/*
-*
-*
+/**
 *
 */
 int whois();
 
-/*
-*
-*
+/**
 *
 */
 int whowas();
 
-/*
-*
-*
+/**
 *
 */
 int kill();
 
-/*
-*
-*
+/**
 *
 */
 int ping();
 
-/*
-*
-*
+/**
 *
 */
 int pong();
 
-/*
-*
-*
+/**
 *
 */
 int error();
 
-/*
-*
-*
+/**
 *
 */
 int topic();
 
-/*
-*
-*
+/**
 *
 */
 int names();
 
-/*
-*
-*
+/**
 *
 */
 int list();
 
-/*
-*
-*
+/**
 *
 */
 int invite();
 
-/*
-*
-*
+/**
 *
 */
 int kick();
