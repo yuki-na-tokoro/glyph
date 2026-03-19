@@ -1,23 +1,45 @@
 #include "../protocol.h"
 
-typedef struct Message {
+typedef struct User usr;
+typedef struct Message msg;
+typedef struct Channel ch;
+typedef struct Membership member;
+
+struct Message {
   char *prefix;
   char *command;
   char **argv;
   int argc;
-}msg;
+};
 
-typedef struct Channel{
+struct Channel{
+  char name[];
+  char topic[];
+
+  Membership *members;
+
+  Channel *next;
+};
+
+struct User {
+  int id;
+  char nick[32];
+  char username[32];
+
+  struct Membership *channels;
+  User *next; 
+};
+
+struct Membership {
+  struct User *user;
+  Channel *channel;
+
+  bool is_op;
   
-}ch;
+  Membership *next_user;
+  Membership *next_channel;
+};
 
-typedef struct User {
-  
-}usr;
-
-typedef struct Membership {
- 
-}member;
 /*
 * @brief Setzt das Connection Passwort
 * 
