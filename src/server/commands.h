@@ -1,24 +1,23 @@
-typedef struct message {
+#include "../protocol.h"
+
+typedef struct Message {
   char *prefix;
   char *command;
   char **argv;
   int argc;
 }msg;
 
-typedef struct user{
-  char *username;
-  char *nichname;
-  char *hostname;
-  char *password;
-  bool connected;
-  bool isop; 
-}usr;
-
-typedef struct channel{
-  unsigned int id;
+typedef struct Channel{
   
 }ch;
 
+typedef struct User {
+  
+}usr;
+
+typedef struct Membership {
+ 
+}member;
 /*
 * @brief Setzt das Connection Passwort
 * 
