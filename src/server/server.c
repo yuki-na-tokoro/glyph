@@ -13,6 +13,7 @@
 #include "networking.h"
 #include "client.h"
 #include "../protocol.h"
+#include "../logging.h"
 
 int main(void) {
 
@@ -38,7 +39,7 @@ int main(void) {
 
   inet_ntop(AF_INET, &(sa->sin_addr), ip4, INET_ADDRSTRLEN);
 
-  printf("bound on: %s\n", ip4);
+  logmsg("bound on: %s", ip4);
 
   struct client* clients[MAX_CONN]; 
   int ccount = 0;
