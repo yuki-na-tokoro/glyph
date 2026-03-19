@@ -120,6 +120,11 @@ void poll_loop(int sockfd){
     free(nickname);
 }
 
+/*
+TODO :  Funktionen für Commands (introduce, channel) zusammenfassen um Code zu komprimieren. Dafür braucht es einmal eine Funktion
+        die einen Input annimmt und eine Funktion die den Input formatiert und dann versendet.
+*/
+
 char *introduce(int sockfd){
     char *nickname = malloc(11);
     char nickmsg[MSG_SIZE];
@@ -209,6 +214,9 @@ TODO :  Nachrichten kommen in answer teilweise nicht als einzelne Zeilen sondern
         Dementsprechend muss der Buffer am Zeilenende aufgeteilt werden um die einzelnen Zeilen zu erhalten und 
         entsprechend zu formatieren. Vermutlich mit Schleife die jeden String bis zu einem Newline entsprechend
         formatiert und printet. Schleife endet dann am EOF. Zudem noch irrelevante Nachrichten rausfiltern. 
+
+        Funktion ist in der "Chat-Phase" nicht mehr funktional weil Nachrichten dann den nickname nicht mehr
+        beinhalten wodurch einfach jede Nachricht gefiltert wird.
 
         -> Auch noch entsprechende print_msg bei der ausgehende Nachrichten formatiert ausgegeben werden
 */
