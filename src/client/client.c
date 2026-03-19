@@ -68,7 +68,11 @@ int connect_to_server(){
     return sockfd;
 }
 
-//TODO :  Terminal User Interface für den Client mithilfe von ncurses implementieren.
+/*
+TODO :  - Terminal User Interface für den Client mithilfe von ncurses implementieren
+        - Festlegen welche Befehle implementiert werden sollen und entsprechend implementieren
+*/
+
 
 void poll_loop(int sockfd){
     int step = 1;
@@ -102,6 +106,10 @@ void poll_loop(int sockfd){
                 printf("Fehler beim Einlesen.");
                 continue;
             }
+            if(strncmp(input, "/quit", 5) == 0){
+                send_msg(sockfd, "QUIT\r\n");
+                break;
+            }
             send_msg(sockfd, input);    
         }
 
@@ -121,8 +129,10 @@ void poll_loop(int sockfd){
 }
 
 /*
-TODO :  Funktionen für Commands (introduce, channel) zusammenfassen um Code zu komprimieren. Dafür braucht es einmal eine Funktion
-        die einen Input annimmt und eine Funktion die den Input formatiert und dann versendet.
+TODO :  Funktionen für Commands (introduce, channel) zusammenfassen um Code zu komprimieren :
+            1. Funktion die Input des Nutzers annimmt
+            2. Funktion die den Input und das Format des Befehls übergeben bekommt, den Input
+                formatiert und dann versendet
 */
 
 char *introduce(int sockfd){
