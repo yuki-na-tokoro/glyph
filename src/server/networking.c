@@ -11,6 +11,7 @@
 #include <stdbool.h>
 
 #include "networking.h"
+#include "../logging.h"
 
 int init_socket(struct addrinfo* res) {
 
@@ -67,24 +68,22 @@ void poll_listening(int sockfd, struct client* clients[MAX_CONN], int *ccount) {
   if (fd.revents == POLLIN) {
 
     struct client *c = accept_client(sockfd);
-    printf("trying client");
 
     while (c != NULL) {
+      logmsg("trying to accept incoming connection...");
 
       if (!push_client(clients, MAX_CONN, ccount, c)) {
-        fprintf(stderr, "rejecting incoming connection: MAX_CONN reached");
+        errormsg("rejected incoming connection: MAX_CONN reached!");
 
         close(c->fd);
         free(c);
 
       } else {
 
-        printf("accepted client");
-
+        logmsg("accepted incoming connection.");
       };
       
       c = accept_client(sockfd);
-      printf("trying client");
 
     }
   }
