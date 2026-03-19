@@ -37,12 +37,14 @@ void tracemsg(char* fmt, ...) {
   char* msg;
   va_list args;
   va_start(args, fmt);
-  if (asprintf(&msg, fmt, args) < 0) {
+  if (vasprintf(&msg, fmt, args) < 0) {
     perror("#tracemsg(): asprintf error");
-    exit(1);
+    va_end(args);
+    return;
   }
-  _logmsg(TRACE, msg);
+
   va_end(args);
+  _logmsg(TRACE, msg);
   free(msg);
 }
 
@@ -50,12 +52,14 @@ void debugmsg(char* fmt, ...) {
   char* msg;
   va_list args;
   va_start(args, fmt);
-  if (asprintf(&msg, fmt, args) < 0) {
+  if (vasprintf(&msg, fmt, args) < 0) {
     perror("#tracemsg(): asprintf error");
-    exit(1);
+    va_end(args);
+    return;
   }
-  _logmsg(DEBUG, msg);
+
   va_end(args);
+  _logmsg(DEBUG, msg);
   free(msg);
 }
 
@@ -78,12 +82,14 @@ void warnmsg(char* fmt, ...) {
   char* msg;
   va_list args;
   va_start(args, fmt);
-  if (asprintf(&msg, fmt, args) < 0) {
+  if (vasprintf(&msg, fmt, args) < 0) {
     perror("#tracemsg(): asprintf error");
-    exit(1);
+    va_end(args);
+    return;
   }
-  _logmsg(WARN, msg);
+
   va_end(args);
+  _logmsg(WARN, msg);
   free(msg);
 }
 
@@ -91,11 +97,13 @@ void errormsg(char* fmt, ...) {
   char* msg;
   va_list args;
   va_start(args, fmt);
-  if (asprintf(&msg, fmt, args) < 0) {
+  if (vasprintf(&msg, fmt, args) < 0) {
     perror("#tracemsg(): asprintf error");
-    exit(1);
+    va_end(args);
+    return;
   }
-  _logmsg(ERROR, msg);
+
   va_end(args);
+  _logmsg(ERROR, msg);
   free(msg);
 }
