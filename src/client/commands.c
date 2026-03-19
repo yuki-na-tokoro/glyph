@@ -26,97 +26,72 @@ struct command commands[CLIENT_COMMANDS] = {
     {"Motd",     "/motd",   "MOTD\r\n",               MSG_SIZE, 0},
 };
 
+/*
+TODO: Sicherheitschecks und Errohandling überprüfen und einbauen
+*/
+
 void send_command(int sockfd, char *input){
-char *comm = strtok(input, "");
-char *args = strtok(NULL, "");
+    char *comm = strtok(input, " ");    // Command aus dem Input nehmen
+    int i = what_command(comm);
+    if(i == -1){
+        printf("Unbekannter Command");
+        return;
+    }
 
-int i = what_command(comm);
-if(i == -1){
-    printf("Unbekannter Command");
-    return;
-}
+    char msg[commands[i].size]; 
 
-char msg[commands[i].size];
+    switch (commands[i].argc){
+        case 0: {   // Keine Argumente übergeben
+            strcpy(msg, commands[i].format);    // Nachricht in das Serverformat bringen
+            break;
+        }
+        case 1: {   // Ein Argument übergeben
+            char *arg1 = strtok(NULL, " ");
+            if(arg1 == NULL){
+                printf("Zu wenige Argumente übergeben");
+                return;
+            }
+            snprintf(msg, commands[i].size, commands[i].format, arg1);  // Nachricht in das Serverformat bringen
+            break;
+        }
+        case 2: {   // Zwei Argumente übergeben
+            char *arg1 = strtok(NULL, " ");
+            char *arg2 = strtok(NULL, " ");
+            if(arg1 == NULL || arg2 == NULL){
+                printf("Zu wenige Argumente übergeben");
+                return;
+            }
+            snprintf(msg, commands[i].size, commands[i].format, arg1, arg2);    // Nachricht in das Serverformat bringen
+            break;
+        }
+        case 3: {   // Drei Argumente übergeben
+            char *arg1 = strtok(NULL, " ");
+            char *arg2 = strtok(NULL, " ");
+            char *arg3 = strtok(NULL, " ");
+            if(arg1 == NULL || arg2 == NULL || arg3 == NULL){
+                printf("Zu wenige Argumente übergeben");
+                return;
+            }
+            snprintf(msg, commands[i].size, commands[i].format, arg1, arg2, arg3);  // Nachricht in das Serverformat bringen
+            break; 
+        }
+        default:{   // Idk wie bzw. wann dieser Fall eintreten sollte
+            printf("Error sending message arguments");
+            return;
+        }
+    }
 
-snprintf(msg, commands[i].size, commands[i].format, args);
-
-send_msg(sockfd, msg);
+    send_msg(sockfd, msg);
 
 }
 
 
 int what_command(char *input){
-for(int i = 0; i < CLIENT_COMMANDS; i++){
-    if(strcmp(commands[i].comm, input) == 0){
-        return i;
+    for(int i = 0; i < CLIENT_COMMANDS; i++){   // Iteriert über Commands um den gesuchten zu finden
+        if(strcmp(commands[i].comm, input) == 0){
+            return i;
+        }
     }
+
+    return -1;
 }
-
-return -1;
-}
-
-
-/*
-Verbindung
-
-┌─────────┬─────────────────────────────────┬────────────────────────┐
-│ Command │             Syntax              │      Beschreibung      │
-├─────────┼─────────────────────────────────┼────────────────────────┤
-│ NICK    │ NICK <nickname>\r\n             │ Nickname setzen/ändern │
-├─────────┼─────────────────────────────────┼────────────────────────┤
-│ USER    │ USER <user> 0 * :<realname>\r\n │ User registrieren      │
-├─────────┼─────────────────────────────────┼────────────────────────┤
-│ QUIT    │ QUIT [:<reason>]\r\n            │ Verbindung trennen     │
-├─────────┼─────────────────────────────────┼────────────────────────┤
-│ PASS    │ PASS <password>\r\n             │ Server-Passwort        │
-└─────────┴─────────────────────────────────┴────────────────────────┘
-
-Channel
-
-┌─────────┬────────────────────────────────────────┬───────────────────────────┐
-│ Command │                 Syntax                 │       Beschreibung        │
-├─────────┼────────────────────────────────────────┼───────────────────────────┤
-│ JOIN    │ JOIN <#channel>\r\n                    │ Channel betreten          │
-├─────────┼────────────────────────────────────────┼───────────────────────────┤
-│ PART    │ PART <#channel> [:<reason>]\r\n        │ Channel verlassen         │
-├─────────┼────────────────────────────────────────┼───────────────────────────┤
-│ TOPIC   │ TOPIC <#channel> [:<topic>]\r\n        │ Topic lesen/setzen        │
-├─────────┼────────────────────────────────────────┼───────────────────────────┤
-│ NAMES   │ NAMES <#channel>\r\n                   │ User im Channel auflisten │
-├─────────┼────────────────────────────────────────┼───────────────────────────┤
-│ LIST    │ LIST [<#channel>]\r\n                  │ Channels auflisten        │
-├─────────┼────────────────────────────────────────┼───────────────────────────┤
-│ KICK    │ KICK <#channel> <user> [:<reason>]\r\n │ User kicken               │
-├─────────┼────────────────────────────────────────┼───────────────────────────┤
-│ INVITE  │ INVITE <user> <#channel>\r\n           │ User einladen             │
-├─────────┼────────────────────────────────────────┼───────────────────────────┤
-│ MODE    │ MODE <#channel> <flags>\r\n            │ Channel-Modus setzen      │
-└─────────┴────────────────────────────────────────┴───────────────────────────┘
-
-Nachrichten
-
-┌─────────┬─────────────────────────────────┬────────────────────────────────┐
-│ Command │             Syntax              │          Beschreibung          │
-├─────────┼─────────────────────────────────┼────────────────────────────────┤
-│ PRIVMSG │ PRIVMSG <target> :<message>\r\n │ Nachricht an Channel oder User │
-├─────────┼─────────────────────────────────┼────────────────────────────────┤
-│ NOTICE  │ NOTICE <target> :<message>\r\n  │ Wie PRIVMSG, kein Auto-Reply   │
-└─────────┴─────────────────────────────────┴────────────────────────────────┘
-
-Informationen
-
-┌─────────┬────────────────────┬───────────────────────┐
-│ Command │       Syntax       │     Beschreibung      │
-├─────────┼────────────────────┼───────────────────────┤
-│ WHOIS   │ WHOIS <user>\r\n   │ Info über einen User  │
-├─────────┼────────────────────┼───────────────────────┤
-│ WHO     │ WHO <#channel>\r\n │ User in einem Channel │
-├─────────┼────────────────────┼───────────────────────┤
-│ MOTD    │ MOTD\r\n           │ Message of the Day    │
-├─────────┼────────────────────┼───────────────────────┤
-│ PING    │ PING <token>\r\n   │ Verbindung prüfen     │
-├─────────┼────────────────────┼───────────────────────┤
-│ PONG    │ PONG <token>\r\n   │ Antwort auf PING      │
-└─────────┴────────────────────┴───────────────────────┘
-
-*/
