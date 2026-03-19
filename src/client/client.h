@@ -3,6 +3,7 @@
 
 #define HOST "irc.libera.chat"
 
+
 /**
  * @brief   Formatiert die Nachrichten vom Server 
  *
