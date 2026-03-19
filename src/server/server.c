@@ -48,6 +48,8 @@ int main(void) {
 
     poll_listening(sockfd, clients, &ccount);
 
+    poll_clients(clients, &ccount);
+
   }
   
   close(sockfd);

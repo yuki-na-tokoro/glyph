@@ -4,6 +4,7 @@
 struct client {
   int fd;
   struct sockaddr *addr;
+  char* buffer;
 };
 
 int msg_client(struct client*, char*);
