@@ -11,11 +11,7 @@
 #include "client.h"
 #include "../protocol.h"
 #include "commands.h"
-
-WINDOW *chatfeld;
-Window *eingabefeld;
-int rows, cols;
-int akt_line = 0;
+#include "screen.h"
 
 int main(void){
 
@@ -82,6 +78,8 @@ TODO:   - Terminal User Interface für den Client mithilfe von ncurses implement
 */
 
 void poll_loop(int sockfd){
+    setupscreen();
+
     // Beej Abschnitt 7.2
     struct pollfd pfds[2];
     pfds[0].fd = 0; // Ausgehende Nachrichten
@@ -120,7 +118,7 @@ void poll_loop(int sockfd){
                 send_msg(sockfd, "PONG");
             }
 
-            // printf("%s", answer);
+            chat_print(answer);
 
             print_answer(answer, nickname);
         }
@@ -252,41 +250,6 @@ void print_answer(char *answer, char *nickname){
     }
     free(dupl);
 
-}
-void setupscreen(){
-    initscr();
-    cbreak();
-    noecho();
-    keypad(stdscr, TRUE);
-
-    getmaxyx(stdscr, rows, cols);
-
-    chatfeld = newpad(1000, cols);
-    scrollok(chatfeld, TRUE);
-
-    eingabefeld = newwin(1, cols, rows - 1, 0);
-    keypad(eingabefeld, TRUE);
-
-}
-void chat_print(const char *text){
-    wprintw(chatfeld,"%s\n");
-    if (akt_line < 999){
-        akt_line += 1;
-
-    }
-    int cam_wo = (akt_line > (rows - 2)) ? akt_line - (rows - 2) : 0;
-    prefresh(chatfeld, cam_wo, 0,0,0,rows-2, cols-1);
-}
-
-void get_eingabe(char *buf){
-    wmove(eingabefeld, 0, 0);
-    wclrteol(eingabefeld);
-    mvwprint(eingebefeld, 0, 0, ">> ");
-    wrefresh(eingabefeld);
-    echo();
-    wgetnstr(eingabefeld, buf, 255);
-    noecho();
-    wclrteol(eingabefeld);
 }
 
 
