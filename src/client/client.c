@@ -75,8 +75,6 @@ TODO:   - Terminal User Interface für den Client mithilfe von ncurses implement
 */
 
 void poll_loop(int sockfd){
-    int step = 1;
-
     // Beej Abschnitt 7.2
     struct pollfd pfds[2];
     pfds[0].fd = 0; // Ausgehende Nachrichten
@@ -84,33 +82,29 @@ void poll_loop(int sockfd){
 
     pfds[1].fd = sockfd;    // Eingehende Nachrichten
     pfds[1].events = POLLIN;
+    
+    int step = 1;
 
     char *nickname;
-    char *channelname;
+    // char *channelname;
 
     while (true){
         poll(pfds, 2, -1);
-        char input[MSG_SIZE];
         char answer[MSG_SIZE];
 
-        if(step == 1){
+
+        if(step == 1){ //Nachricht vom Nutzer einlesen
             nickname = introduce(sockfd);
             step++;
         }
-        if(step == 2){
-            channelname = channel(sockfd);
-            step++;
-        }
+
         if(pfds[0].revents & POLLIN){
-            if(fgets(input, sizeof(input), stdin) == NULL){ //Nachricht vom Nutzer einlesen
+            char *input = get_input();
+            if(input == NULL){ //Nachricht vom Nutzer einlesen
                 printf("Fehler beim Einlesen.");
                 continue;
             }
-            if(strncmp(input, "/quit", 5) == 0 || strncmp(input, "/q", 2) == 0){
-                send_msg(sockfd, "QUIT\r\n");
-                break;
-            }
-            send_msg(sockfd, input);    
+            send_command(sockfd, input);
         }
 
         if(pfds[1].revents & POLLIN){
@@ -118,61 +112,16 @@ void poll_loop(int sockfd){
             if(strncmp(answer, "PING", 4) == 0){
                 send_msg(sockfd, "PONG");
             }
-            //printf("%s", answer);
+
+            // printf("%s", answer);
 
             print_answer(answer, nickname);
         }
     }
 
-    free(channelname);
+    // free(channelname);
     free(nickname);
 }
-
-/*
-TODO:  Funktion für Commands (introduce, channel) zusammenfassen um Code zu komprimieren :
-            1. Funktion nimmt den Input des Nutzers und liest diesen in einen Buffer ein
-            2. Funktion erkennt den Command und trennt diesen vom Input
-            3. Dann wird der Command in das korrekt format gebraucht und dann versendet
-*/
-
-/*
-char *send_command(void){
-    char *input = malloc(size);
-    while(true){
-        
-        if(fgets(input, size, stdin) == NULL){
-        printf("Fehler beim Lesen.\n");
-        continue;
-        }
-
-
-        if(strchr(input, '\n') == NULL){ // Falls der Nick von fgets() abgeschnitten wurde
-            int c;
-            printf("Nickname zu lang.\n");
-            
-            while((c = getchar()) != '\n' && c != EOF); // Buffer für erneute Eingabe leeren
-
-            continue;
-        }
-
-        input[strcspn(input, "\n")] = '\0';   // Ersetzt Newline mit Stringende
-
-        if(strlen(input) >= 1){
-            snprintf(channelmsg, sizeof(channelmsg), "JOIN %s\r\n", input);    // Channelname korrekt formatieren
-            break;
-        }
-        else{
-            printf("Kein Channelname eingegeben.\n");
-            continue;
-        }
-    }
-
-    // JOIN
-    send_msg(sockfd, channelmsg);   
-
-    }
-}
-*/
 
 
 char *introduce(int sockfd){
@@ -221,6 +170,8 @@ char *introduce(int sockfd){
     return nickname;
 }
 
+
+/*
 char *channel(int sockfd){
     char *channelname= malloc(202);
     char channelmsg[MSG_SIZE];
@@ -260,6 +211,7 @@ char *channel(int sockfd){
 
     return channelname;
 }
+*/
 
 /*
 TODO:   Nachrichten kommen in answer teilweise nicht als einzelne Zeilen sondern als ein großter Block im Buffer. 
@@ -294,4 +246,5 @@ void print_answer(char *answer, char *nickname){
     free(dupl);
 
 }
+
 
