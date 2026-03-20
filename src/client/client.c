@@ -113,6 +113,10 @@ void poll_loop(int sockfd){
                 chat_print("Fehler beim Einlesen.");
                 continue;
             }
+            if(strncmp(input, "/quit", 5) == 0 || strncmp(input, "/q", 2) == 0){
+                send_msg(sockfd, "QUIT\r\n");
+                break;
+            }
             send_command(sockfd, input);
         }
 
@@ -122,9 +126,9 @@ void poll_loop(int sockfd){
                 send_msg(sockfd, "PONG");
             }
 
-            chat_print(answer);
+            //chat_print(answer);
 
-            //print_answer(answer, nickname);
+            print_answer(answer, nickname);
         }
     }
 
@@ -181,48 +185,6 @@ char *introduce(int sockfd){
 
 
 /*
-char *channel(int sockfd){
-    char *channelname= malloc(202);
-    char channelmsg[MSG_SIZE];
-
-    while(true){
-        printf("Channelname: ");
-        
-        if(fgets(channelname, 202, stdin) == NULL){
-        printf("Fehler beim Lesen.\n");
-        continue;
-        }
-
-
-        if(strchr(channelname, '\n') == NULL){ // Falls der Channelname von fgets() abgeschnitten wurde
-            int c;
-            printf("Channelname zu lang.\n");
-            
-            while((c = getchar()) != '\n' && c != EOF); // Buffer für erneute Eingabe leeren
-
-            continue;
-        }
-
-        channelname[strcspn(channelname, "\n")] = '\0';   // Ersetzt Newline mit Stringende
-
-        if(strlen(channelname) >= 1){
-            snprintf(channelmsg, sizeof(channelmsg), "JOIN %s\r\n", channelname);    // Channelname korrekt formatieren
-            break;
-        }
-        else{
-            printf("Kein Channelname eingegeben.\n");
-            continue;
-        }
-    }
-
-    // JOIN
-    send_msg(sockfd, channelmsg);
-
-    return channelname;
-}
-*/
-
-/*
 TODO:   Nachrichten kommen in answer teilweise nicht als einzelne Zeilen sondern als ein großter Block im Buffer. 
         Dementsprechend muss der Buffer am Zeilenende aufgeteilt werden um die einzelnen Zeilen zu erhalten und 
         entsprechend zu formatieren. Vermutlich mit Schleife die jeden String bis zu einem Newline entsprechend
@@ -244,10 +206,10 @@ void print_answer(char *answer, char *nickname){
         char *poscol = (posnick != NULL) ? strchr(posnick, ':') : NULL;
 
         if(posnick == NULL || poscol == NULL){
-            printf("%s\n",line);
+            chat_print(line);
 
         }else{
-            printf("%s\n", poscol + 1);
+            chat_print(poscol + 1);
         }
 
         line = strtok(NULL, "\n");
