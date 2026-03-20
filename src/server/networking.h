@@ -1,6 +1,8 @@
 #ifndef NETWORKING_H
 #define NETWORKING_H
 
+#include <sys/poll.h>
+
 #include "client.h"
 
 #define BACKLOG 10

@@ -192,7 +192,7 @@ void handle_socket_poll(struct pollfd spollfd, struct client *clients[MAX_CONN],
     while (c != NULL) {
       logmsg("trying to accept incoming connection...");
 
-      if (!push_client(clients, MAX_CONN, ccount, c)) {
+      if (!push_client(clients, ccount, c)) {
         errormsg("rejected incoming connection: MAX_CONN reached!");
 
         close(c->fd);
