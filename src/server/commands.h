@@ -14,7 +14,7 @@ int raw_msg(struct client *client, char *buffer);
 * @param Buffer mit der Nachricht des Clients
 * @param struct zum Eintragen der Daten nach dem auswerten
 */
-void parse_msg(char *raw, struct message msg);
+void parse_msg(char *raw, struct command msg);
 
 /**
 * @brief Setzt das Connection Passwort 
@@ -24,12 +24,12 @@ int pass(struct User *usr, char *password);
 /**
 * @brief Setzt einen Nichnamen und vergleicht mit vorhandenen Nicknamen
 */
-int nick(int *mode, char *nickname);
+int nick(struct client *c, struct command *a);
 
 /**
 * @brief Setzt einen Nutzername bei verbindung.
 */
-int user(char *username, char *hostname, char *servername, char *realname);
+int user(struct client *c, struct command *a);
 
 /**
 * @brief setzt einen USER mit richtigem PASS auf OPERATOR
@@ -38,14 +38,14 @@ int user(char *username, char *hostname, char *servername, char *realname);
 * @param username -> Nutzername
 * @param pass -> Passwort des nutzers
 */
-int oper(char *username, char *pass);
+int oper(struct client *c, struct command *a);
 
 /**
 * @brief Gesendet von einem Client der die Verbindung zum Server abbrechen will
 *
 * @param quitmsg -> Nachricht beim verlassen.
 */
-int quit(char *quitmsg);
+int quit(struct client *c, struct command *a);
 
 
 /**
@@ -61,15 +61,14 @@ int quit(char *quitmsg);
 * @param channel -> Channel name/Id
 * @param key -> Passwort des Channels
 */
-int join(char *user, char *channel, char * key);
-
+int join(struct client *c, struct command *a);
 /**
 * @brief Bricht die Verbindung des Nutzers zu allen gegebenen Channels ab.
 *
 * @param user
 * @param channels
 */
-int part(char * user, char *channels);
+int part(struct client *c, struct command *a);
 
 /**
 *######################################
@@ -79,94 +78,94 @@ int part(char * user, char *channels);
 
 /**
 */
-int version();
+int version(struct client *c, struct command *a);
 
 /**
 */
-int stats();
-
-/**
-*
-*/
-
-int time();
+int stats(struct client *c, struct command *a);
 
 /**
 *
 */
-int admin();
+
+int time(struct client *c, struct command *a);
 
 /**
 *
 */
-int info();
+int admin(struct client *c, struct command *a);
 
 /**
 *
 */
-int privmsg();
+int info(struct client *c, struct command *a);
 
 /**
 *
 */
-int notice();
+int privmsg(struct client *c, struct command *a);
 
 /**
 *
 */
-int who();
+int notice(struct client *c, struct command *a);
 
 /**
 *
 */
-int whois();
+int who(struct client *c, struct command *a);
 
 /**
 *
 */
-int whowas();
+int whois(struct client *c, struct command *a);
+/**
+*
+*/
+int whowas(struct client *c, struct command *a);
 
 /**
 *
 */
-int kill();
+int kill(struct client *c, struct command *a);
 
 /**
 *
 */
-int ping();
+int ping(struct client *c, struct command *a);
 
 /**
 *
 */
-int pong();
+int pong(struct client *c, struct command *a);
 
 /**
 *
 */
-int error();
+int error(struct client *c, struct command *a);
 
 /**
 *
 */
-int topic();
+int topic(struct client *c, struct command *a);
 
 /**
 *
 */
-int names();
+int names(struct client *c, struct command *a);
 
 /**
 *
 */
-int list();
+int list(struct client *c, struct command *a);
 
 /**
 *
 */
-int invite();
+int invite(struct client *c, struct command *a);
 
 /**
 *
 */
-int kick();
+int kick(struct client *c, struct command *a);
+
