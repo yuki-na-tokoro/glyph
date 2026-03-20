@@ -14,13 +14,20 @@
   };
 
 /**
+ * @brief   Fordert den Nutzer zur Eingabe auf, überprüft diese und übergibt
+ *
+ * @return input     Eingabe des Nutzers
+ */  
+char *get_input(void);
+
+/**
  * @brief   Bekommt den Input vom Nutzer und in Form eines Commands und
  *          sendet diesen in formatierter Form an den Server
  *
  * @param sockfd    File Descriptor vom Socket
  * @param input     Eingabe des Nutzers
  */
-void send_command(int sockfd, char *input);
+char *send_command(int sockfd, char *input);
 
 /**
  * @brief   Stellt Verbindung mit dem Server her

@@ -71,7 +71,7 @@ int connect_to_server(){
 
 /*
 TODO:   - Terminal User Interface für den Client mithilfe von ncurses implementieren
-        - Festlegen welche Befehle implementiert werden sollen und entsprechend implementieren
+        - Introduce, Channel etc. in commands.c integrieren
 */
 
 void poll_loop(int sockfd){
