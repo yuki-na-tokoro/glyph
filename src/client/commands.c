@@ -8,7 +8,7 @@
 #include "commands.h"
 
 struct command commands[CLIENT_COMMANDS] = {
-    {"Nickname", "/nick",   "NICK %s\r\n",           11,       1},
+    {"Nickname", "/nick",   "NICK %s\r\n",           17,       1},
     {"User",     "/user",   "USER %s 0 * :%s\r\n",   MSG_SIZE, 2},
     {"Quit",     "/quit",   "QUIT\r\n",               MSG_SIZE, 0},
     {"Passwort", "/pass",   "PASS %s\r\n",            MSG_SIZE, 1},
@@ -37,16 +37,16 @@ char *get_input(void){
         }
 
 
-        if(strchr(input, '\n') == NULL){ // Falls der Nick von fgets() abgeschnitten wurde
+        if(strchr(input, '\n') == NULL){
             int c;
             printf("Eingabe zu lang.\n");
             
-            while((c = getchar()) != '\n' && c != EOF); // Buffer für erneute Eingabe leeren
+            while((c = getchar()) != '\n' && c != EOF);
 
             continue;
         }
 
-        input[strcspn(input, "\n")] = '\0';   // Ersetzt Newline mit Stringende
+        input[strcspn(input, "\n")] = '\0';
 
         if(strlen(input) >= 1){
             break;
@@ -61,8 +61,9 @@ char *get_input(void){
 }
 
 /*
-TODO:   Sicherheitschecks und Errohandling überprüfen und einbauen
-        Exceptions für einzelne Funktionen etc. ebenfalls
+TODO:   - Sicherheitschecks und Errohandling überprüfen und einbauen
+        - Exceptions für einzelne Funktionen etc. ebenfalls
+        - Für Nick einbauen das dieser nicht zu lang sein darf
 
 */
 
@@ -90,6 +91,9 @@ char *send_command(int sockfd, char *input){
                 return NULL;
             }
             snprintf(msg, commands[i].size, commands[i].format, arg1);  // Nachricht in das Serverformat bringen
+            if(strcmp(commands[i].name, "Nickname") == 0 && strlen(arg1) >= 11){
+                printf("Nickname zu lang");
+            }
             send_msg(sockfd, msg);
             return arg1;
             break;
