@@ -63,73 +63,124 @@ char *get_input(void){
 /*
 TODO:   - Sicherheitschecks und Errohandling überprüfen und einbauen
         - Exceptions für einzelne Funktionen etc. ebenfalls
-        - Für Nick einbauen das dieser nicht zu lang sein darf
+        - In Struct includen ob Channelname oder Nickname mit übergeben werden soll
+          und entsprechend implementieren
+        - Extrafunktionen für USER NICK und JOIN ? besser integriert als introduce
+          und channel
 
 */
 
-char *send_command(int sockfd, char *input){
-    char *comm = strtok(input, " ");    // Command aus dem Input nehmen
-    if(comm == NULL) return NULL;
-
-    int i = what_command(comm);
-    if(i == -1){
-        printf("Unbekannter Command");
-        return NULL;
-    }
-
-    char msg[commands[i].size]; 
-
-    switch (commands[i].argc){
-        case 0: {   // Keine Argumente übergeben
-            strcpy(msg, commands[i].format);    // Nachricht in das Serverformat bringen
-            send_msg(sockfd, msg);
-            return NULL;
-            break;
-        }
-        case 1: {   // Ein Argument übergeben
-            char *arg1 = strtok(NULL, " ");
-            if(arg1 == NULL){
-                printf("Zu wenige Argumente übergeben");
-                return NULL;
-            }
-            snprintf(msg, commands[i].size, commands[i].format, arg1);  // Nachricht in das Serverformat bringen
-            if(strcmp(commands[i].name, "Nickname") == 0 && strlen(arg1) >= 11){
-                printf("Nickname zu lang");
-            }
-            send_msg(sockfd, msg);
-            return arg1;
-            break;
-        }
-        case 2: {   // Zwei Argumente übergeben
-            char *arg1 = strtok(NULL, " ");
-            char *arg2 = strtok(NULL, " ");
-            if(arg1 == NULL || arg2 == NULL){
-                printf("Zu wenige Argumente übergeben");
-                return NULL;
-            }
-            snprintf(msg, commands[i].size, commands[i].format, arg1, arg2);    // Nachricht in das Serverformat bringen
-            send_msg(sockfd, msg);
-            return arg1;
-            break;
-        }
-        case 3: {   // Drei Argumente übergeben
-            char *arg1 = strtok(NULL, " ");
-            char *arg2 = strtok(NULL, " ");
-            char *arg3 = strtok(NULL, " ");
-            if(arg1 == NULL || arg2 == NULL || arg3 == NULL){
-                printf("Zu wenige Argumente übergeben");
-                return NULL;
-            }
-            snprintf(msg, commands[i].size, commands[i].format, arg1, arg2, arg3);  // Nachricht in das Serverformat bringen
-            send_msg(sockfd, msg);
-            return arg1;
-            break; 
-        }
-        default:{   // Idk wie bzw. wann dieser Fall eintreten sollte
-            printf("Error sending message arguments");
+char *send_command(int sockfd, char *input, char *nickname, char *channelname){
+    int count = 0;
+    
+    if(strncmp(input, "/", 1) != 0){    // Für normale MSG damit man da Command und Channel nicht vorschreiben muss
+        if(channelname == NULL){
+            printf("Keinem Channel beigetreten");   // Dies wird fehlschlagen wenn man von einem Channel parted weil es nicht aktualisiert wird
+            free(input);
             return NULL;
         }
+        char msg[MSG_SIZE];
+        char *comm = "/msg";
+        int i = what_command(comm);
+        count = snprintf(msg, commands[i].size, commands[i].format, channelname, input);  // Nachricht in das Serverformat bringen
+        if(count >= commands[i].size){
+            printf("Eingabe zu lang");
+            free(input);
+            return NULL;
+        }
+        send_msg(sockfd, msg);
+        free(input);
+        return NULL;    // Hier noch einfügen das die Message geprinted wird
     }
+    else{
+        char *comm = strtok(input, " ");    // Command aus dem Input nehmen
+        if(comm == NULL){
+            printf("Eingabe kein Command");
+            free(input);
+            return NULL;
+        }
+
+        int i = what_command(comm);
+        if(i == -1){
+            printf("Unbekannter Command");
+            free(input);
+            return NULL;
+        }
+
+        char msg[commands[i].size];
+
+        switch (commands[i].argc){
+            case 0: {   // Keine Argumente übergeben
+                strcpy(msg, commands[i].format);    // Nachricht in das Serverformat bringen
+                send_msg(sockfd, msg);
+                free(input);
+                return NULL;
+                break;
+            }
+            case 1: {   // Ein Argument übergeben
+                char *arg1 = strtok(NULL, " ");
+                if(arg1 == NULL){
+                    printf("Zu wenige Argumente übergeben");
+                    free(input);
+                    return NULL;
+                }
+                count = snprintf(msg, commands[i].size, commands[i].format, arg1);  // Nachricht in das Serverformat bringen
+                if(count >= commands[i].size){
+                    printf("Eingabe zu lang");
+                    free(input);
+                    return NULL;
+                }
+                send_msg(sockfd, msg);
+                free(input);
+                return NULL;
+                break;
+            }
+            case 2: {   // Zwei Argumente übergeben
+                char *arg1 = strtok(NULL, " ");
+                char *arg2 = strtok(NULL, " ");
+                if(arg1 == NULL || arg2 == NULL){
+                    printf("Zu wenige Argumente übergeben");
+                    free(input);
+                    return NULL;
+                }
+                count = snprintf(msg, commands[i].size, commands[i].format, arg1, arg2);    // Nachricht in das Serverformat bringen
+                if(count >= commands[i].size){
+                    printf("Eingabe zu lang");
+                    free(input);
+                    return NULL;
+                }
+                send_msg(sockfd, msg);
+                free(input);
+                return NULL;
+                break;
+            }
+            case 3: {   // Drei Argumente übergeben
+                char *arg1 = strtok(NULL, " ");
+                char *arg2 = strtok(NULL, " ");
+                char *arg3 = strtok(NULL, " ");
+                if(arg1 == NULL || arg2 == NULL || arg3 == NULL){
+                    printf("Zu wenige Argumente übergeben");
+                    free(input);
+                    return NULL;
+                }
+                count = snprintf(msg, commands[i].size, commands[i].format, arg1, arg2, arg3);  // Nachricht in das Serverformat bringen
+                if(count >= commands[i].size){
+                    printf("Eingabe zu lang");
+                    free(input);
+                    return NULL;
+                }
+                send_msg(sockfd, msg);
+                free(input);
+                return NULL;
+                break; 
+            }
+            default:{   // Idk wie bzw. wann dieser Fall eintreten sollte
+                printf("Error sending message arguments");
+                free(input);
+                return NULL;
+            }
+        }
+    }   
 }
 
 

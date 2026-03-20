@@ -20,7 +20,7 @@ int main(void){
 
     poll_loop(sockfd);  // Interaktion mit dem Server
 
-    endwin();
+    // endwin();
     
     close(sockfd);
 }
@@ -74,9 +74,15 @@ int connect_to_server(){
     return sockfd;
 }
 
+
+
 /*
 TODO:   - Terminal User Interface für den Client mithilfe von ncurses implementieren
         - Introduce, Channel etc. in commands.c integrieren
+        - channelnamen und nickname an send_command übergeben für Commands die dies brauchen
+        - Feature das wenn man eine Nachricht eingibt und einen Log von vergangenen Eingaben behält,
+          damit man bspw. Pfeil hoch drücken kann um die letzt Eingabe zu wiederholen
+        - channelnamen bei Änderung aktualisieren, z.B. bei /part
 */
 
 void poll_loop(int sockfd){
@@ -92,32 +98,38 @@ void poll_loop(int sockfd){
     int step = 1;
 
     char *nickname;
-    // char *channelname;
+    char *channelname = NULL;
 
     while (true){
         poll(pfds, 2, -1);
         char answer[MSG_SIZE];
-        char input[MSG_SIZE];
+        // char input[MSG_SIZE];
 
 
         if(step == 1){ //Nachricht vom Nutzer einlesen
             nickname = introduce(sockfd);
-            setupscreen();
+            // setupscreen();
             step++;
         }
-            
+        if(step == 2){ //Nachricht vom Nutzer einlesen
+            channelname = channel(sockfd);
+            step++;
+        }
 
         if(pfds[0].revents & POLLIN){
-            get_eingabe(input);
+            // get_eingabe(input);
+            char *input = get_input();
             if(input == NULL){ //Nachricht vom Nutzer einlesen
-                chat_print("Fehler beim Einlesen.");
+                // chat_print("Fehler beim Einlesen.");
+                printf("Fehler beim Einlesen.");
                 continue;
             }
-            if(strncmp(input, "/quit", 5) == 0 || strncmp(input, "/q", 2) == 0){
+            if(strncmp(input, "/quit", 5) == 0 || strncmp(input, "/q", 2) == 0){    // Programm mit /quit oder /q schließen
                 send_msg(sockfd, "QUIT\r\n");
+                free(input);
                 break;
             }
-            send_command(sockfd, input);
+            send_command(sockfd, input, nickname, channelname);
         }
 
         if(pfds[1].revents & POLLIN){
@@ -132,7 +144,7 @@ void poll_loop(int sockfd){
         }
     }
 
-    // free(channelname);
+    free(channelname);
     free(nickname);
 }
 
@@ -183,6 +195,46 @@ char *introduce(int sockfd){
     return nickname;
 }
 
+char *channel(int sockfd){
+    char *channelname= malloc(202);
+    char channelmsg[MSG_SIZE];
+
+    while(true){
+        printf("Channelname: ");
+        
+        if(fgets(channelname, 202, stdin) == NULL){
+        printf("Fehler beim Lesen.\n");
+        continue;
+        }
+
+
+        if(strchr(channelname, '\n') == NULL){ // Falls der Channelname von fgets() abgeschnitten wurde
+            int c;
+            printf("Channelname zu lang.\n");
+            
+            while((c = getchar()) != '\n' && c != EOF); // Buffer für erneute Eingabe leeren
+
+            continue;
+        }
+
+        channelname[strcspn(channelname, "\n")] = '\0';   // Ersetzt Newline mit Stringende
+
+        if(strlen(channelname) >= 1){
+            snprintf(channelmsg, sizeof(channelmsg), "JOIN %s\r\n", channelname);    // Channelname korrekt formatieren
+            break;
+        }
+        else{
+            printf("Kein Channelname eingegeben.\n");
+            continue;
+        }
+    }
+
+    // JOIN
+    send_msg(sockfd, channelmsg);
+
+    return channelname;
+}
+
 
 /*
 TODO:   Nachrichten kommen in answer teilweise nicht als einzelne Zeilen sondern als ein großter Block im Buffer. 
@@ -206,10 +258,12 @@ void print_answer(char *answer, char *nickname){
         char *poscol = (posnick != NULL) ? strchr(posnick, ':') : NULL; //sucht poition vom Doppelpunkt nach Nickname
 
         if(posnick == NULL || poscol == NULL){
-            chat_print(line);    // wenn kein nickname oder kein doppelpunkt gefunden: unveränderte zeile wird geprintet
+            // chat_print(line);    // wenn kein nickname oder kein doppelpunkt gefunden: unveränderte zeile wird geprintet
+            printf("%s\n", line);
 
         }else{
-            chat_print((poscol + 1)); // zeilen inhalt nach doppelpunkt geprintet
+            // chat_print((poscol + 1));
+            printf("%s\n", (poscol + 1)); // zeilen inhalt nach doppelpunkt geprintet
         }
 
         line = strtok(NULL, "\n");  //strtok macht in nächster zeile weiter
