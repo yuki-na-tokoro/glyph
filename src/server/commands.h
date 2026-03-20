@@ -14,7 +14,7 @@ int raw_msg(struct client *client, char *buffer);
 * @param Buffer mit der Nachricht des Clients
 * @param struct zum Eintragen der Daten nach dem auswerten
 */
-void parse_msg(char *raw, struct command msg);
+void parse_msg(char *raw, struct command *msg);
 
 /**
 * @brief Setzt das Connection Passwort 
