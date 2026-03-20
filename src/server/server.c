@@ -39,10 +39,11 @@ int main(void) {
 
   inet_ntop(AF_INET, &(sa->sin_addr), ip4, INET_ADDRSTRLEN);
 
-  logmsg("bound on: %s", ip4);
+  tracemsg("bound socket %d on %s", sockfd, ip4);
 
   struct client* clients[MAX_CONN]; 
   int ccount = 0;
+  bool *mask;
 
   for (;;) {
 
@@ -53,26 +54,38 @@ int main(void) {
 
     for (int i = 1; i < ccount + 1; i++) {
       struct pollfd fd = {clients[i-1]->fd, POLLIN, 0};
-      debugmsg("client to poll: %d", fd.fd);
       fds[i] = fd;
     }
 
-    debugmsg("polling...");
+    tracemsg("polling %d sockets (%d clients)", ccount + 1, ccount);
+
     poll(fds, ccount + 1, TIMEOUT);
 
-    bool *mask = handle_client_poll(fds, clients, &ccount);
+    mask = calloc(ccount + 1, sizeof(bool));
+
+    if (!handle_client_poll(fds, clients, &ccount, mask)) {
+      break;
+    }
 
     close_clients(mask, clients, &ccount);
 
+    if (!handle_socket_poll(fds[0], clients, &ccount)) {
+      break;
+    }
+
     free(mask);
-
-    handle_socket_poll(fds[0], clients, &ccount);
-
   }
+
+  mask = calloc(ccount + 1, sizeof(bool));
+  memset(mask, 1, (ccount + 1) * sizeof(bool));
+
+  close_clients(mask, clients, &ccount);
+
+  free(mask);
   
   close(sockfd);
   freeaddrinfo(res);
-  
+
 }
 
 

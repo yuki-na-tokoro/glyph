@@ -28,7 +28,7 @@ void close_clients(bool *mask, struct client* clients[], int* ccount) {
     int shift = 0;
     for (int i = 0; i < *ccount; i++) {
       if (mask[i+1]) {
-        logmsg("closing client %d...", clients[i]->fd);
+        tracemsg("closing socket %d", clients[i]->fd);
         close(clients[i]->fd);
         free(clients[i]);
         shift++;
