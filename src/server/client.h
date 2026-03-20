@@ -1,12 +1,6 @@
 #ifndef CLIENT_H
 #define CLIENT_H
-
-
-struct client {
-  int fd;                 // client socket
-  struct sockaddr *addr;  // client address
-  char* buffer;           // client message buffer
-};
+#include "data.h"
 
 /**
  * @brief sendet nachricht an client

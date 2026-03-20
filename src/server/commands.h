@@ -1,43 +1,4 @@
-#include "../protocol.h"
-#include "client.h"
-
-typedef struct User usr;
-typedef struct Message msg;
-typedef struct Channel ch;
-typedef struct Membership member;
-
-struct Message {
-  char *prefix;
-  char *command;
-  char **argv;
-  int argc;
-};
-
-struct Channel{
-  char *name;
-  char *topic;
-  struct Membership *members;
-  struct Channel *next;
-};
-
-struct User {
-  int id;
-  char nick[32];
-  char username[32];
-
-  struct Membership *channels;
-  struct User *next; 
-};
-
-struct Membership {
-  struct User *user;
-  struct Channel *channel;
-
-  bool is_op;
-  
-  struct Membership *next_user;
-  struct Membership *next_channel;
-};
+#include "data.h"
 
 /**
 * @brief Parsed die raw Msg des Clients
@@ -53,7 +14,7 @@ int raw_msg(struct client *client, char *buffer);
 * @param Buffer mit der Nachricht des Clients
 * @param struct zum Eintragen der Daten nach dem auswerten
 */
-void parse_msg(char *raw, struct Message msg);
+void parse_msg(char *raw, struct message msg);
 
 /**
 * @brief Setzt das Connection Passwort 
