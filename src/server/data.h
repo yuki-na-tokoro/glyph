@@ -19,7 +19,7 @@ struct client {
 struct command {
   int command_id;
   int argc;
-  char **argv;
+  char *argv[15];
 };
 
 struct channel{
