@@ -5,9 +5,24 @@
 #include <stdlib.h>
 #include <time.h>
 
-const char* levels[] = {"TRACE", "DEBUG", "LOG", "WARN", "ERROR"};
+#define RED(s)     "\x1b[31m"s"\x1b[0m"
+#define BRED(s)    "\x1b[91m"s"\x1b[0m"
+#define GREEN(s)   "\x1b[32m"s"\x1b[0m"
+#define BGREEN(s)  "\x1b[92m"s"\x1b[0m"
+#define YELLOW(s)  "\x1b[33m"s"\x1b[0m"
+#define BYELLOW(s) "\x1b[93m"s"\x1b[0m"
+#define BLUE(s)    "\x1b[34m"s"\x1b[0m"
+#define BBLUE(s)   "\x1b[94m"s"\x1b[0m"
+#define CYAN(s)    "\x1b[35m"s"\x1b[0m"
+#define BWHITE(s)  "\x1b[97m"s"\x1b[0m"
+
+#define DIMMED(s)  "\x1b[2m"s"\x1b[0m"
+
+const char* levels[] = {BWHITE("TRACE"), BBLUE("DEBUG"), BGREEN("LOG"), BYELLOW("WARN"), BRED("ERROR")};
 
 void _logmsg(uint lvl, char* msg) { 
+
+  if (lvl < MIN_LEVEL) return;
 
   time_t rawtime;
   struct tm *timeinfo;
@@ -18,7 +33,7 @@ void _logmsg(uint lvl, char* msg) {
   strftime(timestr, sizeof(timestr), "%T", timeinfo);
 
   if (lvl == 4) {
-    fprintf(stderr, "[%s] ERROR: %s\n", timestr, msg);
+    fprintf(stderr, "[" DIMMED("%s") "] (ERROR): %s\n", timestr, msg);
     return;
   }
 
@@ -30,7 +45,7 @@ void _logmsg(uint lvl, char* msg) {
     lvlstr = levels[lvl];
   }
 
-  printf("[%s] %s: %s\n", timestr, lvlstr, msg);
+  printf("[" DIMMED("%s") "] (%s): %s\n", timestr, lvlstr, msg);
 }
 
 void tracemsg(char* fmt, ...) {

@@ -3,6 +3,8 @@
 
 #include <sys/types.h>
 
+#define MIN_LEVEL 0
+
 #define TRACE 0
 #define DEBUG 1
 #define LOG   2
