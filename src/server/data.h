@@ -1,6 +1,6 @@
 #include "../protocol.h"
 
-typedef struct message msg;
+typedef struct command cmd;
 typedef struct channel ch;
 typedef struct membership member;
 
@@ -16,11 +16,10 @@ struct client {
   struct client *next; 
 };
 
-struct message {
-  char *prefix;
-  char *command;
-  char **argv;
+struct command {
+  int command_id;
   int argc;
+  char **argv;
 };
 
 struct channel{
