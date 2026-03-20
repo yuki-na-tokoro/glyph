@@ -199,22 +199,29 @@ TODO:   Nachrichten kommen in answer teilweise nicht als einzelne Zeilen sondern
 void print_answer(char *answer, char *nickname){
 
 
-    char *dupl = strdup(answer);
-    char *line = strtok(dupl, "\n");
+    char *dupl = strdup(answer);    // macht ne kopie vom string damit "echter" string nicht kaput gemacht wird
+    char *line = strtok(dupl, "\n");    //spaltet string an zeilen ende auf 
     while (line != NULL){
-        char *posnick = strstr(line, nickname);
-        char *poscol = (posnick != NULL) ? strchr(posnick, ':') : NULL;
+        char *posnick = strstr(line, nickname); //sucht position vom Nickname
+        char *poscol = (posnick != NULL) ? strchr(posnick, ':') : NULL; //sucht poition vom Doppelpunkt nach Nickname
 
         if(posnick == NULL || poscol == NULL){
+<<<<<<< HEAD
             chat_print(line);
 
         }else{
             chat_print(poscol + 1);
+=======
+            printf("%s\n",line);    // wenn kein nickname oder kein doppelpunkt gefunden: unveränderte zeile wird geprintet
+
+        }else{
+            printf("%s\n", poscol + 1); // zeilen inhalt nach doppelpunkt geprintet
+>>>>>>> 92f4dd9 (docs: added comments)
         }
 
-        line = strtok(NULL, "\n");
+        line = strtok(NULL, "\n");  //strtok macht in nächster zeile weiter
     }
-    free(dupl);
+    free(dupl); 
 
 }
 
