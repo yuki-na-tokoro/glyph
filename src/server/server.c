@@ -46,7 +46,27 @@ int main(void) {
 
   for (;;) {
 
-    poll_loop(sockfd, clients, &ccount);
+    struct pollfd fds[ccount + 1];
+
+    struct pollfd sockpoll = {sockfd, POLLIN, 0};
+    fds[0] = sockpoll;
+
+    for (int i = 1; i < ccount + 1; i++) {
+      struct pollfd fd = {clients[i-1]->fd, POLLIN, 0};
+      debugmsg("client to poll: %d", fd.fd);
+      fds[i] = fd;
+    }
+
+    debugmsg("polling...");
+    poll(fds, ccount + 1, TIMEOUT);
+
+    bool *mask = handle_client_poll(fds, clients, &ccount);
+
+    close_clients(mask, clients, &ccount);
+
+    free(mask);
+
+    handle_socket_poll(fds[0], clients, &ccount);
 
   }
   

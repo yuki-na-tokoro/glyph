@@ -105,45 +105,6 @@ struct client* accept_client(int sockfd) {
   return c;
 }
 
-void poll_loop(int sockfd, struct client* clients[MAX_CONN], int *ccount) {
-
-  struct pollfd fds[*ccount + 1];
-
-  struct pollfd sockpoll = {sockfd, POLLIN, 0};
-  fds[0] = sockpoll;
-  
-  for (int i = 1; i < *ccount + 1; i++) {
-    struct pollfd fd = {clients[i-1]->fd, POLLIN, 0};
-    debugmsg("client to poll: %d", fd.fd);
-    fds[i] = fd;
-  }
-
-  debugmsg("polling...");
-  poll(fds, *ccount + 1, TIMEOUT);
-
-  bool *mask = handle_client_poll(fds, clients, ccount);
-  
-  if (mask[0]) {
-    int shift = 0;
-    for (int i = 0; i < *ccount; i++) {
-      if (mask[i+1]) {
-        logmsg("closing client %d...", clients[i]->fd);
-        close(clients[i]->fd);
-        free(clients[i]);
-        shift++;
-      } else {
-        clients[i-shift] = clients[i];
-      }
-    }
-    *ccount -= shift;
-  }
-
-  free(mask);
-
-  handle_socket_poll(fds[0], clients, ccount);
- 
-}
-
 bool* handle_client_poll(struct pollfd fds[], struct client *clients[MAX_CONN], int *ccount) {
 
   int rc;
