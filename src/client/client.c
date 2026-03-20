@@ -206,17 +206,10 @@ void print_answer(char *answer, char *nickname){
         char *poscol = (posnick != NULL) ? strchr(posnick, ':') : NULL; //sucht poition vom Doppelpunkt nach Nickname
 
         if(posnick == NULL || poscol == NULL){
-<<<<<<< HEAD
-            chat_print(line);
+            chat_print(line);    // wenn kein nickname oder kein doppelpunkt gefunden: unveränderte zeile wird geprintet
 
         }else{
-            chat_print(poscol + 1);
-=======
-            printf("%s\n",line);    // wenn kein nickname oder kein doppelpunkt gefunden: unveränderte zeile wird geprintet
-
-        }else{
-            printf("%s\n", poscol + 1); // zeilen inhalt nach doppelpunkt geprintet
->>>>>>> 92f4dd9 (docs: added comments)
+            chat_print((poscol + 1)); // zeilen inhalt nach doppelpunkt geprintet
         }
 
         line = strtok(NULL, "\n");  //strtok macht in nächster zeile weiter
