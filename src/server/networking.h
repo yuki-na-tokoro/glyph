@@ -9,10 +9,14 @@
 
 int init_socket(struct addrinfo*);
 
-void poll_listening(int fd, struct client* clients[MAX_CONN], int* ccount);
+void set_nonblocking(int sockfd);
 
 struct client* accept_client(int fd);
 
-void poll_clients(struct client* clients[MAX_CONN], int* ccount);
+void poll_loop(int sockfd, struct client* clients[MAX_CONN], int* ccount);
+
+bool* handle_client_poll(struct pollfd fds[], struct client *clients[MAX_CONN], int *ccount);
+
+void handle_socket_poll(struct pollfd spollfd, struct client *clients[MAX_CONN], int *ccount);
 
 #endif // NETWORKING_H

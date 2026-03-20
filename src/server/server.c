@@ -46,9 +46,7 @@ int main(void) {
 
   for (;;) {
 
-    poll_listening(sockfd, clients, &ccount);
-
-    poll_clients(clients, &ccount);
+    poll_loop(sockfd, clients, &ccount);
 
   }
   

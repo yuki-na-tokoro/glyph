@@ -18,7 +18,6 @@
 
 
 // TODO: Add extra Data to Client struct
-
         
 int init_socket(struct addrinfo* res) {
 
@@ -39,16 +38,7 @@ int init_socket(struct addrinfo* res) {
     exit(1);
   }
 
-  int flags = fcntl(sockfd, F_GETFL, 0);
-  if (flags == -1) {
-    perror("fcntl F_GETFL error");
-    exit(1);
-  }
-  flags = flags | O_NONBLOCK;
-  if (fcntl(sockfd, F_SETFL, flags) == -1) {
-    perror("fcntl F_SETFL error");
-    exit(1);
-  }
+  set_nonblocking(sockfd);
 
   // bind socket to address
   if (bind(sockfd, res->ai_addr, res->ai_addrlen) == -1) {
@@ -65,36 +55,18 @@ int init_socket(struct addrinfo* res) {
   return sockfd;
 }
 
-void poll_listening(int sockfd, struct client* clients[MAX_CONN], int *ccount) {
-   
-  struct pollfd fd = {sockfd, POLLIN, 0};
+void set_nonblocking(int sockfd) {
 
-  debugmsg("polling listening socket...");
-  poll(&fd, 1, TIMEOUT);
-  
-  if (fd.revents == POLLIN) {
+  int flags = fcntl(sockfd, F_GETFL, 0);
+  if (flags == -1) {
+    perror("fcntl F_GETFL error");
+    exit(1);
+  }
 
-    struct client *c = accept_client(sockfd);
-
-    while (c != NULL) {
-      logmsg("trying to accept incoming connection...");
-
-      if (!push_client(clients, MAX_CONN, ccount, c)) {
-        errormsg("rejected incoming connection: MAX_CONN reached!");
-
-        close(c->fd);
-        free(c);
-
-      } else {
-
-        logmsg("accepted incoming connection.");
-      };
-      
-      c = accept_client(sockfd);
-
-    }
-  } else {
-    //TODO
+  flags = flags | O_NONBLOCK;
+  if (fcntl(sockfd, F_SETFL, flags) == -1) {
+    perror("fcntl F_SETFL error");
+    exit(1);
   }
 }
 
@@ -112,80 +84,49 @@ struct client* accept_client(int sockfd) {
     return NULL;
   }
 
+  set_nonblocking(fd);
+
   struct client *c = malloc(sizeof(struct client));
+  if (c == NULL) {
+    perror("#accept_client(): malloc error");
+    // TODO: exit gracefully
+    exit(1);
+  }
 
   c->addr = (struct sockaddr *) &client_addr;
   c->fd = fd;
+  c->buffer = calloc(MSG_SIZE, sizeof(char));
+  if (c->buffer == NULL) {
+    perror("#accept_client(): calloc error");
+    // TODO: exit gracefully
+    exit(1);
+  }
 
   return c;
 }
 
-void poll_clients(struct client* clients[MAX_CONN], int *ccount) {
+void poll_loop(int sockfd, struct client* clients[MAX_CONN], int *ccount) {
 
-  struct pollfd fds[*ccount];
-  bool closedmask[*ccount];
-  bool _close;
-  char buffer[128];
-  int rc;
+  struct pollfd fds[*ccount + 1];
 
-  for (int i = 0; i < *ccount; i++) {
-    struct pollfd fd = {clients[i]->fd, POLLIN, 0};
+  struct pollfd sockpoll = {sockfd, POLLIN, 0};
+  fds[0] = sockpoll;
+  
+  for (int i = 1; i < *ccount + 1; i++) {
+    struct pollfd fd = {clients[i-1]->fd, POLLIN, 0};
+    debugmsg("client to poll: %d", fd.fd);
     fds[i] = fd;
   }
 
-  debugmsg("polling clients...");
-  poll(fds, *ccount, TIMEOUT);
+  debugmsg("polling...");
+  poll(fds, *ccount + 1, TIMEOUT);
+
+  bool *mask = handle_client_poll(fds, clients, ccount);
   
-  for (int i = 0; i < *ccount; i++) {
-    if (fds[i].revents == 0) {
-      continue;
-    }
-
-    for (;;) {
-
-      if (!(fds[i].revents & POLLIN)) {
-        errormsg("#poll_clients(): unexpected revents: %d", fds[i].revents);
-        // TODO: exit gracefully
-        exit(1);
-      }
-      
-      rc = recv(fds[i].fd, buffer, sizeof(buffer), 0);
-
-      // if nothing is read
-      if (rc < 0) {
-        if (errno != EWOULDBLOCK) {
-          closedmask[i] = true;
-        }
-        break;
-      }
-
-      // if client closed connection
-      if (rc == 0) {
-        closedmask[i] = true;
-        break;
-      }
-
-      char *cbuffer = clients[i]->buffer;
-
-      strcat(buffer, cbuffer);
-      size_t buflen = strlen(cbuffer);
-      if (cbuffer[buflen-1] == '\n' && cbuffer[buflen-2] == '\r') {
-        cbuffer[buflen-2] = '\0';
-
-        raw_msg(clients[i],cbuffer);
-
-        debugmsg("received message: ", cbuffer);
-
-        cbuffer[0] = '\0'; }
-    }
-
-    if (closedmask[i]) _close = 1;
-  }
-
-  if (_close) {
+  if (mask[0]) {
     int shift = 0;
     for (int i = 0; i < *ccount; i++) {
-      if (closedmask[i]) {
+      if (mask[i+1]) {
         logmsg("closing client %d...", clients[i]->fd);
         close(clients[i]->fd);
         free(clients[i]);
@@ -196,6 +137,112 @@ void poll_clients(struct client* clients[MAX_CONN], int *ccount) {
     }
     *ccount -= shift;
   }
-  
+
+  free(mask);
+
+  handle_socket_poll(fds[0], clients, ccount);
+ 
 }
 
+bool* handle_client_poll(struct pollfd fds[], struct client *clients[MAX_CONN], int *ccount) {
+
+  int rc;
+  bool *mask = calloc(*ccount + 1, sizeof(bool));
+  if (mask == NULL) {
+    perror("#handle_client_poll(): calloc error");
+    // TODO: exit gracefully
+    exit(1);
+  }
+  char buffer[MSG_SIZE];
+  
+  for (int i = 1; i < *ccount + 1; i++) {
+
+    if (fds[i].revents == 0) {
+      continue;
+    }
+
+    debugmsg("polling returned on client %d", fds[i].fd);
+
+    for (;;) {
+
+      if (!(fds[i].revents & POLLIN)) {
+        errormsg("#poll_clients(): unexpected revents: %d", fds[i].revents);
+        // TODO: exit gracefully
+        exit(1);
+      }
+      
+      rc = recv(fds[i].fd, buffer, sizeof(buffer), 0);
+      debugmsg("read %d bytes from client %d", rc, fds[i].fd);
+
+      // if nothing is read
+      if (rc < 0) {
+        if (errno != EWOULDBLOCK) {
+          mask[i] = true;
+        }
+        break;
+      }
+
+      // if client closed connection
+      if (rc == 0) {
+        mask[i] = true;
+        break;
+      }
+
+      char *cbuffer = clients[i-1]->buffer;
+
+      strcat(cbuffer, buffer);
+
+      debugmsg("client buffer is now: %s", cbuffer);
+      
+      size_t buflen = strlen(cbuffer);
+
+      if (buflen < 2) break;
+
+      if (cbuffer[buflen-1] == '\n' && cbuffer[buflen-2] == '\r') {
+        // cbuffer[buflen-2] = '\0';
+
+        debugmsg("received message: %s", cbuffer);
+
+        raw_msg(clients[i-1], cbuffer);
+
+        cbuffer[0] = '\0';
+      }
+    }
+
+    if (mask[i]) mask[0] = 1;
+  }
+  return mask;
+}
+
+void handle_socket_poll(struct pollfd spollfd, struct client *clients[MAX_CONN], int *ccount) {
+
+  if (spollfd.revents == 0) return;
+  
+    debugmsg("polling returned on listening");
+  
+    if (!(spollfd.revents & POLLIN)) {
+      errormsg("#poll_clients(): unexpected revents: %d", spollfd.revents);
+      // TODO: exit gracefully
+      exit(1);
+    }
+
+    struct client *c = accept_client(spollfd.fd);
+
+    while (c != NULL) {
+      logmsg("trying to accept incoming connection...");
+
+      if (!push_client(clients, MAX_CONN, ccount, c)) {
+        errormsg("rejected incoming connection: MAX_CONN reached!");
+
+        close(c->fd);
+        free(c);
+
+      } else {
+        logmsg("accepted incoming connection.");
+      };
+  
+      c = accept_client(spollfd.fd);
+
+    }
+  
+}
