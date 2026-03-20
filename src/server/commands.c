@@ -1,21 +1,29 @@
 //Befehle für den Server
-#include "../logging.h"
+#include <stdbool.h>
+#include <unistd.h>
+
+#include "commands.h"
+#include "client.h"
 
 int raw_msg(struct client *client, char *buffer){
   struct Message parsed;
 
-  parsed->prefix = NULL;
-  parsed->command = NULL;
-  parsed->argc = 0;
+  parsed.prefix = NULL;
+  parsed.command = NULL;
+  parsed.argc = 0;
 
-  parse_msg(*buffer, parsed);
+  parse_msg(buffer, parsed);
  
-};
+  // TODO: ...
+}
 
+void parse_msg(char *raw, struct Message msg) {
+  
+}
 
 int pass( struct User *usr, char *password){
   
-};
+}
 
 int nick(int *mode, char *nickname);
 

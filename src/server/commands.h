@@ -14,11 +14,9 @@ struct Message {
 };
 
 struct Channel{
-  char name[];
-  char topic[];
-
+  char *name;
+  char *topic;
   struct Membership *members;
-
   struct Channel *next;
 };
 
@@ -37,8 +35,8 @@ struct Membership {
 
   bool is_op;
   
-  Membership *next_user;
-  Membership *next_channel;
+  struct Membership *next_user;
+  struct Membership *next_channel;
 };
 
 /**
