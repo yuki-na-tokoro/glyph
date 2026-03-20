@@ -6,13 +6,14 @@
 
 #include "client.h"
 #include "../logging.h"
+#include "networking.h"
 
 int msg_client(struct client *c, char *msg) {
   return send(c->fd, msg, strlen(msg), 0);
 }
 
-bool push_client(struct client* clients[], const int max_conn, int *ccount, struct client *c) {
-  if (*ccount >= max_conn) {
+bool push_client(struct client* clients[], int *ccount, struct client *c) {
+  if (*ccount >= MAX_CONN) {
     return false;
   }
 
