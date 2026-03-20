@@ -69,6 +69,8 @@ TODO:   - Sicherheitschecks und Errohandling überprüfen und einbauen
 
 char *send_command(int sockfd, char *input){
     char *comm = strtok(input, " ");    // Command aus dem Input nehmen
+    if(comm == NULL) return NULL;
+
     int i = what_command(comm);
     if(i == -1){
         printf("Unbekannter Command");

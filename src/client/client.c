@@ -20,6 +20,8 @@ int main(void){
 
     poll_loop(sockfd);  // Interaktion mit dem Server
 
+    endwin();
+    
     close(sockfd);
 }
 
@@ -78,7 +80,6 @@ TODO:   - Terminal User Interface für den Client mithilfe von ncurses implement
 */
 
 void poll_loop(int sockfd){
-    setupscreen();
 
     // Beej Abschnitt 7.2
     struct pollfd pfds[2];
@@ -96,17 +97,20 @@ void poll_loop(int sockfd){
     while (true){
         poll(pfds, 2, -1);
         char answer[MSG_SIZE];
+        char input[MSG_SIZE];
 
 
         if(step == 1){ //Nachricht vom Nutzer einlesen
             nickname = introduce(sockfd);
+            setupscreen();
             step++;
         }
+            
 
         if(pfds[0].revents & POLLIN){
-            char *input = get_input();
+            get_eingabe(input);
             if(input == NULL){ //Nachricht vom Nutzer einlesen
-                printf("Fehler beim Einlesen.");
+                chat_print("Fehler beim Einlesen.");
                 continue;
             }
             send_command(sockfd, input);
@@ -120,7 +124,7 @@ void poll_loop(int sockfd){
 
             chat_print(answer);
 
-            print_answer(answer, nickname);
+            //print_answer(answer, nickname);
         }
     }
 
