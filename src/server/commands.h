@@ -1,3 +1,5 @@
+#ifndef COMMANDS_H
+#define COMMANDS_H
 #include "data.h"
 
 /**
@@ -169,3 +171,4 @@ int invite(struct client *c, struct command *a);
 */
 int kick(struct client *c, struct command *a);
 
+#endif // COMMANDS_H

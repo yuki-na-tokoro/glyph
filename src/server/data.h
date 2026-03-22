@@ -1,3 +1,6 @@
+#ifndef DATA_H
+#define DATA_H
+
 #include "../protocol.h"
 
 typedef struct command cmd;
@@ -38,3 +41,5 @@ struct membership {
   struct membership *next_user;
   struct membership *next_channel;
 };
+
+#endif // DATA_H
