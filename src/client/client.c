@@ -77,7 +77,7 @@ int connect_to_server(){
 
 
 /*
-TODO:   - Terminal User Interface für den Client mithilfe von ncurses implementieren
+TODO:   - Terminal User Interface für den Client mithilfe von ncurses implementieren (Mby Histroy implementieren)
         - Introduce, Channel etc. in commands.c integrieren
         - channelnamen und nickname an send_command übergeben für Commands die dies brauchen
         - Feature das wenn man eine Nachricht eingibt und einen Log von vergangenen Eingaben behält,
@@ -105,13 +105,17 @@ void poll_loop(int sockfd){
         char answer[MSG_SIZE];
         // char input[MSG_SIZE];
 
-
-        if(step == 1){ //Nachricht vom Nutzer einlesen
+        if(step == 0){ // Host vom Nutzer holen (irc.libera.chat)
             nickname = introduce(sockfd);
             // setupscreen();
             step++;
         }
-        if(step == 2){ //Nachricht vom Nutzer einlesen
+        if(step == 1){
+            nickname = introduce(sockfd);
+            // setupscreen();
+            step++;
+        }
+        if(step == 2){
             channelname = channel(sockfd);
             step++;
         }
@@ -129,7 +133,7 @@ void poll_loop(int sockfd){
                 free(input);
                 break;
             }
-            send_command(sockfd, input, nickname, channelname);
+            send_command(sockfd, input, channelname);
         }
 
         if(pfds[1].revents & POLLIN){
@@ -243,7 +247,8 @@ TODO:   Nachrichten kommen in answer teilweise nicht als einzelne Zeilen sondern
         formatiert und printet. Schleife endet dann am EOF. Zudem noch irrelevante Nachrichten rausfiltern. 
 
         Funktion ist in der "Chat-Phase" nicht mehr funktional weil Nachrichten dann den nickname nicht mehr
-        beinhalten wodurch einfach jede Nachricht gefiltert wird.
+        beinhalten wodurch einfach jede Nachricht gefilte
+        rt wird.
 
         -> Auch noch entsprechende print_msg bei der ausgehende Nachrichten formatiert ausgegeben werden
 */
