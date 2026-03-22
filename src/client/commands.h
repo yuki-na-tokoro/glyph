@@ -27,7 +27,7 @@ char *get_input(void);
  * @param sockfd    File Descriptor vom Socket
  * @param input     Eingabe des Nutzers
  */
-char *send_command(int sockfd, char *input, char *channelname);
+int send_command(int sockfd, char *input, char **nickname, char **channelname);
 
 /**
  * @brief   Stellt Verbindung mit dem Server her

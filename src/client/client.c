@@ -98,7 +98,7 @@ void poll_loop(int sockfd){
     int step = 1;
 
     char *nickname;
-    char *channelname = NULL;
+    char *channelname;
 
     while (true){
         poll(pfds, 2, -1);
@@ -131,9 +131,10 @@ void poll_loop(int sockfd){
             if(strncmp(input, "/quit", 5) == 0 || strncmp(input, "/q", 2) == 0){    // Programm mit /quit oder /q schließen
                 send_msg(sockfd, "QUIT\r\n");
                 free(input);
+                channelname = NULL;
                 break;
             }
-            send_command(sockfd, input, channelname);
+            send_command(sockfd, input, &nickname, &channelname);
         }
 
         if(pfds[1].revents & POLLIN){
@@ -207,8 +208,8 @@ char *channel(int sockfd){
         printf("Channelname: ");
         
         if(fgets(channelname, 202, stdin) == NULL){
-        printf("Fehler beim Lesen.\n");
-        continue;
+            printf("Fehler beim Lesen.\n");
+            continue;
         }
 
 
