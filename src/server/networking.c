@@ -148,24 +148,26 @@ bool handle_client_poll(struct pollfd fds[], struct client *clients[MAX_CONN], i
         break;
       }
 
-      char *cbuffer = clients[i-1]->buffer;
-
-      strcat(cbuffer, buffer);
+      strcat(clients[i-1]->buffer, buffer);
       
-      size_t buflen = strlen(cbuffer);
+      size_t buflen = strlen(clients[i-1]->buffer);
 
       if (buflen < 2) break;
 
-      if (cbuffer[buflen-1] == '\n' && cbuffer[buflen-2] == '\r') {
-        // cbuffer[buflen-2] = '\0';
+      char* ret;
+      uint msglen;
 
-        tracemsg("received message: %s", cbuffer);
+      while ((ret = strstr(clients[i-1]->buffer, "\r\n")) != NULL) {
+        msglen = strlen(clients[i-1]->buffer) - strlen(ret);
 
-        raw_msg(clients[i-1], cbuffer);
+        memcpy(buffer, clients[i-1]->buffer, msglen);
+        buffer[msglen] = '\0';
 
-        cbuffer[0] = '\0';
-      } else {
-        tracemsg("client buffer is now: %s", cbuffer);
+        tracemsg("received message: %s (%d bytes)", buffer, msglen);
+
+        raw_msg(clients[i-1], buffer);
+
+        clients[i-1]->buffer = ret + 2;
       }
     }
 
