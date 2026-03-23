@@ -8,26 +8,27 @@
 #include "commands.h"
 
 struct command commands[CLIENT_COMMANDS] = {
-    {"Nickname", "/nick",   "NICK %s\r\n",            17,       1},
-    {"User",     "/user",   "USER %s 0 * :%s\r\n",    MSG_SIZE, 2},
-    {"Connect",  "/connect","CONNECT %s 6667\r\n",    MSG_SIZE, 1},
-    {"Quit",     "/quit",   "QUIT\r\n",               MSG_SIZE, 0},
-    {"Passwort", "/pass",   "PASS %s\r\n",            MSG_SIZE, 1},
-    {"Join",     "/join",   "JOIN %s\r\n",            MSG_SIZE, 1},
-    {"Part",     "/part",   "PART %s\r\n",            MSG_SIZE, 1},
-    {"Topic",    "/topic",  "TOPIC %s\r\n",           MSG_SIZE, 1},
-    {"Names",    "/names",  "NAMES %s\r\n",           MSG_SIZE, 1},
-    {"List",     "/list",   "LIST\r\n",               MSG_SIZE, 0},
-    {"Kick",     "/kick",   "KICK %s %s :%s\r\n",     MSG_SIZE, 3},
-    {"Invite",   "/invite", "INVITE %s %s\r\n",       MSG_SIZE, 2},
-    {"Mode",     "/mode",   "MODE %s %s\r\n",         MSG_SIZE, 2},
-    {"Msg",      "/msg",    "PRIVMSG %s :%s\r\n",     MSG_SIZE, 2},
-    {"Notice",   "/notice", "NOTICE %s :%s\r\n",      MSG_SIZE, 2},
-    {"Whois",    "/whois",  "WHOIS %s\r\n",           MSG_SIZE, 1},
-    {"Who",      "/who",    "WHO %s\r\n",             MSG_SIZE, 1},
-    {"Motd",     "/motd",   "MOTD\r\n",               MSG_SIZE, 0},
+    {"Nickname", "/nick",   "NICK %s\r\n",            17,       1}, //
+    {"User",     "/user",   "USER %s 0 * :%s\r\n",    MSG_SIZE, 2}, //
+    {"Connect",  "/connect","CONNECT %s 6667\r\n",    MSG_SIZE, 1}, //
+    {"Quit",     "/quit",   "QUIT\r\n",               MSG_SIZE, 0}, // Memory Leak
+    {"Passwort", "/pass",   "PASS %s\r\n",            MSG_SIZE, 1}, // Idk wie ich das testen soll
+    {"Join",     "/join",   "JOIN %s\r\n",            MSG_SIZE, 1}, // 
+    {"Part",     "/part",   "PART %s\r\n",            MSG_SIZE, 1}, //
+    {"Topic",    "/topic",  "TOPIC %s\r\n",           MSG_SIZE, 1}, // Kann noch kein Topic setzen
+    {"Names",    "/names",  "NAMES %s\r\n",           MSG_SIZE, 1}, // 
+    {"List",     "/list",   "LIST\r\n",               MSG_SIZE, 0}, //
+    {"Kick",     "/kick",   "KICK %s %s :%s\r\n",     MSG_SIZE, 3}, //
+    {"Invite",   "/invite", "INVITE %s %s\r\n",       MSG_SIZE, 2}, //
+    {"Mode",     "/mode",   "MODE %s %s\r\n",         MSG_SIZE, 2}, //
+    {"Msg",      "/msg",    "PRIVMSG %s :%s\r\n",     MSG_SIZE, 2}, //  Funktioniert noch nicht vollständig
+    {"Notice",   "/notice", "NOTICE %s :%s\r\n",      MSG_SIZE, 2}, //                  "
+    {"Whois",    "/whois",  "WHOIS %s\r\n",           MSG_SIZE, 1}, //
+    {"Who",      "/who",    "WHO %s\r\n",             MSG_SIZE, 1}, //
+    {"Motd",     "/motd",   "MOTD\r\n",               MSG_SIZE, 0}, //
 };
 
+// TODO: Malloc checken
 char *get_input(void){
     char *input = malloc(MSG_SIZE);
     while(true){
@@ -66,9 +67,7 @@ TODO:   - Sicherheitschecks und Errohandling überprüfen und einbauen
         - Exceptions für einzelne Funktionen etc. ebenfalls
         - In Struct includen ob Channelname oder Nickname mit übergeben werden soll
           und entsprechend implementieren
-        - Extrafunktionen für USER NICK und JOIN ? besser integriert als introduce
-          und channel
-        - Rückgabe-Array wo mit Nickname und Channelname falls diese aktualisiert werden
+        - Refactoren weil dieser Shit ist hella unübersichtlich
 
 */
 
@@ -129,10 +128,22 @@ int send_command(int *sockfd, char *input, char **host, char **port, char **nick
             }
             case 1: {   // Ein Argument übergeben
                 char *arg1 = strtok(NULL, " ");
-                if(arg1 == NULL){
+                if(arg1 == NULL && 
+                    strcmp(comm, "/part") != 0 && 
+                    strcmp(comm, "/topic") != 0 &&
+                    strcmp(comm, "/names") != 0 &&
+                    strcmp(comm, "/who") != 0){
+
                     printf("Zu wenige Argumente übergeben\n");
                     free(input);
                     return -1;
+                }
+                else if(strcmp(comm, "/part") == 0 || 
+                        strcmp(comm, "/topic") == 0 ||
+                        strcmp(comm, "/names") == 0 ||
+                        strcmp(comm, "/who") == 0){
+
+                    arg1 = *channelname;
                 }
                 count = snprintf(msg, commands[i].size, commands[i].format, arg1);  // Nachricht in das Serverformat bringen
                 if(count >= commands[i].size){
@@ -168,9 +179,6 @@ int send_command(int *sockfd, char *input, char **host, char **port, char **nick
                 else if(strcmp(comm, "/part") == 0){
                     *channelname = NULL;
                 }
-                else if(strcmp(comm, "/part") == 0){
-                    *channelname = NULL;
-                }
 
                 send_msg(*sockfd, msg);
                 free(input);
@@ -179,8 +187,29 @@ int send_command(int *sockfd, char *input, char **host, char **port, char **nick
             }
             case 2: {   // Zwei Argumente übergeben
                 char *arg1 = strtok(NULL, " ");
-                char *arg2 = strtok(NULL, " ");
-                if(arg1 == NULL || arg2 == NULL){
+                char *arg2;
+                if(strcmp(comm, "/msg") == 0 || strcmp(comm, "/notice") == 0){
+                    arg2 = strtok(NULL, "");
+                    if(arg2 == NULL || arg1[0] != '#'){
+                        if(arg2 == NULL){
+                            arg2 = arg1;
+                        } else {
+                            arg2 = input + (arg1 - input);
+                        }
+                        arg1 = *channelname;
+                    }
+                } 
+                else{
+                    arg2 = strtok(NULL, " ");
+                }
+                if(strcmp(comm, "/invite") == 0 && arg1 != NULL && arg2 == NULL){
+                    arg2 = *channelname;
+                }
+                if(strcmp(comm, "/mode") == 0 && arg1 != NULL && arg2 == NULL){
+                    arg2 = arg1;
+                    arg1 = *channelname;
+                }
+                else if(arg1 == NULL || arg2 == NULL){
                     printf("Zu wenige Argumente übergeben\n");
                     free(input);
                     return -1;
@@ -200,7 +229,12 @@ int send_command(int *sockfd, char *input, char **host, char **port, char **nick
                 char *arg1 = strtok(NULL, " ");
                 char *arg2 = strtok(NULL, " ");
                 char *arg3 = strtok(NULL, " ");
-                if(arg1 == NULL || arg2 == NULL || arg3 == NULL){
+                if(strcmp(comm, "/kick") == 0 && arg1 != NULL && arg2 != NULL && arg3 == NULL){
+                    arg3 = arg2;
+                    arg2 = arg1;
+                    arg1 = *channelname;
+                }
+                else if(arg1 == NULL || arg2 == NULL || arg3 == NULL){
                     printf("Zu wenige Argumente übergeben\n");
                     free(input);
                     return -1;
