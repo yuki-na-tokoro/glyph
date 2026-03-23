@@ -4,6 +4,11 @@
 #include "../protocol.h"
 #include "../hashtypes.h"
 
+#define REGSTAT_DONE     0
+#define REGSTAT_NONE     1
+#define REGSTAT_USER     2
+#define REGSTAT_NICK     3
+
 struct client {
   int fd;
   char *buffer;

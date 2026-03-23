@@ -15,6 +15,7 @@
 #include "../logging.h"
 #include "client.h"
 #include "commands.h"
+#include "data.h"
 
 
 // TODO: Add extra Data to Client struct
@@ -94,12 +95,12 @@ int accept_client(int sockfd, struct client* c) {
     return -1;
   };
 
-  c->addr = (struct sockaddr *) &client_addr;
   c->fd = fd;
   if ((c->buffer = calloc(MSG_SIZE, sizeof(char))) == NULL) {
     errormsg("#accept_client(): calloc error");
     return -1;
   }
+  c->regstatus = REGSTAT_NONE;
 
   return 1;
 }
