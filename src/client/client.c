@@ -122,7 +122,6 @@ void poll_loop(){
             if(strncmp(input, "/quit", 5) == 0 || strncmp(input, "/q", 2) == 0){    // Programm mit /quit oder /q schließen
                 send_msg(sockfd, "QUIT\r\n");
                 free(input);
-                channelname = NULL;
                 break;
             }
             send_command(&sockfd, input, &host, &port, &nickname, &channelname);
@@ -140,7 +139,8 @@ void poll_loop(){
             print_answer(answer, nickname);
         }
     }
-
+    // free(port);
+    free(host);
     free(channelname);
     free(nickname);
     close(sockfd);
