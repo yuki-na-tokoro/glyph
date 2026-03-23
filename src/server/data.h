@@ -3,23 +3,18 @@
 
 #include "../protocol.h"
 
-typedef struct command cmd;
-typedef struct channel ch;
-typedef struct membership member;
-
 struct client {
   int fd;
-  int id[ID_LEN+1];
-  char* buffer;
+  char *buffer;
+
   char nick[NICK_LEN];
   char username[USER_LEN];
-  struct sockaddr *addr;
+  char *realname;
 
-  struct membership *channels;
-  struct client *next; 
+  struct map *channels;
 };
 
-enum C_ID {
+enum cmd_id {
   USER = 1,
   PASS = 2,
   NICK = 3,
@@ -32,21 +27,11 @@ struct command {
   char *trailing;
 };
 
-struct channel{
+struct channel {
   char name[CH_LEN];
   char topic[TOPIC_LEN];
-  struct membership *members;
-  struct channel *next;
-};
-
-struct membership {
-  struct User *user;
-  struct channel *channel;
-
-  bool is_op;
-  
-  struct membership *next_user;
-  struct membership *next_channel;
+  struct client *op;
+  struct map *members;
 };
 
 #endif // DATA_H
