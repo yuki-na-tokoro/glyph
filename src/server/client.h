@@ -10,7 +10,7 @@
  *
  * @return #send() result
  */
-int msg_client(struct client* client, char* msg);
+int msg_client(struct client* client, char* msg, ...);
 
 /**
  * @brief fügt einen neuen client zum array hinzu
