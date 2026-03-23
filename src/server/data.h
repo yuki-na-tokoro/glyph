@@ -19,10 +19,17 @@ struct client {
   struct client *next; 
 };
 
+enum C_ID {
+  USER = 1,
+  PASS = 2,
+  NICK = 3,
+};
+
 struct command {
-  int command_id;
-  int argc;
-  char *argv[15];
+  char *source;
+  int command;
+  char *params;
+  char *trailing;
 };
 
 struct channel{
