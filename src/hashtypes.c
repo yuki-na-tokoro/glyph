@@ -1,3 +1,6 @@
+/*
+ * inspired by https://xnacly.me/posts/2024/c-hash-map/
+ */
 
 #include <assert.h>
 #include <stdio.h>

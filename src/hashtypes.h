@@ -1,3 +1,7 @@
+/*
+ * inspired by https://xnacly.me/posts/2024/c-hash-map/
+ */
+
 #ifndef HASHTYPES_H
 #define HASHTYPES_H
 
