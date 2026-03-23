@@ -6,17 +6,19 @@
 
 #include "commands.h"
 #include "client.h"
+#include "../logging.h"
 
-#define CMD 2
+#define CMD 3
 
 struct dict {
   unsigned int id;
   char *command;
 };
 
-struct dict commands[2] = {
+struct dict commands[3] = {
   {1,"USER"},
   {2,"PASS"},
+  {3,"NICK"},
 };
 enum commands{
   USER = 1,
@@ -41,24 +43,44 @@ int raw_msg(struct client *client, char *buffer){
 }
 
 void parse_msg(char *raw, struct command *out) {
-  char *a = strtok(raw," ");
-  
-  for(int i = 0;i < CMD;i++){
-    if (strcmp(commands[i].command, a) == 0)out->command_id = commands[i].id;
-  }
-  
-  for(;;){
-    char *temp;
-    if(out->argv[0] == NULL){
-      temp = strtok(raw," ");
-    }
-    else temp = strtok(NULL," ");
-    
-    if (temp == NULL) break;
+  char *ms[2];
+  char *a = strtok(raw,":");
 
+
+  /**
+  * Filter out the Optional stuff
+  */
+  for(int i = 0;i<2;i++){
+    if (a == NULL) break;
+    
+    if (a[0]== '@' || a[0]== 64){
+       ms[0] = a;
+    }
     else {
-      out->argv[out->argc] = temp;
-      out->argc++;
-    };
-  };
+      ms[1]=a;
+      break;
+    }
+    a = strtok(NULL,":");
+  }
+  if (ms[1]!=NULL){
+    tracemsg("Recieved Message  Body : %s", ms[1]); 
+  }else{
+    tracemsg("Recieved no Message Body !");
+  }
+  /**
+  * Parse Message Body/Command
+  */
+  a = strtok(ms[1]," ");
+  for(int i = 0;i<CMD;i++){
+    if (a == commands[i].command){
+      out->command_id = commands[i].id;
+    }
+  }
+  a = strtok(NULL," ");
+  for(int i = 0;i<CMD;i++){
+    if (a == commands[i].command){
+      out->command_id = commands[i].id;
+    }
+  }
 }
+
