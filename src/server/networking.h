@@ -26,7 +26,7 @@ int init_socket(struct addrinfo* addr);
  *
  * @return false falls kritische fehler auftreten
  */
-bool set_nonblocking(int sockfd);
+int set_nonblocking(int sockfd);
 
 /**
  * @brief akzeptiert eingehende Verbindungen
@@ -50,7 +50,7 @@ int accept_client(int fd, struct client* c);
  *
  * @return false -> kritische fehler sind aufgetreten, stoppe server
  */
-bool handle_client_poll(struct pollfd fds[], struct client *clients[MAX_CONN], int *ccount, bool *mask);
+int handle_client_poll(struct pollfd fds[], struct client *clients[MAX_CONN], int *ccount, bool *mask);
 
 /**
  * @brief überprüft den server socket auf neue client Verbindungen
@@ -61,6 +61,6 @@ bool handle_client_poll(struct pollfd fds[], struct client *clients[MAX_CONN], i
  *
  * @return false -> kritische fehler sind aufgetreten, stoppe server
  */
-bool handle_socket_poll(struct pollfd spollfd, struct client *clients[MAX_CONN], int *ccount);
+int handle_socket_poll(struct pollfd spollfd, struct client *clients[MAX_CONN], int *ccount);
 
 #endif // NETWORKING_H

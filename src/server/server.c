@@ -63,13 +63,13 @@ int main(void) {
 
     mask = calloc(ccount + 1, sizeof(bool));
 
-    if (!handle_client_poll(fds, clients, &ccount, mask)) {
+    if (handle_client_poll(fds, clients, &ccount, mask)) {
       break;
     }
 
     close_clients(mask, clients, &ccount);
 
-    if (!handle_socket_poll(fds[0], clients, &ccount)) {
+    if (handle_socket_poll(fds[0], clients, &ccount)) {
       break;
     }
 

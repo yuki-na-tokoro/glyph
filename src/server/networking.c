@@ -40,7 +40,7 @@ int init_socket(struct addrinfo* res) {
     exit(1);
   }
 
-  if(!set_nonblocking(sockfd)) {
+  if(set_nonblocking(sockfd)) {
     exit(1);
   }
 
@@ -59,21 +59,21 @@ int init_socket(struct addrinfo* res) {
   return sockfd;
 }
 
-bool set_nonblocking(int sockfd) {
+int set_nonblocking(int sockfd) {
 
   int flags = fcntl(sockfd, F_GETFL, 0);
   if (flags == -1) {
     errormsg("fcntl F_GETFL error");
-    return false;
+    return 1;
   }
 
   flags = flags | O_NONBLOCK;
   if (fcntl(sockfd, F_SETFL, flags) == -1) {
     errormsg("fcntl F_SETFL error");
-    return false;
+    return 1;
   }
   tracemsg("set socket %d to non-blocking", sockfd);
-  return true;
+  return 0;
 }
 
 int accept_client(int sockfd, struct client* c) {
@@ -105,7 +105,7 @@ int accept_client(int sockfd, struct client* c) {
   return 1;
 }
 
-bool handle_client_poll(struct pollfd fds[], struct client *clients[MAX_CONN], int *ccount, bool *mask) {
+int handle_client_poll(struct pollfd fds[], struct client *clients[MAX_CONN], int *ccount, bool *mask) {
 
   int rc;
   
@@ -122,7 +122,7 @@ bool handle_client_poll(struct pollfd fds[], struct client *clients[MAX_CONN], i
 
       if (!(fds[i].revents & POLLIN)) {
         errormsg("#poll_clients(): unexpected revents: %d", fds[i].revents);
-        return false;
+        return 1;
       }
 
       tracemsg("polling returned on socket %d", fds[i].fd);
@@ -174,12 +174,12 @@ bool handle_client_poll(struct pollfd fds[], struct client *clients[MAX_CONN], i
     if (mask[i]) mask[0] = 1;
   }
 
-  return true;
+  return 0;
 }
 
-bool handle_socket_poll(struct pollfd spollfd, struct client *clients[MAX_CONN], int *ccount) {
+int handle_socket_poll(struct pollfd spollfd, struct client *clients[MAX_CONN], int *ccount) {
 
-  if (spollfd.revents == 0) return true;
+  if (spollfd.revents == 0) return 0;
   
   tracemsg("polling returned on listening");
 
@@ -192,7 +192,7 @@ bool handle_socket_poll(struct pollfd spollfd, struct client *clients[MAX_CONN],
   int rc = accept_client(spollfd.fd, c);
   
   if (rc == -1) {
-    return false;
+    return 1;
   };
 
   while (rc != 0) {
@@ -203,17 +203,17 @@ bool handle_socket_poll(struct pollfd spollfd, struct client *clients[MAX_CONN],
 
       close(c->fd);
       free(c);
-      return true;
+      return 0;
 
     } else {
       tracemsg("accepted socket %d", c->fd);
     };
 
     if ((rc = accept_client(spollfd.fd, c)) == -1) {
-      return false;
+      return 1;
     }
 
   }
 
-  return true;
+  return 0;
 }
