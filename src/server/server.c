@@ -61,22 +61,30 @@ int main(void) {
 
     poll(fds, ccount + 1, TIMEOUT);
 
-    mask = calloc(ccount + 1, sizeof(bool));
+    if ((mask = calloc(ccount + 1, sizeof(bool))) == NULL) {
+      errormsg("#main(): calloc error");
+      break;
+    }
 
     if (handle_client_poll(fds, clients, &ccount, mask)) {
+      free(mask);
       break;
     }
 
     close_clients(mask, clients, &ccount);
 
+    free(mask);
+
     if (handle_socket_poll(fds[0], clients, &ccount)) {
       break;
     }
-
-    free(mask);
   }
 
-  mask = calloc(ccount + 1, sizeof(bool));
+  if ((mask = calloc(ccount + 1, sizeof(bool))) == NULL) {
+    errormsg("#main(): calloc error");
+    exit(1);
+  }
+
   memset(mask, 1, (ccount + 1) * sizeof(bool));
 
   close_clients(mask, clients, &ccount);

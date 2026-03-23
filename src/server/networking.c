@@ -90,14 +90,13 @@ int accept_client(int sockfd, struct client* c) {
     return 0;
   }
 
-  if (!set_nonblocking(fd)) {
+  if (set_nonblocking(fd)) {
     return -1;
   };
 
   c->addr = (struct sockaddr *) &client_addr;
   c->fd = fd;
-  c->buffer = calloc(MSG_SIZE, sizeof(char));
-  if (c->buffer == NULL) {
+  if ((c->buffer = calloc(MSG_SIZE, sizeof(char))) == NULL) {
     errormsg("#accept_client(): calloc error");
     return -1;
   }
@@ -184,14 +183,21 @@ int handle_socket_poll(struct pollfd spollfd, struct client *clients[MAX_CONN], 
   tracemsg("polling returned on listening");
 
   if (!(spollfd.revents & POLLIN)) {
-    errormsg("#poll_clients(): unexpected revents: %d", spollfd.revents);
-    return false;
+    errormsg("##handle_socket_poll(): unexpected revents: %d", spollfd.revents);
+    return 1;
   }
 
-  struct client *c = malloc(sizeof(struct client));
+  struct client *c;
+
+  if ((c = malloc(sizeof(struct client))) == NULL) {
+    errormsg("#handle_socket_poll(): calloc error");
+    return 1;
+  }
+
   int rc = accept_client(spollfd.fd, c);
   
   if (rc == -1) {
+    free(c);
     return 1;
   };
 
@@ -210,6 +216,7 @@ int handle_socket_poll(struct pollfd spollfd, struct client *clients[MAX_CONN], 
     };
 
     if ((rc = accept_client(spollfd.fd, c)) == -1) {
+      free(c);
       return 1;
     }
 
