@@ -76,7 +76,7 @@ int send_command(int *sockfd, char *input, char **host, char **port, char **nick
 
     if(*sockfd == -1 && strncmp(input, "/connect", 8) != 0){
             printf("Nicht verbunden. Nutze /connect um dich mit einem Server zu verbinden\n");
-            free(input);
+            
             return -1;
         }
 
@@ -84,7 +84,7 @@ int send_command(int *sockfd, char *input, char **host, char **port, char **nick
     if(strncmp(input, "/", 1) != 0){    // Für normale MSG damit man da Command und Channel nicht vorschreiben muss
         if(*channelname == NULL){
             printf("Keinem Channel beigetreten\n");   // Dies wird fehlschlagen wenn man von einem Channel parted weil es nicht aktualisiert wird
-            free(input);
+            
             return -1;
         }
         char msg[MSG_SIZE];
@@ -93,11 +93,11 @@ int send_command(int *sockfd, char *input, char **host, char **port, char **nick
         count = snprintf(msg, commands[i].size, commands[i].format, *channelname, input);  // Nachricht in das Serverformat bringen
         if(count >= commands[i].size){
             printf("Eingabe zu lang\n");
-            free(input);
+            
             return -1;
         }
         send_msg(*sockfd, msg);
-        free(input);
+        
         return 0;    // Hier noch einfügen das die Message geprinted wird
     }
     else{
@@ -105,14 +105,14 @@ int send_command(int *sockfd, char *input, char **host, char **port, char **nick
         char *comm = strtok(input, " ");    // Command aus dem Input nehmen
         if(comm == NULL){
             printf("Eingabe kein Command\n");
-            free(input);
+            
             return -1;
         }
 
         int i = what_command(comm);
         if(i == -1){
             printf("Unbekannter Command\n");
-            free(input);
+            
             return -1;
         }
 
@@ -122,7 +122,7 @@ int send_command(int *sockfd, char *input, char **host, char **port, char **nick
             case 0: {   // Keine Argumente übergeben
                 strcpy(msg, commands[i].format);    // Nachricht in das Serverformat bringen
                 send_msg(*sockfd, msg);
-                free(input);
+                
                 return 0;
                 break;
             }
@@ -135,7 +135,7 @@ int send_command(int *sockfd, char *input, char **host, char **port, char **nick
                     strcmp(comm, "/who") != 0){
 
                     printf("Zu wenige Argumente übergeben\n");
-                    free(input);
+                    
                     return -1;
                 }
                 else if(strcmp(comm, "/part") == 0 || 
@@ -148,7 +148,7 @@ int send_command(int *sockfd, char *input, char **host, char **port, char **nick
                 count = snprintf(msg, commands[i].size, commands[i].format, arg1);  // Nachricht in das Serverformat bringen
                 if(count >= commands[i].size){
                     printf("Eingabe zu lang\n");
-                    free(input);
+                    
                     return -1;
                 }
                 
@@ -156,7 +156,7 @@ int send_command(int *sockfd, char *input, char **host, char **port, char **nick
                     free(*host);
                     *host = strdup(arg1);
                     *sockfd = connect_to_server(*host, *port);
-                    free(input);
+                    
 
                     char usermsg[MSG_SIZE];
                     snprintf(usermsg, sizeof(usermsg), "USER %s 0 * :%s\r\n", *nickname, *nickname);
@@ -181,7 +181,7 @@ int send_command(int *sockfd, char *input, char **host, char **port, char **nick
                 }
 
                 send_msg(*sockfd, msg);
-                free(input);
+                
                 return 0;
                 break;
             }
@@ -211,17 +211,17 @@ int send_command(int *sockfd, char *input, char **host, char **port, char **nick
                 }
                 else if(arg1 == NULL || arg2 == NULL){
                     printf("Zu wenige Argumente übergeben\n");
-                    free(input);
+                    
                     return -1;
                 }
                 count = snprintf(msg, commands[i].size, commands[i].format, arg1, arg2);    // Nachricht in das Serverformat bringen
                 if(count >= commands[i].size){
                     printf("Eingabe zu lang\n");
-                    free(input);
+                    
                     return -1;
                 }
                 send_msg(*sockfd, msg);
-                free(input);
+                
                 return 0;
                 break;
             }
@@ -236,23 +236,23 @@ int send_command(int *sockfd, char *input, char **host, char **port, char **nick
                 }
                 else if(arg1 == NULL || arg2 == NULL || arg3 == NULL){
                     printf("Zu wenige Argumente übergeben\n");
-                    free(input);
+                    
                     return -1;
                 }
                 count = snprintf(msg, commands[i].size, commands[i].format, arg1, arg2, arg3);  // Nachricht in das Serverformat bringen
                 if(count >= commands[i].size){
                     printf("Eingabe zu lang");
-                    free(input);
+                    
                     return -1;
                 }
                 send_msg(*sockfd, msg);
-                free(input);
+                
                 return 0;
                 break; 
             }
             default:{   // Idk wie bzw. wann dieser Fall eintreten sollte
                 printf("Error sending message arguments\n");
-                free(input);
+                
                 return -1;
             }
         }
