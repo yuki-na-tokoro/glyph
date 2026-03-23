@@ -9,6 +9,9 @@
 
 #include "hashtypes.h"
 
+const size_t BASE = 0x811c9dc5;
+const size_t PRIME = 0x01000193;
+
 // FNV-1a hash
 size_t hash(char *key) {
   size_t hash = BASE;

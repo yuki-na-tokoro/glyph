@@ -2,6 +2,11 @@
 #define COMMANDS_H
 #include "data.h"
 
+/*
+ * To be called ONLY ONCE
+ */
+void init_command_map();
+
 /**
 * @brief Parsed die raw Msg des Clients
 * 
@@ -21,7 +26,7 @@ int parse_msg(char *raw, struct command *msg);
 /**
 * @brief Setzt das Connection Passwort 
 */
-int pass(struct User *usr, char *password);
+int pass(struct client *c, struct command *a);
 
 /**
 * @brief Setzt einen Nichnamen und vergleicht mit vorhandenen Nicknamen

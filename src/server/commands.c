@@ -6,33 +6,37 @@
 #include "commands.h"
 #include "client.h"
 #include "../logging.h"
+#include "../hashtypes.h"
+#include "data.h"
 
 #define CMD_COUNT 3
 
-char *commands[CMD_COUNT + 1] = {
-  "",
-  "USER",
-  "PASS",
-  "NICK"
-};
+typedef int cmd_fn(struct client*, struct command*);
+
+struct map cmd_fs;
+
+int cap(struct client *c, struct command *cmd);
+
+void init_command_map() {
+  cmd_fs = map_init(64);
+  map_put(&cmd_fs, "NICK", (void*)nick);
+  map_put(&cmd_fs, "CAP", (void*)cap);
+}
 
 int raw_msg(struct client *client, char *buffer){
   struct command parsed;
 
   parse_msg(buffer, &parsed);
    
-  if (parsed.source != NULL) {
-    msg_client(client, "source: \"%s\"\n", parsed.source);
-  }
-  msg_client(client, "command: %d\n", parsed.command);
-  msg_client(client, "parameters: \"%s\"\n", parsed.parameters);
-  if (parsed.trailing != NULL) {
-    msg_client(client, "trailing: \"%s\"\n", parsed.trailing);
+  cmd_fn* fn = ((cmd_fn*)map_get(&cmd_fs, parsed.command));
+
+  if (fn == NULL) {
+    return 0;
   }
 
-  // TODO: ...
-  // msg_client(client, "Hello");
-  return (0);
+  fn(client, &parsed);
+  
+  return 0;
 }
 
 int parse_msg(char *raw, struct command *out) {
@@ -72,14 +76,25 @@ int parse_msg(char *raw, struct command *out) {
   out->source = source;
   out->parameters = params;
   out->trailing = trailing;
-
-  for (int i = 1; i < CMD_COUNT; i++) {
-    if (strcmp(commands[i], cmd)) {
-      out->command = i;
-      break;
-    }
-  }
+  out->command = cmd;
 
   return 0;
 }
 
+int nick(struct client *c, struct command *cmd) {
+  char *nick = strtok(cmd->parameters, " ");
+  c->nick = nick;
+  return 0;
+}
+
+int user(struct client *c, struct command *cmd) {
+  char *username = strtok(cmd->parameters, " ");
+  c->username = username;
+  c->realname = cmd->trailing;
+  return 0;
+}
+
+int cap(struct client *c, struct command *cmd) {
+  msg_client(c, "CAP * LS");
+  return 0;
+}

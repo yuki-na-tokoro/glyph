@@ -2,27 +2,24 @@
 #define DATA_H
 
 #include "../protocol.h"
+#include "../hashtypes.h"
 
 struct client {
   int fd;
   char *buffer;
 
-  char nick[NICK_LEN];
-  char username[USER_LEN];
+  char *nick;
+  char *username;
   char *realname;
 
-  struct map *channels;
-};
+  struct map channels;
 
-enum cmd_id {
-  USER = 1,
-  PASS = 2,
-  NICK = 3,
+  int regstatus;
 };
 
 struct command {
   char *source;
-  int command;
+  char *command;
   char *parameters;
   char *trailing;
 };
@@ -31,7 +28,7 @@ struct channel {
   char name[CH_LEN];
   char topic[TOPIC_LEN];
   struct client *op;
-  struct map *members;
+  struct set members;
 };
 
 #endif // DATA_H

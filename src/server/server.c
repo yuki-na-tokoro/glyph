@@ -14,6 +14,7 @@
 #include "client.h"
 #include "../protocol.h"
 #include "../logging.h"
+#include "commands.h"
 
 int main(void) {
 
@@ -44,6 +45,8 @@ int main(void) {
   struct client* clients[MAX_CONN]; 
   int ccount = 0;
   bool *mask;
+
+  init_command_map();
 
   for (;;) {
 

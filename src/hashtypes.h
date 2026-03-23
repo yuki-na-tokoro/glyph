@@ -19,8 +19,8 @@ struct entry {
   void *value;
 };
 
-const size_t BASE = 0x811c9dc5;
-const size_t PRIME = 0x01000193;
+extern const size_t BASE;
+extern const size_t PRIME;
 
 size_t hash(char *key);
 
