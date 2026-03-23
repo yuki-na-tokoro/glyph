@@ -9,6 +9,7 @@
       char *name;   // Name des Commands für Prints etc.
       char *comm;   // Command
       char *format; // Format für Nachricht an Server
+      bool channel;  // Channel in Nachricht
       int size; // Maximale Größe des Inputs
       int argc; // Anzahl an Argumenten
   };

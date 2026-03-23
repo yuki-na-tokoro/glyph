@@ -12,3 +12,4 @@
   void get_eingabe(char *buf);
 
   #endif
+  
