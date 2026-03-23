@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <ncurses.h>
+#include <stdarg.h>
 
 #include "client.h"
 #include "../protocol.h"
@@ -30,8 +31,14 @@ void setupscreen(){
 
 }
 
-void chat_print(const char *text){
-    wprintw(chatfeld,"%s\n", text); //text wird ins chatfeld geprintet
+void chat_print(const char *text, ...){
+    va_list args;
+    va_start(args, text);
+    vw_printw(chatfeld, text, args); //text wird ins chatfeld geprintet - jetzt auch mit formatierung
+    waddch(chatfeld, '\n');
+
+    va_end(args);
+    
     if (akt_line < 999){
         akt_line += 1;  //aktuelle line wird erhöht solange kleiner 9999 da padgröße 1000, wenn die größe des pads ereicht ist wird einfach die älteste zeile gelöscht und alles rutscht ein hoch
 

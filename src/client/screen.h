@@ -7,7 +7,7 @@
   extern WINDOW *eingabefeld;
   void setupscreen();
 
-  void chat_print(const char *text);
+  void chat_print(const char *text, ...);
 
   void get_eingabe(char *buf);
 

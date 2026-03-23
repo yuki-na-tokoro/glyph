@@ -163,7 +163,7 @@ void poll_loop(){
             if(strncmp(answer, "PING", 4) == 0){
                 send_msg(sockfd, "PONG");
             }
-            chat_print(answer);
+            print_answer(answer, nickname);
         }
         int ch = wgetch(eingabefeld);
 
@@ -174,10 +174,10 @@ void poll_loop(){
                     break;
                     }
 
-                
+
+                chat_print(tipp_buf);
                 send_command(&sockfd, tipp_buf, &host, &port, &nickname, &channelname);
                 pfds[0].fd = sockfd;
-                chat_print(tipp_buf);
                 memset(tipp_buf, 0, MSG_SIZE);
                 tbuf_index = 0;
                 }
@@ -243,9 +243,9 @@ void print_answer(char *answer, char *nickname){
             chat_print(line);
 
         }else{
-            // chat_print((poscol + 1));
-            //printf("%s\n", (poscol + 1)); // zeilen inhalt nach doppelpunkt geprintet
-            chat_print(poscol);
+            //chat_print((poscol + 1));
+            chat_print("%s", poscol + 1); // zeilen inhalt nach doppelpunkt geprintet
+            //chat_print(poscol);
         }
 
         line = strtok(NULL, "\n");  //strtok macht in nächster zeile weiter
