@@ -2,6 +2,7 @@
 #define NETWORKING_H
 
 #include <sys/poll.h>
+#include <netdb.h>
 
 #include "client.h"
 
