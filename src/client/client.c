@@ -76,11 +76,9 @@ int connect_to_server(char *host, char *port){
 
 /*
 TODO:   - Terminal User Interface für den Client mithilfe von ncurses implementieren (Mby Histroy implementieren)
-        - Introduce, Channel etc. in commands.c integrieren
         - channelnamen und nickname an send_command übergeben für Commands die dies brauchen
         - Feature das wenn man eine Nachricht eingibt und einen Log von vergangenen Eingaben behält,
           damit man bspw. Pfeil hoch drücken kann um die letzt Eingabe zu wiederholen
-        - channelnamen bei Änderung aktualisieren, z.B. bei /part
 */
 
 void poll_loop(){
@@ -112,23 +110,6 @@ void poll_loop(){
         poll(pfds, 2, -1);
         char answer[MSG_SIZE];
         // char input[MSG_SIZE];
-
-        /*
-        if(step == 0){ // Host vom Nutzer holen (irc.libera.chat)
-            nickname = introduce(sockfd);
-            // setupscreen();
-            step++;
-        }
-        if(step == 1){
-            nickname = introduce(sockfd);
-            // setupscreen();
-            step++;
-        }
-        if(step == 2){
-            channelname = channel(sockfd);
-            step++;
-        }
-            */
 
         if(pfds[0].revents & POLLIN){
             // get_eingabe(input);
@@ -164,94 +145,6 @@ void poll_loop(){
     free(nickname);
     close(sockfd);
 }
-
-
-char *introduce(int sockfd){
-    char *nickname = malloc(11);
-    char nickmsg[MSG_SIZE];
-    char usermsg[MSG_SIZE];
-    while(true){
-        printf("Nickname eingeben (Maximal 9 Zeichen): ");
-        
-        if(fgets(nickname, 11, stdin) == NULL){
-        printf("Fehler beim Lesen.\n");
-        continue;
-        }
-
-
-        if(strchr(nickname, '\n') == NULL){ // Falls der Nick von fgets() abgeschnitten wurde
-            int c;
-            printf("Nickname zu lang.\n");
-            
-            while((c = getchar()) != '\n' && c != EOF); // Buffer für erneute Eingabe leeren
-
-            continue;
-        }
-
-        nickname[strcspn(nickname, "\n")] = '\0';   // Ersetzt Newline mit Stringende
-
-        char *format = "NICK %s\r\n";
-
-        if(strlen(nickname) >= 1){
-            snprintf(nickmsg, sizeof(nickmsg), format, nickname);    // Nickname korrekt formatieren
-            snprintf(usermsg, sizeof(usermsg), "USER guest 0 * : %s\r\n", nickname);    // USER Message korrekt formatieren
-            break;
-        }
-        else{
-            printf("Kein Nickname eingegeben.\n");
-            continue;
-        }
-    }
-
-    // NICK
-    send_msg(sockfd, nickmsg);
-
-    // USER
-    send_msg(sockfd, usermsg);
-
-    return nickname;
-}
-
-char *channel(int sockfd){
-    char *channelname= malloc(202);
-    char channelmsg[MSG_SIZE];
-
-    while(true){
-        printf("Channelname: ");
-        
-        if(fgets(channelname, 202, stdin) == NULL){
-            printf("Fehler beim Lesen.\n");
-            continue;
-        }
-
-
-        if(strchr(channelname, '\n') == NULL){ // Falls der Channelname von fgets() abgeschnitten wurde
-            int c;
-            printf("Channelname zu lang.\n");
-            
-            while((c = getchar()) != '\n' && c != EOF); // Buffer für erneute Eingabe leeren
-
-            continue;
-        }
-
-        channelname[strcspn(channelname, "\n")] = '\0';   // Ersetzt Newline mit Stringende
-
-        if(strlen(channelname) >= 1){
-            snprintf(channelmsg, sizeof(channelmsg), "JOIN %s\r\n", channelname);    // Channelname korrekt formatieren
-            break;
-        }
-        else{
-            printf("Kein Channelname eingegeben.\n");
-            continue;
-        }
-    }
-
-    // JOIN
-    send_msg(sockfd, channelmsg);
-
-    return channelname;
-}
-
 
 /*
 TODO:   Nachrichten kommen in answer teilweise nicht als einzelne Zeilen sondern als ein großter Block im Buffer. 
