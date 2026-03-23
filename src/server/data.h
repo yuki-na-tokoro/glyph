@@ -28,7 +28,7 @@ enum C_ID {
 struct command {
   char *source;
   int command;
-  char *params;
+  char *parameters;
   char *trailing;
 };
 
