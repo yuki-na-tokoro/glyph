@@ -3,6 +3,8 @@
 
   #include "../protocol.h"
 
+  extern WINDOW *chatfeld;
+  extern WINDOW *eingabefeld;
   void setupscreen();
 
   void chat_print(const char *text);

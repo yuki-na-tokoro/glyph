@@ -95,19 +95,33 @@ void poll_loop(){
     char *channelname;
 
     int sockfd = -1;
+    setupscreen();
+
+    //Änderung:
+    char tipp_buf[MSG_SIZE];
+    int tbuf_index = 0;
 
     // Beej Abschnitt 7.2
-    struct pollfd pfds[2];
+    //änderung:
+    /*struct pollfd pfds[2];
     pfds[0].fd = 0; // Ausgehende Nachrichten
     pfds[0].events = POLLIN;
-
+    
     pfds[1].fd = sockfd;    // Eingehende Nachrichten
     pfds[1].events = POLLIN;
+    */
     
+    struct pollfd pfds[1];
+    pfds[0].fd = sockfd;
+    pfds[0].events = POLLIN;
+    
+    timeout(0);
+
     //int step = 1;
 
     while (true){
-        poll(pfds, 2, -1);
+        /*poll(pfds, 2, -1);
+
         char answer[MSG_SIZE];
         // char input[MSG_SIZE];
 
@@ -139,12 +153,63 @@ void poll_loop(){
             print_answer(answer, nickname);
         }
     }
+    */  
+        
+        poll(pfds, 1, 50);
+
+        if(sockfd != -1 && (pfds[0].revents & POLLIN)){
+            char answer[MSG_SIZE];
+            recv_msg(sockfd, answer, MSG_SIZE);
+            if(strncmp(answer, "PING", 4) == 0){
+                send_msg(sockfd, "PONG");
+            }
+            chat_print(answer);
+        }
+        int ch = wgetch(eingabefeld);
+
+        if (ch != ERR){
+            if (ch == '\n' || ch == KEY_ENTER){
+                if (tbuf_index > 0){
+                    if (strncmp(tipp_buf,"/quit",5)== 0 || (strncmp(tipp_buf,"/q",2)== 0 )){
+                    break;
+                    }
+
+                
+                send_command(&sockfd, tipp_buf, &host, &port, &nickname, &channelname);
+                pfds[0].fd = sockfd;
+                chat_print(tipp_buf);
+                memset(tipp_buf, 0, MSG_SIZE);
+                tbuf_index = 0;
+                }
+            }else if (ch == KEY_BACKSPACE){
+                if(tbuf_index >0){
+                tipp_buf[--tbuf_index] = '\0';
+                }
+
+            }else if (ch >= 32 && ch <= 126 && tbuf_index < MSG_SIZE - 1){
+                tipp_buf[tbuf_index] = (char)ch;
+                tbuf_index++;
+                tipp_buf[tbuf_index] ='\0';
+            }
+
+        }
+        wmove(eingabefeld, 0, 0);
+        wclrtoeol(eingabefeld);
+        mvwprintw(eingabefeld, 0, 0,"> %s", tipp_buf);
+        wrefresh(eingabefeld);
+        
+        
+    } 
+
+
+    endwin();
     // free(port);
     free(host);
     free(channelname);
     free(nickname);
     close(sockfd);
 }
+
 
 /*
 TODO:   Nachrichten kommen in answer teilweise nicht als einzelne Zeilen sondern als ein großter Block im Buffer. 
@@ -162,7 +227,7 @@ TODO:   Nachrichten kommen in answer teilweise nicht als einzelne Zeilen sondern
 void print_answer(char *answer, char *nickname){
 
     if(nickname == NULL){
-        printf("%s\n", answer);
+        chat_print(answer);
         return;
     }
 
@@ -175,11 +240,12 @@ void print_answer(char *answer, char *nickname){
 
         if(posnick == NULL || poscol == NULL){
             // chat_print(line);    // wenn kein nickname oder kein doppelpunkt gefunden: unveränderte zeile wird geprintet
-            printf("%s\n", line);
+            chat_print(line);
 
         }else{
             // chat_print((poscol + 1));
-            printf("%s\n", (poscol + 1)); // zeilen inhalt nach doppelpunkt geprintet
+            //printf("%s\n", (poscol + 1)); // zeilen inhalt nach doppelpunkt geprintet
+            chat_print(poscol);
         }
 
         line = strtok(NULL, "\n");  //strtok macht in nächster zeile weiter
