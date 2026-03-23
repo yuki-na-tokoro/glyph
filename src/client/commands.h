@@ -1,7 +1,7 @@
   #ifndef COMMANDS_H
   #define COMMANDS_H
 
-  #define CLIENT_COMMANDS 17
+  #define CLIENT_COMMANDS 18
 
   #include "../protocol.h"
 
@@ -27,7 +27,7 @@ char *get_input(void);
  * @param sockfd    File Descriptor vom Socket
  * @param input     Eingabe des Nutzers
  */
-int send_command(int sockfd, char *input, char **nickname, char **channelname);
+int send_command(int *sockfd, char *input, char **host, char **port, char **nickname, char **channelname);
 
 /**
  * @brief   Stellt Verbindung mit dem Server her

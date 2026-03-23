@@ -21,6 +21,7 @@
 
   | Command | Syntax | Beschreibung |
   |---------|--------|--------------|
+  | CONNECT | `CONNECT <host> <port>\r\n` | Mit einem Server verbinden |
   | NICK | `NICK <nickname>\r\n` | Nickname setzen/ändern |
   | USER | `USER <user> 0 * :<realname>\r\n` | User registrieren |
   | QUIT | `QUIT [:<reason>]\r\n` | Verbindung trennen |

@@ -15,14 +15,11 @@
 
 int main(void){
 
+    // int sockfd = connect_to_server(HOST, PORT);   // Socket eröffnen und mit Server verbinden
 
-    int sockfd = connect_to_server();   // Socket eröffnen und mit Server verbinden
-
-    poll_loop(sockfd);  // Interaktion mit dem Server
+    poll_loop();  // Interaktion mit dem Server
 
     // endwin();
-    
-    close(sockfd);
 }
 
 void send_msg(int sockfd, char *msg){
@@ -40,7 +37,8 @@ void recv_msg(int sockfd, char *msg, int buffersize){
     msg[count] = '\0';  // String abschließen
 }
 
-int connect_to_server(){
+int connect_to_server(char *host, char *port){
+
     // Beej Abschnitt 5.1
     int status;
     struct addrinfo hints;  // Parameter für getaddrinfo()
@@ -51,7 +49,7 @@ int connect_to_server(){
     hints.ai_family = AF_UNSPEC;        // IP Format irrelevant
     hints.ai_socktype = SOCK_STREAM;    // TCP (Stream) Socket
 
-    if ((status = getaddrinfo(HOST, PORT, &hints, &servinfo)) != 0) { // Fehlerbehandlung für getaddrinfo()
+    if ((status = getaddrinfo(host, port, &hints, &servinfo)) != 0) { // Fehlerbehandlung für getaddrinfo()
         fprintf(stderr, "gai error : %s\n", gai_strerror(status));
         exit(1);
     }
@@ -85,7 +83,20 @@ TODO:   - Terminal User Interface für den Client mithilfe von ncurses implement
         - channelnamen bei Änderung aktualisieren, z.B. bei /part
 */
 
-void poll_loop(int sockfd){
+void poll_loop(){
+
+    char *host;
+    char *port = "6667"; // Default Port, wird geändert insofern der Nutzer einen Port als Argument angibt
+    char *nickname;
+    if(getenv("USER") != NULL){
+        nickname = strdup(getenv("USER"));
+    } 
+    else{
+        nickname = strdup("guest");
+    }
+    char *channelname;
+
+    int sockfd = -1;
 
     // Beej Abschnitt 7.2
     struct pollfd pfds[2];
@@ -95,16 +106,14 @@ void poll_loop(int sockfd){
     pfds[1].fd = sockfd;    // Eingehende Nachrichten
     pfds[1].events = POLLIN;
     
-    int step = 1;
-
-    char *nickname;
-    char *channelname;
+    //int step = 1;
 
     while (true){
         poll(pfds, 2, -1);
         char answer[MSG_SIZE];
         // char input[MSG_SIZE];
 
+        /*
         if(step == 0){ // Host vom Nutzer holen (irc.libera.chat)
             nickname = introduce(sockfd);
             // setupscreen();
@@ -119,6 +128,7 @@ void poll_loop(int sockfd){
             channelname = channel(sockfd);
             step++;
         }
+            */
 
         if(pfds[0].revents & POLLIN){
             // get_eingabe(input);
@@ -134,7 +144,8 @@ void poll_loop(int sockfd){
                 channelname = NULL;
                 break;
             }
-            send_command(sockfd, input, &nickname, &channelname);
+            send_command(&sockfd, input, &host, &port, &nickname, &channelname);
+            pfds[1].fd = sockfd;
         }
 
         if(pfds[1].revents & POLLIN){
@@ -151,6 +162,7 @@ void poll_loop(int sockfd){
 
     free(channelname);
     free(nickname);
+    close(sockfd);
 }
 
 
@@ -255,6 +267,11 @@ TODO:   Nachrichten kommen in answer teilweise nicht als einzelne Zeilen sondern
 */
 
 void print_answer(char *answer, char *nickname){
+
+    if(nickname == NULL){
+        printf("%s\n", answer);
+        return;
+    }
 
 
     char *dupl = strdup(answer);    // macht ne kopie vom string damit "echter" string nicht kaput gemacht wird

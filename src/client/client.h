@@ -34,7 +34,7 @@ void recv_msg(int sockfd, char *msg, int buffersize);
  *
  * @return sockfd    File Descriptor vom Socket
  */
-int connect_to_server();
+int connect_to_server(char *host, char *port);
 
 /**
  * @brief   Sendet NICK und USER an Server basierend auf Nutzereingabe
@@ -55,6 +55,6 @@ char *channel(int sockfd);
  *
  * @param sockfd    File Descriptor vom Socket
  */
-void poll_loop(int sockfd);
+void poll_loop();
 
 #endif // CLIENT_H

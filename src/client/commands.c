@@ -8,8 +8,9 @@
 #include "commands.h"
 
 struct command commands[CLIENT_COMMANDS] = {
-    {"Nickname", "/nick",   "NICK %s\r\n",           17,       1},
-    {"User",     "/user",   "USER %s 0 * :%s\r\n",   MSG_SIZE, 2},
+    {"Nickname", "/nick",   "NICK %s\r\n",            17,       1},
+    {"User",     "/user",   "USER %s 0 * :%s\r\n",    MSG_SIZE, 2},
+    {"Connect",  "/connect","CONNECT %s 6667\r\n",    MSG_SIZE, 1},
     {"Quit",     "/quit",   "QUIT\r\n",               MSG_SIZE, 0},
     {"Passwort", "/pass",   "PASS %s\r\n",            MSG_SIZE, 1},
     {"Join",     "/join",   "JOIN %s\r\n",            MSG_SIZE, 1},
@@ -71,8 +72,15 @@ TODO:   - Sicherheitschecks und Errohandling überprüfen und einbauen
 
 */
 
-int send_command(int sockfd, char *input, char **nickname, char **channelname){
+int send_command(int *sockfd, char *input, char **host, char **port, char **nickname, char **channelname){
     int count = 0;
+
+    if(*sockfd == -1 && strncmp(input, "/connect", 8) != 0){
+            printf("Nicht verbunden. Nutze /connect um dich mit einem Server zu verbinden\n");
+            free(input);
+            return -1;
+        }
+
     
     if(strncmp(input, "/", 1) != 0){    // Für normale MSG damit man da Command und Channel nicht vorschreiben muss
         if(*channelname == NULL){
@@ -81,19 +89,20 @@ int send_command(int sockfd, char *input, char **nickname, char **channelname){
             return -1;
         }
         char msg[MSG_SIZE];
-        char *comm = "/msg";
-        int i = what_command(comm);
+        char *comm = "/msg";    // Command für den Benutzer setzen
+        int i = what_command(comm); // Stelle von /msg finden. Sicher für zukünftige Änderungen an commands
         count = snprintf(msg, commands[i].size, commands[i].format, *channelname, input);  // Nachricht in das Serverformat bringen
         if(count >= commands[i].size){
             printf("Eingabe zu lang\n");
             free(input);
             return -1;
         }
-        send_msg(sockfd, msg);
+        send_msg(*sockfd, msg);
         free(input);
         return 0;    // Hier noch einfügen das die Message geprinted wird
     }
     else{
+
         char *comm = strtok(input, " ");    // Command aus dem Input nehmen
         if(comm == NULL){
             printf("Eingabe kein Command\n");
@@ -113,7 +122,7 @@ int send_command(int sockfd, char *input, char **nickname, char **channelname){
         switch (commands[i].argc){
             case 0: {   // Keine Argumente übergeben
                 strcpy(msg, commands[i].format);    // Nachricht in das Serverformat bringen
-                send_msg(sockfd, msg);
+                send_msg(*sockfd, msg);
                 free(input);
                 return 0;
                 break;
@@ -131,8 +140,24 @@ int send_command(int sockfd, char *input, char **nickname, char **channelname){
                     free(input);
                     return -1;
                 }
+                
+                if(strcmp(comm, "/connect") == 0){
+                    free(*host);
+                    *host = strdup(arg1);
+                    *sockfd = connect_to_server(*host, *port);
+                    free(input);
 
-                if(strcmp(comm, "/nick") == 0){
+                    char usermsg[MSG_SIZE];
+                    snprintf(usermsg, sizeof(usermsg), "USER %s 0 * :%s\r\n", *nickname, *nickname);
+                    send_msg(*sockfd, usermsg);
+
+                    char nickmsg[MSG_SIZE];
+                    snprintf(nickmsg, sizeof(nickmsg), "NICK %s\r\n", *nickname);
+                    send_msg(*sockfd, nickmsg);
+
+                    return 0;
+                }
+                else if(strcmp(comm, "/nick") == 0){
                     free(*nickname);
                     *nickname = strdup(arg1);
                 }
@@ -143,7 +168,11 @@ int send_command(int sockfd, char *input, char **nickname, char **channelname){
                 else if(strcmp(comm, "/part") == 0){
                     *channelname = NULL;
                 }
-                send_msg(sockfd, msg);
+                else if(strcmp(comm, "/part") == 0){
+                    *channelname = NULL;
+                }
+
+                send_msg(*sockfd, msg);
                 free(input);
                 return 0;
                 break;
@@ -162,7 +191,7 @@ int send_command(int sockfd, char *input, char **nickname, char **channelname){
                     free(input);
                     return -1;
                 }
-                send_msg(sockfd, msg);
+                send_msg(*sockfd, msg);
                 free(input);
                 return 0;
                 break;
@@ -182,7 +211,7 @@ int send_command(int sockfd, char *input, char **nickname, char **channelname){
                     free(input);
                     return -1;
                 }
-                send_msg(sockfd, msg);
+                send_msg(*sockfd, msg);
                 free(input);
                 return 0;
                 break; 
