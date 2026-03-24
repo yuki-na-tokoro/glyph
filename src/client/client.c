@@ -180,16 +180,8 @@ void poll_loop(){
 
 
 /*
-TODO:   Nachrichten kommen in answer teilweise nicht als einzelne Zeilen sondern als ein großter Block im Buffer. 
-        Dementsprechend muss der Buffer am Zeilenende aufgeteilt werden um die einzelnen Zeilen zu erhalten und 
-        entsprechend zu formatieren. Vermutlich mit Schleife die jeden String bis zu einem Newline entsprechend
-        formatiert und printet. Schleife endet dann am EOF. Zudem noch irrelevante Nachrichten rausfiltern. 
-
-        Funktion ist in der "Chat-Phase" nicht mehr funktional weil Nachrichten dann den nickname nicht mehr
-        beinhalten wodurch einfach jede Nachricht gefilte
-        rt wird.
-
-        -> Auch noch entsprechende print_msg bei der ausgehende Nachrichten formatiert ausgegeben werden
+TODO:   - Wenn strtok verwendet wird schreibt das in den Befehlsbuffer d.h. wenn eine Nachricht wie PING vom Server ankommt dann wird der
+          nächste Befehl nicht erkannt bzw. falsch erkannt (Zu fixen durch strtok_r() ?)
 */
 
 void print_answer(char *answer, char *nickname){
@@ -199,7 +191,7 @@ void print_answer(char *answer, char *nickname){
         char *copy = strdup(answer);
         char *line2 = strtok(copy, "\r\n");
         while(line2 != NULL){
-            chat_print(line2);
+            chat_print("%s", line2);
             line2 = strtok(NULL, "\r\n");
         }
         free(copy);
@@ -214,9 +206,9 @@ void print_answer(char *answer, char *nickname){
             char *poscol = (posnick != NULL) ? strchr(posnick, ':') : NULL; //sucht position vom Doppelpunkt nach Nickname
 
             if(posnick == NULL || poscol == NULL){
-                chat_print(line);
+                chat_print("%s", line);
             }else{
-                chat_print(poscol + 1); // zeilen inhalt nach doppelpunkt geprintet
+                chat_print("%s", poscol + 1); // zeilen inhalt nach doppelpunkt geprintet
             }
         }
         line = strtok(NULL, "\r\n");  //strtok macht in nächster zeile weiter

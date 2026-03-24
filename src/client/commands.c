@@ -55,7 +55,7 @@ struct command commands[CLIENT_COMMANDS] = {
 };
 
 /*
-TODO:   - Sicherheitschecks und Errohandling überprüfen und einbauen
+TODO:   - Topic umbauen sodass ein Topic gesetzt werden kann
         - Refactoren weil dieser Shit ist hella unübersichtlich
         - Handeln wenn Nickname bereits vergeben
 
