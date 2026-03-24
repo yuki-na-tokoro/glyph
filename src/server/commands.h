@@ -2,10 +2,16 @@
 #define COMMANDS_H
 #include "data.h"
 
-/*
- * To be called ONLY ONCE
- */
-void init_command_map();
+
+/**
+* @brief Used to INIT channel map ONCE
+*/
+void init_channel_map(void);
+
+/**
+* @brief Used to INIT command map ONCE
+*/
+void init_command_map(void);
 
 /**
 * @brief Parsed die raw Msg des Clients
