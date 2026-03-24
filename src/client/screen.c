@@ -26,8 +26,10 @@ void setupscreen(){
     chatfeld = newpad(1000, cols);  // neues pad wird erstellt 
     scrollok(chatfeld, TRUE);   //pad lässt sich scrollen(nachrichten immer in neue zeilen geprintet und oben "rutsche" die alten nachrichten aus dem sichtfeld)
 
-    eingabefeld = newwin(1, cols, rows - 1, 0); //eingabefenster wird erstellt
+    eingabefeld = newwin(3, cols, rows - 3, 0); //eingabefenster wird erstellt
     keypad(eingabefeld, TRUE);
+    box(eingabefeld, 0, 0);
+    wrefresh(eingabefeld);
 
 }
 
@@ -43,10 +45,10 @@ void chat_print(const char *text, ...){
         akt_line += 1;  //aktuelle line wird erhöht solange kleiner 9999 da padgröße 1000, wenn die größe des pads ereicht ist wird einfach die älteste zeile gelöscht und alles rutscht ein hoch
 
     }
-    int cam_wo = (akt_line > (rows - 2)) ? akt_line - (rows - 2) : 0;   //cam_wo berechnet was im sichtfeld angezeigt wird bzw. wo die unterste zeile des anzuzeigenden ist
-    prefresh(chatfeld, cam_wo, 0,0,0,rows-2, cols-1);   // refreshed das "sichtfeld" mit position von cam_wo
+    int cam_wo = (akt_line > (rows - 3)) ? akt_line - (rows - 3) : 0;   //cam_wo berechnet was im sichtfeld angezeigt wird bzw. wo die unterste zeile des anzuzeigenden ist
+    prefresh(chatfeld, cam_wo, 0,0,0,rows-3, cols-1);   // refreshed das "sichtfeld" mit position von cam_wo
 }
-
+/*
 void get_eingabe(char *buf){
     wmove(eingabefeld, 0, 0);   //moved curser auf 0 0 im eingabefeld
     wclrtoeol(eingabefeld); //cleared das eingabe feld
@@ -57,3 +59,4 @@ void get_eingabe(char *buf){
     noecho();   //nutzereingabe wird unsichtbar gemacht
     wclrtoeol(eingabefeld);
 }
+*/

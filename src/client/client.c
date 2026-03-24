@@ -196,7 +196,7 @@ void poll_loop(){
         }
         wmove(eingabefeld, 0, 0);
         wclrtoeol(eingabefeld);
-        mvwprintw(eingabefeld, 0, 0,"> %s", tipp_buf);
+        mvwprintw(eingabefeld, 1, 1,"> %s", tipp_buf);
         wrefresh(eingabefeld);
         
         
@@ -227,18 +227,15 @@ TODO:   Nachrichten kommen in answer teilweise nicht als einzelne Zeilen sondern
 
 void print_answer(char *answer, char *nickname){
 
-    /*if(nickname == NULL){
-        chat_print(answer);
-        return;
-    }*/
+    
     if(nickname == NULL){
-        char *dupl2 = strdup(answer);
-        char *line2 = strtok(dupl2, "\r\n");
+        char *copy = strdup(answer);
+        char *line2 = strtok(copy, "\r\n");
         while(line2 != NULL){
             chat_print(line2);
             line2 = strtok(NULL, "\r\n");
         }
-        free(dupl2);
+        free(copy);
         return;
     }
 
