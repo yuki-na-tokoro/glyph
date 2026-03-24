@@ -2,6 +2,7 @@
 #define COMMANDS_H
 #include "data.h"
 
+//TODO: MOTD command
 
 /**
 * @brief Used to INIT channel map ONCE
@@ -100,7 +101,7 @@ int time_cmd(struct client *c, struct command *a);
 /**
 *
 */
-int admin(struct client *c, struct command *a);
+// int admin(struct client *c, struct command *a);
 
 /**
 *
@@ -126,10 +127,8 @@ int who(struct client *c, struct command *a);
 *
 */
 int whois(struct client *c, struct command *a);
-/**
-*
-*/
-int whowas(struct client *c, struct command *a);
+
+// int whowas(struct client *c, struct command *a);
 
 /**
 *

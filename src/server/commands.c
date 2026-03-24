@@ -206,13 +206,6 @@ int pong(struct client *c, struct command *cmd) {
   return 0;
 }
 
-int oper(struct client *c, struct command *a){
-  return 0; 
-}
-
-int quit(struct client *c, struct command *a);
-
-int part(struct client *c, struct command *a);
 
 int version(struct client *c, struct command *a){
   msg_client(c, "Current glyph version is :%s", VERSION);  
@@ -253,26 +246,58 @@ int info(struct client *c, struct command *cmd){
   return 0;
 }
 
-int privmsg(struct client *c, struct command *cmd);
+int privmsg(struct client *c, struct command *cmd)
+{
+  if (cmd->trailing != NULL){
+    tracemsg("Too few args provided to PRIVMSG");
+    // TODO: corect error msg
+    msg_client(c,":Server %s : missing args!\r\n",cmd->command);
+    return 0;
+  }
+  return 0;
+}
+
+int kill(struct client *c, struct command *a){
+  return 0;
+}
+  // close(clients[i]->fd);
+  // free(clients[i]);
+
+int quit(struct client *c, struct command *a){
+  return 0;
+}
+
+int part(struct client *c, struct command *a){
+  return 0;
+}
+
+int topic(struct client *c, struct command *a){
+  return 0;
+}
+
+int names(struct client *c, struct command *a){
+  return 0;
+}
+
+int list(struct client *c, struct command *a){
+  return 0;
+}
+
+/**
+* LOW PRIORITY COMMANDS
+*/
+
+// int error(struct client *c, struct command *a);
+
+// int kick(struct client *c, struct command *a);
+
+// int oper(struct client *c, struct command *a){
+//   return 0; 
+// }
 
 // int notice(struct client *c, struct command *a);
 
 // int who(struct client *c, struct command *a);
 
 // int whois(struct client *c, struct command *a);
-
-int kill(struct client *c, struct command *a);
-// close(clients[i]->fd);
-// free(clients[i]);
-
-
-int error(struct client *c, struct command *a);
-
-int topic(struct client *c, struct command *a);
-
-int names(struct client *c, struct command *a);
-
-int list(struct client *c, struct command *a);
-
-// int kick(struct client *c, struct command *a);
 
