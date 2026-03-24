@@ -1,5 +1,6 @@
 //Befehle für den Server
 #include <stdbool.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -12,23 +13,19 @@
 typedef int cmd_fn(struct client*, struct command*);
 
 // hashmap: name -> function
-struct map cmd_fns, channels;
+struct map cmd_fns, chn_map;
 
 void init_channel_map(void){
-  channels = map_init(64);
+  chn_map = map_init(64);
 }
 
-void cmd_fns_put(char* cmd_name, cmd_fn fn) {
-  map_put(&cmd_fns, cmd_name, (void*)fn);
-}
-
-void init_command_map() {
+void init_command_map(void) {
   cmd_fns = map_init(64);
-  cmd_fns_put("NICK", nick);
-  cmd_fns_put("USER", user);
-  cmd_fns_put("JOIN", join);
-  cmd_fns_put("PING", ping);
-  cmd_fns_put("PONG", pong);
+  map_put(&cmd_fns, "NICK", (void*)nick);
+  map_put(&cmd_fns, "USER", (void*)user);
+  map_put(&cmd_fns, "JOIN", (void*)join);
+  map_put(&cmd_fns, "PING", (void*)ping);
+  map_put(&cmd_fns, "PONG", (void*)pong);
 }
 
 void welcome_msg(struct client *client) {
@@ -104,7 +101,10 @@ int parse_msg(char *raw, struct command *out) {
     tracemsg("tags: %s", tags);
     body = strtok(NULL, "");
   } else {
-    body = raw; 
+    if ((body = malloc(strlen(raw) * sizeof(char) + 1)) == NULL) {
+      // TODO: error handling
+    }
+    strcpy(body, raw);
   }
 
   if (body[0] == ':') {
@@ -144,36 +144,35 @@ int user(struct client *c, struct command *cmd) {
 }
 
 int join(struct client *c, struct command *cmd) {
-  char *a,*b;
-  a = NULL;
-  b = strtok(cmd->parameters," ");
-  for (int i = 0; i<15;i++){
 
-    if (a == NULL) a = strtok(b,",");
-    else a = strtok(NULL,",");
-    if(a == NULL){
-      if (i == 0) {
-        /* TODO:...*/
-        tracemsg("Too few arguments.");
-      }
-      else break;
-      }
-    if (map_get(&c->channels, a) == NULL) {
-      struct channel ch;
-      strcpy(ch.name,a);
-      ch.op = set_init(4);
-      ch.members=map_init(16);
-      set_put(&ch.op,c->username);
-      map_put(&ch.members,c->username,c);
-      map_put(&c->channels,a,&ch);    
+  char *channels = strtok(cmd->parameters, " ");
+  char *channel_name = strtok(channels, ",");
+
+  while (channel_name != NULL) {
+    if (map_get(&chn_map, channel_name) == NULL) {
+
+      struct channel channel;
+
+      strcpy(channel.name, channel_name);
+
+      channel.op = set_init(4);
+      channel.members = map_init(16);
+
+      set_put(&channel.op, c->username);
+
+      map_put(&channel.members, c->username, c);
+      map_put(&chn_map, channel_name, &channel);
+      map_put(&c->channels, channel_name, &channel);    
+
+    } else {
+
+      struct channel *channel = map_get(&c->channels, channel_name);
+
+      map_put(&channel->members, c->nick, c);
+      map_put(&c->channels, channel->name, channel);
     }
-    else {
-      struct channel *temp = map_get(&c->channels, a);
-      map_put(&temp->members, c->nick, c);
-      map_put(&c->channels, temp->name, temp);
-     }
-    
   }
+
   return 0;
 }
 
@@ -195,13 +194,13 @@ int oper(struct client *c, struct command *a){
   return 0; 
 }
 
-int join(struct client *c, struct command *a);
-
 int quit(struct client *c, struct command *a);
 
 int part(struct client *c, struct command *a);
 
-int version(struct client *c, struct command *a);
+int version(struct client *c, struct command *a){
+  
+}
 
 int stats(struct client *c, struct command *a);
 

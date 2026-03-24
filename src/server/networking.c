@@ -101,6 +101,7 @@ int accept_client(int sockfd, struct client* c) {
     return -1;
   }
   c->regstatus = REGSTAT_NONE;
+  c->channels = map_init(16);
 
   return 1;
 }
