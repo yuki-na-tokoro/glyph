@@ -3,12 +3,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <time.h>
 
 #include "commands.h"
 #include "../logging.h"
 #include "../hashtypes.h"
 #include "client.h"
 #include "data.h"
+#include "numerics.h"
 
 typedef int cmd_fn(struct client*, struct command*);
 
@@ -34,9 +36,9 @@ void init_command_map() {
 
 void welcome_msg(struct client *client) {
   msg_client(client, ":glyph 001 %s :Hello, %s!\r\n", client->nick, client->nick);
-  msg_client(client, ":glyph 002 %s :This server is running glyph 0.1.0\r\n", client->nick);
+  msg_client(client, ":glyph 002 %s :This server is running glyph %s\r\n", client->nick, VERSION);
   msg_client(client, ":glyph 003 %s :This server was created at some point\r\n", client->nick);
-  msg_client(client, ":glyph 004 %s glyph 0.1.0\r\n", client->nick);
+  msg_client(client, ":glyph 004 %s glyph %s\r\n", client->nick, VERSION);
   msg_client(client, ":glyph 005 %s CASEMAPPING=ascii CHANLIMIT=#: CHANNELLEN=32 CHANTYPES=#\r\n", client->nick);
   msg_client(client, ":glyph 422 %s :No MOTD\r\n", client->nick);
   logmsg("client %s successfully registered", client->nick);
@@ -213,31 +215,56 @@ int quit(struct client *c, struct command *a);
 int part(struct client *c, struct command *a);
 
 int version(struct client *c, struct command *a){
-  
+  msg_client(c, "Current glyph version is :%s", VERSION);  
+  return 0;
 }
 
-int stats(struct client *c, struct command *a);
+int time_cmd(struct client *c, struct command *cmd){
+  if (cmd->parameters != NULL || cmd->trailing != NULL){
+    tracemsg("Invalid params provided to TIME");
+    // TODO: corect error msg
+    msg_client(c,"Too Many Arguments!\r\n");
+    return 0;
+  }
+  time_t rawtime;
+  struct tm *timeinfo;
+  char timestr[80];
+  
+  time(&rawtime);
+  timeinfo = localtime(&rawtime);
 
-int time(struct client *c, struct command *a);
+  strftime(timestr,sizeof(timestr),"%Y.%m.%d - %H:%M:%S", timeinfo);
+  
+  msg_client(c,"Server localtime is: %s \r\n",timestr);
+  return 0;  
+}
 
-int admin(struct client *c, struct command *a);
+int info(struct client *c, struct command *cmd){
+  if (cmd->parameters != NULL || cmd->trailing != NULL){
+    tracemsg("Invalid params provided to INFO");
+    // TODO: corect error msg
+    msg_client(c,":Server %s : Too many args!\r\n",cmd->command);
+    return 0;
+  }
+  msg_client(c,"\x1b[36m   ______ __               __  \n \x1b[36m  / ____// /_  __ ____   / /_  \n \x1b[34m / / __ / / / / // __ \\ / __ \\ \n \x1b[34m/ /_/ // / /_/ // /_/ // / / / \n \x1b[35m\\____//_/\\__, // .___//_/ /_/  \n \x1b[35m        /____//_/              \n \x1b[97m     GLYPH IRC SERVER %s     \x1b[0m\n\r\n",VERSION);
+  // msg_client(c,"glyph IRC Server Version:%s\r\n",VERSION);
+  msg_client(c,"made by: %s\r\n",AUTHORS);
+  msg_client(c,"compile date: %s\r\n",COMPILE_DATE);
+  return 0;
+}
 
-int info(struct client *c, struct command *a);
+int privmsg(struct client *c, struct command *cmd);
 
-int privmsg(struct client *c, struct command *a);
+// int notice(struct client *c, struct command *a);
 
-int notice(struct client *c, struct command *a);
+// int who(struct client *c, struct command *a);
 
-int who(struct client *c, struct command *a);
-
-int whois(struct client *c, struct command *a);
-int whowas(struct client *c, struct command *a);
+// int whois(struct client *c, struct command *a);
 
 int kill(struct client *c, struct command *a);
+// close(clients[i]->fd);
+// free(clients[i]);
 
-int ping(struct client *c, struct command *a);
-
-int pong(struct client *c, struct command *a);
 
 int error(struct client *c, struct command *a);
 
@@ -247,8 +274,5 @@ int names(struct client *c, struct command *a);
 
 int list(struct client *c, struct command *a);
 
-int invite(struct client *c, struct command *a);
-
-int kick(struct client *c, struct command *a);
-
+// int kick(struct client *c, struct command *a);
 
