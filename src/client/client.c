@@ -99,6 +99,7 @@ void poll_loop(){
 
     //Änderung:
     char tipp_buf[MSG_SIZE];
+    memset(tipp_buf, 0, MSG_SIZE);
     int tbuf_index = 0;
 
     // Beej Abschnitt 7.2
@@ -115,7 +116,7 @@ void poll_loop(){
     pfds[0].fd = sockfd;
     pfds[0].events = POLLIN;
     
-    timeout(0);
+    wtimeout(eingabefeld, 0);
 
     //int step = 1;
 
@@ -226,29 +227,35 @@ TODO:   Nachrichten kommen in answer teilweise nicht als einzelne Zeilen sondern
 
 void print_answer(char *answer, char *nickname){
 
-    if(nickname == NULL){
+    /*if(nickname == NULL){
         chat_print(answer);
+        return;
+    }*/
+    if(nickname == NULL){
+        char *dupl2 = strdup(answer);
+        char *line2 = strtok(dupl2, "\r\n");
+        while(line2 != NULL){
+            chat_print(line2);
+            line2 = strtok(NULL, "\r\n");
+        }
+        free(dupl2);
         return;
     }
 
-
     char *dupl = strdup(answer);    // macht ne kopie vom string damit "echter" string nicht kaput gemacht wird
-    char *line = strtok(dupl, "\n");    //spaltet string an zeilen ende auf 
+    char *line = strtok(dupl, "\r\n");    //spaltet string an zeilen ende auf
     while (line != NULL){
-        char *posnick = strstr(line, nickname); //sucht position vom Nickname
-        char *poscol = (posnick != NULL) ? strchr(posnick, ':') : NULL; //sucht poition vom Doppelpunkt nach Nickname
+        if(strlen(line) > 0){
+            char *posnick = strstr(line, nickname); //sucht position vom Nickname
+            char *poscol = (posnick != NULL) ? strchr(posnick, ':') : NULL; //sucht position vom Doppelpunkt nach Nickname
 
-        if(posnick == NULL || poscol == NULL){
-            // chat_print(line);    // wenn kein nickname oder kein doppelpunkt gefunden: unveränderte zeile wird geprintet
-            chat_print(line);
-
-        }else{
-            //chat_print((poscol + 1));
-            chat_print("%s", poscol + 1); // zeilen inhalt nach doppelpunkt geprintet
-            //chat_print(poscol);
+            if(posnick == NULL || poscol == NULL){
+                chat_print(line);
+            }else{
+                chat_print(poscol + 1); // zeilen inhalt nach doppelpunkt geprintet
+            }
         }
-
-        line = strtok(NULL, "\n");  //strtok macht in nächster zeile weiter
+        line = strtok(NULL, "\r\n");  //strtok macht in nächster zeile weiter
     }
     free(dupl); 
 
