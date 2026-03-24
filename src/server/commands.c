@@ -18,13 +18,17 @@ void init_channel_map(void){
   channels = map_init(64);
 }
 
-void init_command_map(void) {
+void cmd_fns_put(char* cmd_name, cmd_fn fn) {
+  map_put(&cmd_fns, cmd_name, (void*)fn);
+}
+
+void init_command_map() {
   cmd_fns = map_init(64);
-  map_put(&cmd_fns, "NICK", (void*)nick);
-  map_put(&cmd_fns, "USER", (void*)user);
-  map_put(&cmd_fns, "JOIN", (void*)join);
-  map_put(&cmd_fns, "PING", (void*)ping);
-  map_put(&cmd_fns, "PONG", (void*)pong);
+  cmd_fns_put("NICK", nick);
+  cmd_fns_put("USER", user);
+  cmd_fns_put("JOIN", join);
+  cmd_fns_put("PING", ping);
+  cmd_fns_put("PONG", pong);
 }
 
 void welcome_msg(struct client *client) {
