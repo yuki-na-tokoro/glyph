@@ -85,6 +85,8 @@ int raw_msg(struct client *client, char *buffer) {
   }
 
   fn(client, &parsed);
+
+  free(parsed.command);
   
   return 0;
 }
@@ -153,18 +155,24 @@ int join(struct client *c, struct command *cmd) {
   char *channel_name = strtok(channels, ",");
 
   while (channel_name != NULL) {
+    tracemsg("channel: %s", channel_name);
     if (map_get(&chn_map, channel_name) == NULL) {
+      tracemsg("creating channel %s", channel_name);
 
-      struct channel channel;
+      struct channel *channel;
 
-      strcpy(channel.name, channel_name);
+      if ((channel = malloc(sizeof(struct channel))) == NULL)  {
+        // TODO: error handling
+      }
 
-      channel.op = set_init(4);
-      channel.members = map_init(16);
+      strcpy(channel->name, channel_name);
 
-      set_put(&channel.op, c->username);
+      channel->op = set_init(4);
+      channel->members = map_init(16);
 
-      map_put(&channel.members, c->username, c);
+      set_put(&channel->op, c->username);
+
+      map_put(&channel->members, c->username, c);
       map_put(&chn_map, channel_name, &channel);
       map_put(&c->channels, channel_name, &channel);    
 
@@ -175,6 +183,8 @@ int join(struct client *c, struct command *cmd) {
       map_put(&channel->members, c->nick, c);
       map_put(&c->channels, channel->name, channel);
     }
+
+    channel_name = strtok(NULL, ",");
   }
 
   return 0;
