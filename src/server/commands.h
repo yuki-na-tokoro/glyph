@@ -24,6 +24,10 @@ int raw_msg(struct client *client, char *buffer);
 int parse_msg(char *raw, struct command *msg);
 
 /**
+*
+*/
+int welcome(struct client *c);
+/**
 * @brief Setzt das Connection Passwort 
 */
 int pass(struct client *c, struct command *a);
@@ -54,13 +58,6 @@ int oper(struct client *c, struct command *a);
 */
 int quit(struct client *c, struct command *a);
 
-
-/**
-*######################################
-* Channel Operations
-*######################################
-*/
-
 /**
 * @brief Genutzt wenn ein Nutzer sich zu einem Kanal (Channel) verbinden möchte.
 *
@@ -69,6 +66,7 @@ int quit(struct client *c, struct command *a);
 * @param key -> Passwort des Channels
 */
 int join(struct client *c, struct command *a);
+
 /**
 * @brief Bricht die Verbindung des Nutzers zu allen gegebenen Channels ab.
 *
@@ -76,12 +74,6 @@ int join(struct client *c, struct command *a);
 * @param channels
 */
 int part(struct client *c, struct command *a);
-
-/**
-*######################################
-* Server Queries and Commands
-*######################################
-*/
 
 /**
 */
