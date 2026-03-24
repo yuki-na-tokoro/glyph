@@ -52,6 +52,7 @@
   | Command | Syntax | Beschreibung |
   |---------|--------|--------------|
   | WHOIS | `WHOIS <user>\r\n` | Info über einen User |
+  | INFO | `INFO\r\n` | Info über den Server |
   | WHO | `WHO <#channel>\r\n` | User in einem Channel |
   | MOTD | `MOTD\r\n` | Message of the Day |
   | PING | `PING <token>\r\n` | Verbindung prüfen |
