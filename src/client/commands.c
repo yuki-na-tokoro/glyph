@@ -64,7 +64,7 @@ TODO:   - Sicherheitschecks und Errohandling überprüfen und einbauen
 int send_command(int *sockfd, char *input, char **host, char **port, char **nickname, char **channelname){
     int count = 0;
 
-    if(*sockfd == -1 && strcmp(input, "/connect", 8) != 0){
+    if(*sockfd == -1 && strncmp(input, "/connect", 8) != 0){
             chat_print("Nicht verbunden. Nutze /connect um dich mit einem Server zu verbinden");    // Erlaubt keine anderen Commands wenn noch nicht mit Host verbunden
             return -1;
         }
