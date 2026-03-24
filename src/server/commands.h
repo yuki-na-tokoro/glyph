@@ -4,15 +4,35 @@
 
 //TODO: MOTD command
 
+
+typedef int cmd_fn(struct client*, struct command*);
+
 /**
 * @brief Used to INIT channel map ONCE
 */
 void init_channel_map(void);
 
 /**
+* @brief TODO:...
+*/
+void cmd_fns_put(char* cmd_name, cmd_fn fn);
+
+/**
 * @brief Used to INIT command map ONCE
 */
 void init_command_map(void);
+
+/**
+*
+*/
+void welcome_msg(struct client *client);
+
+/**
+*
+* TODO: ...
+*
+*/
+void handle_reg(struct client *client, struct command *cmd);
 
 /**
 * @brief Parsed die raw Msg des Clients
@@ -23,23 +43,12 @@ void init_command_map(void);
 int raw_msg(struct client *client, char *buffer);
 
 /**
-* @brief Parsed die raw Msg des Clients
+* @brief Parsed die  Msg des Clients
 * 
 * @param Buffer mit der Nachricht des Clients
 * @param struct zum Eintragen der Daten nach dem auswerten
 */
 int parse_msg(char *raw, struct command *msg);
-
-/**
-*
-*/
-int welcome(struct client *c);
-/**
-* @brief WILL NOT BE USED FOR NOW!!
-*
-* @brief Setzt das Connection Passwort 
-*/
-int pass(struct client *c, struct command *a);
 
 /**
 * @brief Setzt einen Nichnamen und vergleicht mit vorhandenen Nicknamen
@@ -50,6 +59,61 @@ int nick(struct client *c, struct command *a);
 * @brief Setzt einen Nutzername bei verbindung.
 */
 int user(struct client *c, struct command *a);
+
+/**
+* @brief Genutzt wenn ein Nutzer sich zu einem Kanal (Channel) verbinden möchte.
+*
+* @param user
+* @param channel -> Channel name/Id
+* @param key -> Passwort des Channels
+*/
+int join(struct client *c, struct command *a);
+
+/**
+*
+*/
+int ping(struct client *c, struct command *a);
+
+/**
+*
+*/
+int pong(struct client *c, struct command *a);
+
+/**
+*
+*/
+int version(struct client *c, struct command *cmd);
+
+/**
+*
+*/
+int time_cmd(struct client *c, struct command *cmd);
+
+/**
+*
+*/
+int info(struct client *c, struct command *cmd);
+
+/**
+* @brief Gibt eine 1 zurück falls der User c existiert. WEnn nicht eine 0.
+*
+* @param c -> client / user
+*/
+int isuser(struct client *c);
+
+/**
+* @brief Sendet eine private Nachricht an einen User
+* oder wenn ziel mit einem # beginnt an einen Channel -> Liste von Usern
+*
+* @param c -> client/user
+* @param cmd -> Command struct
+*/
+int privmsg(struct client *c, struct command *cmd);
+
+/**
+*
+*/
+int kill(struct client *c, struct command *a);
 
 /**
 * @brief setzt einen USER in einem Channel auf OPERATOR
@@ -68,50 +132,18 @@ int oper(struct client *c, struct command *a);
 int quit(struct client *c, struct command *a);
 
 /**
-* @brief Genutzt wenn ein Nutzer sich zu einem Kanal (Channel) verbinden möchte.
-*
-* @param user
-* @param channel -> Channel name/Id
-* @param key -> Passwort des Channels
-*/
-int join(struct client *c, struct command *a);
-
-/**
 * @brief Bricht die Verbindung des Nutzers zu allen gegebenen Channels ab.
 *
 * @param user
 * @param channels
 */
-int part(struct client *c, struct command *a);
+int part(struct client *c, struct command *cmd);
 
-/**
-*/
-int version(struct client *c, struct command *a);
-
-/**
-*/
-int stats(struct client *c, struct command *a);
 
 /**
 *
 */
-
-int time_cmd(struct client *c, struct command *a);
-
-/**
-*
-*/
-// int admin(struct client *c, struct command *a);
-
-/**
-*
-*/
-int info(struct client *c, struct command *a);
-
-/**
-*
-*/
-int privmsg(struct client *c, struct command *a);
+int stats(struct client *c, struct command *cmd);
 
 /**
 *
@@ -129,21 +161,6 @@ int who(struct client *c, struct command *a);
 int whois(struct client *c, struct command *a);
 
 // int whowas(struct client *c, struct command *a);
-
-/**
-*
-*/
-int kill(struct client *c, struct command *a);
-
-/**
-*
-*/
-int ping(struct client *c, struct command *a);
-
-/**
-*
-*/
-int pong(struct client *c, struct command *a);
 
 /**
 *
@@ -174,5 +191,17 @@ int invite(struct client *c, struct command *a);
 *
 */
 int kick(struct client *c, struct command *a);
+
+/**
+*
+*/
+// int admin(struct client *c, struct command *cmd);
+
+/**
+* @brief WILL NOT BE USED FOR NOW!!
+*
+* @brief Setzt das Connection Passwort 
+*/
+// int pass(struct client *c, struct command *a);
 
 #endif // COMMANDS_H
