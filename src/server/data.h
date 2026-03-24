@@ -32,8 +32,8 @@ struct command {
 struct channel {
   char name[CH_LEN];
   char topic[TOPIC_LEN];
-  struct client *op;
-  struct set members;
+  struct set op;
+  struct map members;
 };
 
 #endif // DATA_H
