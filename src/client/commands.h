@@ -1,7 +1,7 @@
   #ifndef COMMANDS_H
   #define COMMANDS_H
 
-  #define CLIENT_COMMANDS 18
+  #define CLIENT_COMMANDS 42
 
   #include "../protocol.h"
 

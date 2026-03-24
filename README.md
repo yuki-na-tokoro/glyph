@@ -1,21 +1,15 @@
 # glyph
 
-## table of contents
-  1. [notes](#notes)
-  2. [resources](#resources)
-  3. [server-todos](#server)
-
-## notes
 - IRC läuft Standardmäßig auf Port 6667 
 - irc.libera.chat -> öffentliches IRC-Netzwerk
 - IRC-Nachrichten haben eine maximale Größe von 512 Bytes
 
-## resources
+## Resources
 - Networking in C: [Beej's guide to Network Programming](https://beej.us/guide/bgnet/)
 - IRC Protocol -> for Communication: [Better IRC Guide](https://modern.ircdocs.horse/) [IRC](https://www.rfc-editor.org/rfc/rfc1459)
 - git commit conventions: [Conventional Commit Messages](https://gist.github.com/qoomon/5dfcdf8eec66a051ecd85625518cfd13)
 
-## Client Commands
+## Client-Commands
 
   ### Verbindung
 
@@ -39,6 +33,7 @@
   | KICK | `KICK <#channel> <user> [:<reason>]\r\n` | User kicken |
   | INVITE | `INVITE <user> <#channel>\r\n` | User einladen |
   | MODE | `MODE <#channel> <flags>\r\n` | Channel-Modus setzen |
+  | KNOCK | `KNOCK <#channel>\r\n` | An invite-only Channel anklopfen |
 
   ### Nachrichten
 
@@ -52,9 +47,34 @@
   | Command | Syntax | Beschreibung |
   |---------|--------|--------------|
   | WHOIS | `WHOIS <user>\r\n` | Info über einen User |
+  | WHOWAS | `WHOWAS <user>\r\n` | Info über früheren User |
   | INFO | `INFO\r\n` | Info über den Server |
   | TIME | `TIME\r\n` | Lokalzeit des Servers |
+  | VERSION | `VERSION\r\n` | Server-Version abfragen |
+  | ADMIN | `ADMIN\r\n` | Admin-Info |
+  | LUSERS | `LUSERS\r\n` | User-Statistiken |
+  | LINKS | `LINKS\r\n` | Verlinkte Server |
+  | TRACE | `TRACE\r\n` | Route zum Server |
+  | HELP | `HELP\r\n` | Server-Hilfe |
+  | MAP | `MAP\r\n` | Server-Netzwerk-Karte |
+  | USERS | `USERS\r\n` | User auf dem Server |
+  | STATS | `STATS <query>\r\n` | Server-Statistiken |
   | WHO | `WHO <#channel>\r\n` | User in einem Channel |
   | MOTD | `MOTD\r\n` | Message of the Day |
   | PING | `PING <token>\r\n` | Verbindung prüfen |
   | PONG | `PONG <token>\r\n` | Antwort auf PING |
+  | AWAY | `AWAY [:<message>]\r\n` | Abwesenheit setzen |
+  | ISON | `ISON <nick> [<nick>...]\r\n` | Prüfen ob User online |
+  | USERHOST | `USERHOST <nick>\r\n` | Host eines Users |
+  | MONITOR | `MONITOR +/-/l <nick>\r\n` | User online-Status überwachen |
+  | WALLOPS | `WALLOPS :<message>\r\n` | Broadcast an Operatoren |
+
+  ### Operator
+
+  | Command | Syntax | Beschreibung |
+  |---------|--------|--------------|
+  | OPER | `OPER <name> <password>\r\n` | Operator-Rechte erlangen |
+  | KILL | `KILL <user> :<reason>\r\n` | User trennen |
+  | SQUIT | `SQUIT <server> <reason>\r\n` | Server-Link trennen |
+  | REHASH | `REHASH\r\n` | Server-Config neu laden |
+  | RESTART | `RESTART\r\n` | Server neu starten |

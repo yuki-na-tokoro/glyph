@@ -10,24 +10,48 @@
 #include "screen.h"
 
 struct command commands[CLIENT_COMMANDS] = {
-    {"Nickname", "/nick",   "NICK %s\r\n",            false,    17,       1}, //
-    {"User",     "/user",   "USER %s 0 * :%s\r\n",    false,    MSG_SIZE, 2}, //
-    {"Connect",  "/connect","CONNECT %s 6667\r\n",    false,    MSG_SIZE, 1}, //
-    {"Quit",     "/quit",   "QUIT\r\n",               false,    MSG_SIZE, 0}, // Memory Leak ?
-    {"Passwort", "/pass",   "PASS %s\r\n",            false,    MSG_SIZE, 1}, // Idk wie ich das testen soll
-    {"Join",     "/join",   "JOIN %s\r\n",            false,    MSG_SIZE, 1}, // 
-    {"Part",     "/part",   "PART %s\r\n",            true,     MSG_SIZE, 1}, //
-    {"Topic",    "/topic",  "TOPIC %s\r\n",           true,     MSG_SIZE, 1}, // Kann noch kein Topic setzen
-    {"Names",    "/names",  "NAMES %s\r\n",           true,     MSG_SIZE, 1}, // 
-    {"List",     "/list",   "LIST\r\n",               false,    MSG_SIZE, 0}, //
-    {"Kick",     "/kick",   "KICK %s %s :%s\r\n",     false,    MSG_SIZE, 3}, //
-    {"Invite",   "/invite", "INVITE %s %s\r\n",       false,    MSG_SIZE, 2}, //
-    {"Mode",     "/mode",   "MODE %s %s\r\n",         false,    MSG_SIZE, 2}, //
-    {"Msg",      "/msg",    "PRIVMSG %s :%s\r\n",     false,    MSG_SIZE, 2}, //
-    {"Notice",   "/notice", "NOTICE %s :%s\r\n",      false,    MSG_SIZE, 2}, //
-    {"Whois",    "/whois",  "WHOIS %s\r\n",           true,     MSG_SIZE, 1}, //
-    {"Who",      "/who",    "WHO %s\r\n",             false,    MSG_SIZE, 1}, //
-    {"Motd",     "/motd",   "MOTD\r\n",               false,    MSG_SIZE, 0}, //
+    {"Quit",        "/quit",        "QUIT\r\n",                 false,  MSG_SIZE, 0}, //
+    {"List",        "/list",        "LIST\r\n",                 false,  MSG_SIZE, 0}, //
+    {"Motd",        "/motd",        "MOTD\r\n",                 false,  MSG_SIZE, 0}, //
+    {"Time",        "/time",        "TIME\r\n",                 false,  MSG_SIZE, 0}, //
+    {"Info",        "/info",        "INFO\r\n",                 false,  MSG_SIZE, 0}, //
+    {"Version",     "/version",     "VERSION\r\n",              false,  MSG_SIZE, 0}, //
+    {"Lusers",      "/lusers",      "LUSERS\r\n",               false,  MSG_SIZE, 0}, //
+    {"Links",       "/links",       "LINKS\r\n",                false,  MSG_SIZE, 0}, //
+    {"Admin",       "/admin",       "ADMIN\r\n",                false,  MSG_SIZE, 0}, //
+    {"Trace",       "/trace",       "TRACE\r\n",                false,  MSG_SIZE, 0}, //
+    {"Help",        "/help",        "HELP\r\n",                 false,  MSG_SIZE, 0}, //
+    {"Rehash",      "/rehash",      "REHASH\r\n",               false,  MSG_SIZE, 0}, //
+    {"Restart",     "/restart",     "RESTART\r\n",              false,  MSG_SIZE, 0}, //
+    {"Map",         "/map",         "MAP\r\n",                  false,  MSG_SIZE, 0}, //
+    {"Users",       "/users",       "USERS\r\n",                false,  MSG_SIZE, 0}, //
+    {"Connect",     "/connect",     "CONNECT %s 6667\r\n",      false,  MSG_SIZE, 1}, //
+    {"Nickname",    "/nick",        "NICK %s\r\n",              false,  17,       1}, //
+    {"Passwort",    "/pass",        "PASS %s\r\n",              false,  MSG_SIZE, 1}, // Idk wie ich das testen soll
+    {"Join",        "/join",        "JOIN %s\r\n",              false,  MSG_SIZE, 1}, // 
+    {"Part",        "/part",        "PART %s\r\n",              true,   MSG_SIZE, 1}, //
+    {"Topic",       "/topic",       "TOPIC %s\r\n",             true,   MSG_SIZE, 1}, // Kann noch kein Topic setzen
+    {"Names",       "/names",       "NAMES %s\r\n",             true,   MSG_SIZE, 1}, // 
+    {"Whois",       "/whois",       "WHOIS %s\r\n",             true,   MSG_SIZE, 1}, //
+    {"Who",         "/who",         "WHO %s\r\n",               false,  MSG_SIZE, 1}, //
+    {"Away",        "/away",        "AWAY :%s\r\n",             false,  MSG_SIZE, 1}, //
+    {"Whowas",      "/whowas",      "WHOWAS %s\r\n",            false,  MSG_SIZE, 1}, //
+    {"Ison",        "/ison",        "ISON %s\r\n",              false,  MSG_SIZE, 1}, //
+    {"Userhost",    "/userhost",    "USERHOST %s\r\n",          false,  MSG_SIZE, 1}, //
+    {"Ping",        "/ping",        "PING %s\r\n",              false,  MSG_SIZE, 1}, //
+    {"Wallops",     "/wallops",     "WALLOPS :%s\r\n",          false,  MSG_SIZE, 1}, // Kann ich nicht auf einem public Server testen
+    {"Stats",       "/stats",       "STATS %s\r\n",             false,  MSG_SIZE, 1}, //
+    {"Knock",       "/knock",       "KNOCK %s\r\n",             false,  MSG_SIZE, 1}, //
+    {"Monitor",     "/monitor",     "MONITOR %s\r\n",           false,  MSG_SIZE, 1}, //
+    {"User",        "/user",        "USER %s 0 * :%s\r\n",      false,  MSG_SIZE, 2}, //
+    {"Invite",      "/invite",      "INVITE %s %s\r\n",         false,  MSG_SIZE, 2}, //
+    {"Mode",        "/mode",        "MODE %s %s\r\n",           false,  MSG_SIZE, 2}, //
+    {"Msg",         "/msg",         "PRIVMSG %s :%s\r\n",       false,  MSG_SIZE, 2}, //
+    {"Notice",      "/notice",      "NOTICE %s :%s\r\n",        false,  MSG_SIZE, 2}, //
+    {"Oper",        "/oper",        "OPER %s %s\r\n",           false,  MSG_SIZE, 2}, // Kann ich nicht auf einem public Server testen
+    {"Kill",        "/kill",        "KILL %s :%s\r\n",          false,  MSG_SIZE, 2}, // Kann ich nicht auf einem public Server testen
+    {"Squit",       "/squit",       "SQUIT %s %s\r\n",          false,  MSG_SIZE, 2}, // Kann ich nicht auf einem public Server testen
+    {"Kick",        "/kick",        "KICK %s %s :%s\r\n",       false,  MSG_SIZE, 3}, //
 };
 
 /*
@@ -40,7 +64,7 @@ TODO:   - Sicherheitschecks und Errohandling überprüfen und einbauen
 int send_command(int *sockfd, char *input, char **host, char **port, char **nickname, char **channelname){
     int count = 0;
 
-    if(*sockfd == -1 && strncmp(input, "/connect", 8) != 0){
+    if(*sockfd == -1 && strcmp(input, "/connect", 8) != 0){
             chat_print("Nicht verbunden. Nutze /connect um dich mit einem Server zu verbinden");    // Erlaubt keine anderen Commands wenn noch nicht mit Host verbunden
             return -1;
         }
@@ -90,7 +114,18 @@ int send_command(int *sockfd, char *input, char **host, char **port, char **nick
                 return 0;
             }
             case 1: {   // Ein Argument übergeben
-                char *arg1 = strtok(NULL, " ");
+                char *arg1;
+
+                if(strcmp(comm, "/away") == 0 || strcmp(comm, "/ison") == 0 || strcmp(comm, "/wallops") == 0){ // Argument kann ein oder mehrere Wörter sein
+                    arg1 = strtok(NULL, "");    // Away Nachricht kann so lang wie bei msg oder notice sein
+                    if(arg1 == NULL && strcmp(comm, "/away") == 0){ // Argument ist optional
+                        send_msg(*sockfd, "AWAY\r\n");
+                        return 0;
+                    }
+                }
+                else{
+                    arg1 = strtok(NULL, " ");
+                }
 
                 if(arg1 == NULL && commands[i].channel != true){    // keine Argument gegeben und Channel kann nicht automatisch übergeben werden
                     chat_print("Zu wenige Argumente übergeben");
@@ -162,7 +197,7 @@ int send_command(int *sockfd, char *input, char **host, char **port, char **nick
             case 2: {   // Zwei Argumente übergeben
                 char *arg1 = NULL;
                 char *arg2;
-                if(strcmp(comm, "/msg") == 0 || strcmp(comm, "/notice") == 0){  // Falls PRIVMSG oder NOTICE weil die brauchen mehr Space für die Nachricht
+                if(strcmp(comm, "/msg") == 0 || strcmp(comm, "/notice") == 0 || strcmp(comm, "/kill") == 0 || strcmp(comm, "/squit") == 0){  // Falls PRIVMSG oder NOTICE weil die brauchen mehr Space für die Nachricht
                     arg1 = strtok(NULL, " ");   //  Liest den Channel 
                     arg2 = strtok(NULL, "");    // Liest den Rest der Nachricht
                     if(arg2 == NULL){
