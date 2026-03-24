@@ -12,9 +12,13 @@
 typedef int cmd_fn(struct client*, struct command*);
 
 // hashmap: name -> function
-struct map cmd_fns;
+struct map cmd_fns, channels;
 
-void init_command_map() {
+void init_channel_map(void){
+  channels = map_init(64);
+}
+
+void init_command_map(void) {
   cmd_fns = map_init(64);
   map_put(&cmd_fns, "NICK", (void*)nick);
   map_put(&cmd_fns, "USER", (void*)user);
@@ -136,6 +140,36 @@ int user(struct client *c, struct command *cmd) {
 }
 
 int join(struct client *c, struct command *cmd) {
+  char *a,*b;
+  a = NULL;
+  b = strtok(cmd->parameters," ");
+  for (int i = 0; i<15;i++){
+
+    if (a == NULL) a = strtok(b,",");
+    else a = strtok(NULL,",");
+    if(a == NULL){
+      if (i == 0) {
+        /* TODO:...*/
+        tracemsg("Too few arguments.");
+      }
+      else break;
+      }
+    if (map_get(&c->channels, a) == NULL) {
+      struct channel ch;
+      strcpy(ch.name,a);
+      ch.op = set_init(4);
+      ch.members=map_init(16);
+      set_put(&ch.op,c->username);
+      map_put(&ch.members,c->username,c);
+      map_put(&c->channels,a,&ch);    
+    }
+    else {
+      struct channel *temp = map_get(&c->channels, a);
+      map_put(&temp->members, c->nick, c);
+      map_put(&c->channels, temp->name, temp);
+     }
+    
+  }
   return 0;
 }
 
@@ -152,4 +186,52 @@ int ping(struct client *c, struct command *cmd) {
 int pong(struct client *c, struct command *cmd) {
   return 0;
 }
+
+int oper(struct client *c, struct command *a){
+  return 0; 
+}
+
+int join(struct client *c, struct command *a);
+
+int quit(struct client *c, struct command *a);
+
+int part(struct client *c, struct command *a);
+
+int version(struct client *c, struct command *a);
+
+int stats(struct client *c, struct command *a);
+
+int time(struct client *c, struct command *a);
+
+int admin(struct client *c, struct command *a);
+
+int info(struct client *c, struct command *a);
+
+int privmsg(struct client *c, struct command *a);
+
+int notice(struct client *c, struct command *a);
+
+int who(struct client *c, struct command *a);
+
+int whois(struct client *c, struct command *a);
+int whowas(struct client *c, struct command *a);
+
+int kill(struct client *c, struct command *a);
+
+int ping(struct client *c, struct command *a);
+
+int pong(struct client *c, struct command *a);
+
+int error(struct client *c, struct command *a);
+
+int topic(struct client *c, struct command *a);
+
+int names(struct client *c, struct command *a);
+
+int list(struct client *c, struct command *a);
+
+int invite(struct client *c, struct command *a);
+
+int kick(struct client *c, struct command *a);
+
 

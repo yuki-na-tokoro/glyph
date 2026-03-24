@@ -46,6 +46,7 @@ int main(void) {
   int ccount = 0;
   bool *mask;
 
+  init_channel_map();
   init_command_map();
 
   for (;;) {
