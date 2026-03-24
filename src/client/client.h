@@ -27,7 +27,7 @@ void send_msg(int sockfd, char *msg);
  * @param msg   Buffer in der die empfangene Nachricht gespeichert wird
  * @param buffersize    Größe des msg Buffers
  */
-void recv_msg(int sockfd, char *msg, int buffersize);
+int recv_msg(int sockfd, char *msg, int buffersize);
 
 /**
  * @brief   Stellt Verbindung mit dem Server her
