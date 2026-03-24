@@ -34,6 +34,8 @@ int parse_msg(char *raw, struct command *msg);
 */
 int welcome(struct client *c);
 /**
+* @brief WILL NOT BE USED FOR NOW!!
+*
 * @brief Setzt das Connection Passwort 
 */
 int pass(struct client *c, struct command *a);
@@ -49,11 +51,11 @@ int nick(struct client *c, struct command *a);
 int user(struct client *c, struct command *a);
 
 /**
-* @brief setzt einen USER mit richtigem PASS auf OPERATOR
-*        -> Der Nutzer muss jedoch die richtigen Permissions haben. 
+* @brief setzt einen USER in einem Channel auf OPERATOR
+*        -> Der ausführende Nutzer muss jedoch die richtigen Permissions haben. -> muss OP sein.
 * 
-* @param username -> Nutzername
-* @param pass -> Passwort des nutzers
+* @param c -> client/user
+* @param a -> commands args....
 */
 int oper(struct client *c, struct command *a);
 
@@ -93,7 +95,7 @@ int stats(struct client *c, struct command *a);
 *
 */
 
-int time(struct client *c, struct command *a);
+int time_cmd(struct client *c, struct command *a);
 
 /**
 *
