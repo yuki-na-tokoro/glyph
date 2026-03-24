@@ -84,7 +84,7 @@ TODO:   - Terminal User Interface für den Client mithilfe von ncurses implement
 
 void poll_loop(){
 
-    char *host;
+    char *host = NULL;
     char *port = "6667"; // Default Port, wird geändert insofern der Nutzer einen Port als Argument angibt
     char *nickname;
     if(getenv("USER") != NULL){
@@ -93,7 +93,7 @@ void poll_loop(){
     else{
         nickname = strdup("guest");
     }
-    char *channelname;
+    char *channelname = NULL;
 
     int sockfd = -1;
     setupscreen();
@@ -120,6 +120,7 @@ void poll_loop(){
                 sockfd = -1;
                 pfds[0].fd = -1;
                 chat_print("Verbindung zum Server geschlossen. Nutze /connect um dich erneut zu verbinden.");
+                continue;
             } 
             else if(strncmp(answer, "PING", 4) == 0){
                 send_msg(sockfd, "PONG");

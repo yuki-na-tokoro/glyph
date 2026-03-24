@@ -117,7 +117,7 @@ int send_command(int *sockfd, char *input, char **host, char **port, char **nick
 
                     *sockfd = connect_to_server(*host, *port);  // Verbindung zum Server herstellen
 
-                    if(sockfd == -1) return -1;
+                    if(*sockfd == -1) return -1;
 
                     char usermsg[MSG_SIZE];
                     count = snprintf(usermsg, sizeof(usermsg), "USER %s 0 * :%s\r\n", *nickname, *nickname);
