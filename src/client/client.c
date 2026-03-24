@@ -50,21 +50,21 @@ int connect_to_server(char *host, char *port){
     hints.ai_socktype = SOCK_STREAM;    // TCP (Stream) Socket
 
     if ((status = getaddrinfo(host, port, &hints, &servinfo)) != 0) { // Fehlerbehandlung für getaddrinfo()
-        fprintf(stderr, "gai error : %s\n", gai_strerror(status));
-        exit(1);
+        chat_print("Konnte keine Verbindung zum Server herstellen.");
+        return -1;
     }
     
     // Beej Abschnitt 5.2
     sockfd = socket(servinfo -> ai_family, servinfo -> ai_socktype, servinfo -> ai_protocol);   // File Descriptor für den Socket erstellen
     if (sockfd == -1) {
-        perror("local socket error");
-        exit(1);
+        chat_print("Konnte keinen Socket erstellen.");
+        return -1;
     }
 
     // Beej Abschnitt 5.4
     if (connect(sockfd, servinfo -> ai_addr, servinfo -> ai_addrlen) == -1) {   // Über Socket mir Server verbinden
-       perror("socket connection error");
-       exit(1);
+       chat_print("Konnte den Socket nicht verbinden.");
+       return -1;
     }
 
     freeaddrinfo(servinfo);
