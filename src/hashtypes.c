@@ -115,6 +115,10 @@ void set_put(struct set *s, char *value) {
 
   if (s->buckets[i] != NULL) {
 
+    if (strcmp(value, s->buckets[i]) == 0) {
+      return;
+    }
+
     s->cap *= 2;
 
     char **old = s->buckets;
