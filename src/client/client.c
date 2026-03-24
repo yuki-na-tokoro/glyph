@@ -126,6 +126,7 @@ void poll_loop(){
                 send_msg(sockfd, "PONG");
             }
             print_answer(answer, nickname);
+            //doupdate();
         }
         int ch = wgetch(eingabefeld);
 
@@ -142,10 +143,13 @@ void poll_loop(){
                 pfds[0].fd = sockfd;
                 memset(tipp_buf, 0, MSG_SIZE);
                 tbuf_index = 0;
+
+                
                 }
             }else if (ch == KEY_BACKSPACE){
                 if(tbuf_index >0){
                 tipp_buf[--tbuf_index] = '\0';
+               
                 }
 
             }else if (ch >= 32 && ch <= 126 && tbuf_index < MSG_SIZE - 1){
@@ -155,11 +159,13 @@ void poll_loop(){
             }
 
         }
-        wmove(eingabefeld, 0, 0);
+        wmove(eingabefeld, 1, 1);
         wclrtoeol(eingabefeld);
         mvwprintw(eingabefeld, 1, 1,"> %s", tipp_buf);
-        wrefresh(eingabefeld);
+        box(eingabefeld, 0, 0);
         
+        wnoutrefresh(eingabefeld);
+        doupdate();
         
     } 
 
