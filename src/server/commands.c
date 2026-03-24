@@ -32,6 +32,9 @@ void init_command_map() {
   cmd_fns_put("JOIN", join);
   cmd_fns_put("PING", ping);
   cmd_fns_put("PONG", pong);
+  cmd_fns_put("INFO", info);
+  cmd_fns_put("TIME", time_cmd);
+  cmd_fns_put("PRIVMSG", privmsg);
 }
 
 void welcome_msg(struct client *client) {
