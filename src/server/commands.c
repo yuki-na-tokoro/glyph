@@ -11,19 +11,16 @@
 
 typedef int cmd_fn(struct client*, struct command*);
 
-struct map cmd_fs;
-
-int cap(struct client *c, struct command *cmd) {
-  return 0;
-}
+// hashmap: name -> function
+struct map cmd_fns;
 
 void init_command_map() {
-  cmd_fs = map_init(64);
-  map_put(&cmd_fs, "NICK", (void*)nick);
-  map_put(&cmd_fs, "USER", (void*)user);
-  map_put(&cmd_fs, "JOIN", (void*)join);
-  map_put(&cmd_fs, "PING", (void*)ping);
-  map_put(&cmd_fs, "PONG", (void*)pong);
+  cmd_fns = map_init(64);
+  map_put(&cmd_fns, "NICK", (void*)nick);
+  map_put(&cmd_fns, "USER", (void*)user);
+  map_put(&cmd_fns, "JOIN", (void*)join);
+  map_put(&cmd_fns, "PING", (void*)ping);
+  map_put(&cmd_fns, "PONG", (void*)pong);
 }
 
 void welcome_msg(struct client *client) {
@@ -36,6 +33,8 @@ void welcome_msg(struct client *client) {
   logmsg("client %s successfully registered", client->nick);
 }
 
+
+// TODO: make this more uh ... better?
 void handle_reg(struct client *client, struct command *cmd) {
 
   if (strcmp(cmd->command, "NICK") == 0 && (client->regstatus == REGSTAT_NONE || client->regstatus == REGSTAT_USER)) {
@@ -64,7 +63,7 @@ int raw_msg(struct client *client, char *buffer) {
 
   parse_msg(buffer, &parsed);
 
-  cmd_fn* fn = ((cmd_fn*)map_get(&cmd_fs, parsed.command));
+  cmd_fn* fn = ((cmd_fn*)map_get(&cmd_fns, parsed.command));
 
   if (fn == NULL) {
     return 0;
