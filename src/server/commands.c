@@ -1,5 +1,6 @@
 //Befehle für den Server
 #include <stdbool.h>
+// #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -9,10 +10,8 @@
 #include "../logging.h"
 #include "../hashtypes.h"
 #include "client.h"
-#include "data.h"
-#include "numerics.h"
+// #include "numerics.h"
 
-typedef int cmd_fn(struct client*, struct command*);
 
 // hashmap: name -> function
 struct map cmd_fns, chn_map;
@@ -199,7 +198,7 @@ int ping(struct client *c, struct command *cmd) {
   char *token = strtok(cmd->parameters, " ");
   if (token == NULL) {
     msg_client(c, ":glyph 461\r\n");
-    return 0;
+    return 1;
   }
   msg_client(c, ":glyph PONG %s\r\n", token);
   return 0;
@@ -220,7 +219,7 @@ int time_cmd(struct client *c, struct command *cmd){
     tracemsg("Invalid params provided to TIME");
     // TODO: corect error msg
     msg_client(c,"Too Many Arguments!\r\n");
-    return 0;
+    return 1;
   }
   time_t rawtime;
   struct tm *timeinfo;
@@ -240,7 +239,7 @@ int info(struct client *c, struct command *cmd){
     tracemsg("Invalid params provided to INFO");
     // TODO: corect error msg
     msg_client(c,":Server %s : Too many args!\r\n",cmd->command);
-    return 0;
+    return 1;
   }
   msg_client(c,"\x1b[36m   ______ __               __  \n \x1b[36m  / ____// /_  __ ____   / /_  \n \x1b[34m / / __ / / / / // __ \\ / __ \\ \n \x1b[34m/ /_/ // / /_/ // /_/ // / / / \n \x1b[35m\\____//_/\\__, // .___//_/ /_/  \n \x1b[35m        /____//_/              \n \x1b[97m     GLYPH IRC SERVER %s     \x1b[0m\n\r\n",VERSION);
   // msg_client(c,"glyph IRC Server Version:%s\r\n",VERSION);
@@ -249,14 +248,23 @@ int info(struct client *c, struct command *cmd){
   return 0;
 }
 
-int privmsg(struct client *c, struct command *cmd)
-{
-  if (cmd->trailing != NULL){
-    tracemsg("Too few args provided to PRIVMSG");
+int isuser(struct client *cmd){
+  // TODO: check if user exists
+  return 1;
+}
+
+int privmsg(struct client *c, struct command *cmd){
+  if (cmd->trailing == NULL){
+    tracemsg("no message provided to PRIVMSG");
     // TODO: corect error msg
-    msg_client(c,":Server %s : missing args!\r\n",cmd->command);
+    msg_client(c,":Server %s : missing arguments!\r\n",cmd->command);
     return 0;
   }
+  char *param = cmd->parameters;
+  if(strcmp(strchr(param,1),"#")== 0){
+    // TODO: Send message to allf rom channel
+  }
+  
   return 0;
 }
 
