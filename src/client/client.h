@@ -2,6 +2,9 @@
 #define CLIENT_H
 
 #define HOST "irc.libera.chat"
+#define VERSION "v0.1.0"
+#define AUTHORS "Phil P.S. & Jona S."
+#define COMPILE_DATE "25.03.2026"
 
 
 /**

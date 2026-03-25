@@ -120,6 +120,18 @@ void poll_loop(){
     wrefresh(infos);
     wtimeout(eingabefeld, 0);
 
+    chat_print( "   ______ __              __  \n"
+                "  / ____// /_  __ ____   / /_  \n"
+                " / / __ / / / / // __ \\ / __ \\ \n"
+                "/ /_/ // / /_/ // /_/ // / / / \n"
+                "\\____//_/\\__, // .___//_/ /_/  \n"
+                "        /____//_/              \n"
+                "+------------------------------+\n"
+                "|   GLYPH IRC CLIENT: %-8s |\n"
+                "+------------------------------+\n",VERSION);
+    chat_print("made by: %s\n",AUTHORS);  
+    chat_print("compile date: %s\n",COMPILE_DATE);
+
     while (true){  
         
         poll(pfds, 1, 50);
@@ -173,7 +185,12 @@ void poll_loop(){
         //eingabe wird im eingabefeld angezeigt screen wird refreshed
         wmove(infos, 0, 0);
         wclrtoeol(infos);
-        wprintw(infos,"[ZEIT]   [%s]   [%s]", nickname, host);
+        if(host == NULL){
+            wprintw(infos, "[ZEIT]   [%s]   [kein host]", nickname);
+        } else {
+            wprintw(infos, "[ZEIT]   [%s]   [%s]", nickname, host);
+        }
+        wnoutrefresh(infos);
         wmove(eingabefeld, 1, 1);
         wclrtoeol(eingabefeld);
         if(channelname == NULL){
