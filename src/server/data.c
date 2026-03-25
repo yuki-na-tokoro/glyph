@@ -4,6 +4,8 @@
 
 #include "data.h"
 #include "../logging.h"
+#include "client.h"
+#include "numerics.h"
 
 struct map chn_map;
 
