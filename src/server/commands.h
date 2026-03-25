@@ -49,12 +49,12 @@ void relay(struct client* source, char* receivers, char* raw);
 /**
 * @brief Setzt einen Nichnamen und vergleicht mit vorhandenen Nicknamen
 */
-int nick(struct client *c, struct command *a);
+int nick(struct client *client, struct command *cmd);
 
 /**
 * @brief Setzt einen Nutzername bei verbindung.
 */
-int user(struct client *c, struct command *a);
+int user(struct client *client, struct command *cmd);
 
 /**
 * @brief Genutzt wenn ein Nutzer sich zu einem Kanal (Channel) verbinden möchte.
@@ -63,39 +63,39 @@ int user(struct client *c, struct command *a);
 * @param channel -> Channel name/Id
 * @param key -> Passwort des Channels
 */
-int join(struct client *c, struct command *a);
+int join(struct client *client, struct command *cmd);
 
 /**
 *
 */
-int ping(struct client *c, struct command *a);
+int ping(struct client *client, struct command *cmd);
 
 /**
 *
 */
-int pong(struct client *c, struct command *a);
+int pong(struct client *client, struct command *cmd);
 
 /**
 *
 */
-int version(struct client *c, struct command *cmd);
+int version(struct client *client, struct command *cmd);
 
 /**
 *
 */
-int time_cmd(struct client *c, struct command *cmd);
+int time_cmd(struct client *client, struct command *cmd);
 
 /**
 *
 */
-int info(struct client *c, struct command *cmd);
+int info(struct client *client, struct command *cmd);
 
 /**
 * @brief Gibt eine 1 zurück falls der User c existiert. WEnn nicht eine 0.
 *
 * @param c -> client / user
 */
-int isuser(struct client *c);
+int isuser(struct client *client);
 
 /**
 * @brief Sendet eine private Nachricht an einen User
@@ -104,12 +104,20 @@ int isuser(struct client *c);
 * @param c -> client/user
 * @param cmd -> Command struct
 */
-int privmsg(struct client *c, struct command *cmd);
+int privmsg(struct client *client, struct command *cmd);
+
+/**
+* @brief Bricht die Verbindung des Nutzers zu allen gegebenen Channels ab.
+*
+* @param user
+* @param channels
+*/
+int part(struct client *client, struct command *cmd);
 
 /**
 *
 */
-int kill(struct client *c, struct command *a);
+int kill(struct client *client, struct command *cmd);
 
 /**
 * @brief setzt einen USER in einem Channel auf OPERATOR
@@ -118,86 +126,78 @@ int kill(struct client *c, struct command *a);
 * @param c -> client/user
 * @param a -> commands args....
 */
-int oper(struct client *c, struct command *a);
+int oper(struct client *client, struct command *cmd);
 
 /**
 * @brief Gesendet von einem Client der die Verbindung zum Server abbrechen will
 *
 * @param quitmsg -> Nachricht beim verlassen.
 */
-int quit(struct client *c, struct command *a);
-
-/**
-* @brief Bricht die Verbindung des Nutzers zu allen gegebenen Channels ab.
-*
-* @param user
-* @param channels
-*/
-int part(struct client *c, struct command *cmd);
+int quit(struct client *client, struct command *cmd);
 
 
 /**
 *
 */
-int stats(struct client *c, struct command *cmd);
+int stats(struct client *client, struct command *cmd);
 
 /**
 *
 */
-int notice(struct client *c, struct command *a);
+int notice(struct client *client, struct command *cmd);
 
 /**
 *
 */
-int who(struct client *c, struct command *a);
+int who(struct client *client, struct command *cmd);
 
 /**
 *
 */
-int whois(struct client *c, struct command *a);
+int whois(struct client *client, struct command *cmd);
 
-// int whowas(struct client *c, struct command *a);
-
-/**
-*
-*/
-int error(struct client *c, struct command *a);
+// int whowas(struct client *client, struct command *cmd);
 
 /**
 *
 */
-int topic(struct client *c, struct command *a);
+int error(struct client *client, struct command *cmd);
 
 /**
 *
 */
-int names(struct client *c, struct command *a);
+int topic(struct client *client, struct command *cmd);
 
 /**
 *
 */
-int list(struct client *c, struct command *a);
+int names(struct client *client, struct command *cmd);
 
 /**
 *
 */
-int invite(struct client *c, struct command *a);
+int list(struct client *client, struct command *cmd);
 
 /**
 *
 */
-int kick(struct client *c, struct command *a);
+int invite(struct client *client, struct command *cmd);
 
 /**
 *
 */
-// int admin(struct client *c, struct command *cmd);
+int kick(struct client *client, struct command *cmd);
+
+/**
+*
+*/
+// int admin(struct client *client, struct command *cmd);
 
 /**
 * @brief WILL NOT BE USED FOR NOW!!
 *
 * @brief Setzt das Connection Passwort 
 */
-// int pass(struct client *c, struct command *a);
+// int pass(struct client *client, struct command *cmd);
 
 #endif // COMMANDS_H
