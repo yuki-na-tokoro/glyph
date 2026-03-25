@@ -59,13 +59,7 @@ void close_client(struct client *client) {
   for (int i = 0; i < client->channels.cap; i++) {
     struct channel *channel = client->channels.buckets[i].value;
     if (channel != NULL) {
-      map_remove(&channel->members, client->username);
-      if (channel->members.size == 0) {
-        map_remove(get_channel_map(), channel->name);
-        free(channel);
-      } else {
-        set_remove(&channel->op, client->username);
-      }
+      leave_channel(channel, client);
     }
   }
   close(client->fd);

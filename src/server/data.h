@@ -54,4 +54,8 @@ struct map* get_channel_map(void);
 
 void create_channel(char *name, struct client *op);
 
+void delete_channel(struct channel *channel);
+
+void leave_channel(struct channel *channel, struct client *client);
+
 #endif // DATA_H
