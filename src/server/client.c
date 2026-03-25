@@ -56,7 +56,7 @@ void close_clients(bool *mask, struct client* clients[], int* ccount) {
 }
 
 void close_client(struct client *client) {
-  for (int i = 0; i < client->channels.cap; i++) {
+  for (size_t i = 0; i < client->channels.cap; i++) {
     struct channel *channel = client->channels.buckets[i].value;
     if (channel != NULL) {
       leave_channel(channel, client);
