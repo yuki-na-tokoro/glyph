@@ -10,17 +10,10 @@
 #include "../logging.h"
 #include "../hashtypes.h"
 #include "client.h"
+#include "data.h"
 // #include "numerics.h"
 
-struct map cmd_fns, chn_map;
-
-void init_channel_map(void) {
-  chn_map = map_init(64);
-}
-
-struct map* get_channel_map(void) {
-  return &chn_map;
-}
+struct map cmd_fns;
 
 void cmd_fns_put(char* cmd_name, cmd_fn fn) {
   map_put(&cmd_fns, cmd_name, (void*)fn);
@@ -181,7 +174,7 @@ int join(struct client *c, struct command *cmd) {
 
   while (channel_name != NULL) {
     tracemsg("channel: %s", channel_name);
-    if (map_get(&chn_map, channel_name) == NULL) {
+    if (map_get(get_channel_map(), channel_name) == NULL) {
       tracemsg("creating channel %s", channel_name);
 
       create_channel(c,channel_name);

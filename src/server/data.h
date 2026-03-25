@@ -42,4 +42,16 @@ struct channel {
   struct map members;
 };
 
+/**
+* @brief Used to INIT channel map ONCE
+*/
+void init_channel_map(void);
+
+/**
+* @brief 
+*/
+struct map* get_channel_map(void);
+
+void create_channel(char *name, struct client *op);
+
 #endif // DATA_H
