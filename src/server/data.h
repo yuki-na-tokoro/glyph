@@ -29,6 +29,7 @@ struct client {
 };
 
 struct command {
+  char *raw;
   char *source;
   char *command;
   char *parameters;

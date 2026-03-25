@@ -37,12 +37,14 @@ void handle_reg(struct client *client, struct command *cmd);
 int raw_msg(struct client *client, char *buffer);
 
 /**
-* @brief Parsed die  Msg des Clients
+* @brief Parsed die Msg des Clients
 * 
 * @param Buffer mit der Nachricht des Clients
 * @param struct zum Eintragen der Daten nach dem auswerten
 */
 int parse_msg(char *raw, struct command *msg);
+
+void relay(struct client* source, char* receivers, char* raw);
 
 /**
 * @brief Setzt einen Nichnamen und vergleicht mit vorhandenen Nicknamen

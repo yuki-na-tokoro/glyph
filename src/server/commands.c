@@ -1,6 +1,9 @@
 //Befehle für den Server
+#include <stdarg.h>
+#include <stdarg.h>
 #include <stdbool.h>
 // #include <stdio.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -97,6 +100,12 @@ int raw_msg(struct client *client, char *buffer) {
 
 int parse_msg(char *raw, struct command *out) {
 
+  if ((out->raw = calloc(strlen(raw) + 1, sizeof(char))) == NULL) {
+    // TODO: error handling
+  }
+
+  strcpy(out->raw, raw);
+
   char *tags;
   char *source = NULL;
 
@@ -140,6 +149,42 @@ int parse_msg(char *raw, struct command *out) {
   return 0;
 }
 
+void relay(struct client* source, char* receivers, char* raw) {
+  
+  char *receiver;
+
+  receiver = strtok(receivers, ",");
+
+  struct map rec_map = map_init(64);
+
+  while(receiver != NULL) { //Ietriere über alle Channel die als Parameter gegeben sind
+
+    struct channel *channel = map_get(&source->channels, receiver); 
+    
+    if (channel == NULL) continue; // Falls der Channel nicht existiert nimm den nächsten.
+
+    for (size_t i = 0; i < channel->members.cap; i++) {
+      struct client *member = channel->members.buckets[i].value;
+
+      if (member == NULL) continue;
+
+      map_put(&rec_map, member->username, member);
+
+    }
+
+    receiver = strtok(NULL, ",");
+  }   
+
+  for (int i = 0; i < rec_map.cap; i++) {
+    struct client *member = rec_map.buckets[i].value;
+
+    if (member == NULL) continue;
+
+    msg_client(member, ":%s %s", source->nick, raw);
+  }
+
+  free(rec_map.buckets);
+}
 
 int nick(struct client *c, struct command *cmd) {
   char *nick = strtok(cmd->parameters, " ");
@@ -157,6 +202,13 @@ int user(struct client *c, struct command *cmd) {
 int join(struct client *c, struct command *cmd) {
 
   char *channels = strtok(cmd->parameters, " ");
+  char *channels_cpy;
+  if ((channels_cpy = malloc((strlen(channels) + 1) * sizeof(char)))) {
+    // TODO: error handling
+  }
+
+  strcpy(channels_cpy, channels);
+
   char *channel_name = strtok(channels, ",");
 
   while (channel_name != NULL) {
@@ -175,6 +227,8 @@ int join(struct client *c, struct command *cmd) {
 
     channel_name = strtok(NULL, ",");
   }
+
+  relay(c, channels_cpy, cmd->raw);
 
   return 0;
 }
@@ -254,26 +308,11 @@ int privmsg(struct client *client, struct command *cmd){
     return 0;
   }
 
-  char *param,*chan;
-  param = cmd->parameters;
-  chan = strtok(param," ");
+  char *receivers, *receiver;
+  receivers = strtok(cmd->parameters, " ");
 
-  while(chan != NULL){ //Iteriere über alle Channel die als Parameter gegeben sind
-    
-    if (map_get(&client->channels, chan)==NULL)continue; // Falls der Channel nicht existiert nimm den nächsten.
-    else {
-      //:Sende an alle in dem Channel
-      struct channel *targetchan = map_get(&client->channels, chan); // speicher den Ziel-Channel
-      // Gehe durch die die Map der C
-      for (size_t i = 0; i < targetchan->members.cap; i++) {
-        struct client *member = targetchan->members.buckets[i].value;
-        if (member != NULL && member->fd != client->fd) {
-          msg_client(member, cmd->trailing);
-        }
-      }
-    }
-    chan = strtok(NULL," ");
-  }   
+  relay(client, receivers, cmd->raw);
+
   return 0;
 }
 
