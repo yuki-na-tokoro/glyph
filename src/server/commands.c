@@ -29,6 +29,7 @@ void init_command_map() {
   cmd_fns_put("INFO", info);
   cmd_fns_put("TIME", time_cmd);
   cmd_fns_put("PRIVMSG", privmsg);
+  logmsg("#init_command_map(): done");
 }
 
 void welcome_msg(struct client *client) {
@@ -38,7 +39,7 @@ void welcome_msg(struct client *client) {
   msg_client(client, ":glyph 004 %s glyph %s\r\n", client->nick, VERSION);
   msg_client(client, ":glyph 005 %s CASEMAPPING=ascii CHANLIMIT=#: CHANNELLEN=32 CHANTYPES=#\r\n", client->nick);
   msg_client(client, ":glyph 422 %s :No MOTD\r\n", client->nick);
-  logmsg("client %s successfully registered", client->nick);
+  logmsg("#welcome_msg(): client %s successfully registered", client->nick);
 }
 
 

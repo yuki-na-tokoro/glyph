@@ -1,7 +1,9 @@
 
-#include "data.h"
 #include <stdlib.h>
 #include <string.h>
+
+#include "data.h"
+#include "../logging.h"
 
 struct map chn_map;
 
@@ -14,6 +16,7 @@ struct map* get_channel_map(void) {
 }
 
 void create_channel(char *name, struct client *op) {
+  debugmsg("#create_channel(): creating channel %s", name);
   struct channel *channel;
 
   if ((channel = malloc(sizeof(struct channel))) == NULL)  {
@@ -33,11 +36,13 @@ void create_channel(char *name, struct client *op) {
 }
 
 void delete_channel(struct channel *channel) {
+  debugmsg("#delete_channel(): deleting channel %s", channel->name);
   map_remove(&chn_map, channel->name);
   free(channel);
 }
 
-void leave_channel(struct channel *channel, struct client* client) {
+void leave_channel(struct channel *channel, struct client *client) {
+  debugmsg("#leave_channel(): client %s left channel %s", client->username, channel->name);
   map_remove(&channel->members, client->username);
   if (channel->members.size == 0) {
     delete_channel(channel);
