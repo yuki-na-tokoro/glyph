@@ -222,7 +222,15 @@ int info(struct client *c, struct command *cmd){
     msg_client(c,":Server %s : Too many args!\r\n",cmd->command);
     return 1;
   }
-  msg_client(c,"\x1b[36m   ______ __               __  \n \x1b[36m  / ____// /_  __ ____   / /_  \n \x1b[34m / / __ / / / / // __ \\ / __ \\ \n \x1b[34m/ /_/ // / /_/ // /_/ // / / / \n \x1b[35m\\____//_/\\__, // .___//_/ /_/  \n \x1b[35m        /____//_/              \n \x1b[97m     GLYPH IRC SERVER %s     \x1b[0m\n\r\n",VERSION);
+  msg_client(c, "   ______ __              __  \n"
+                "  / ____// /_  __ ____   / /_  \n"
+                " / / __ / / / / // __ \\ / __ \\ \n"
+                "/ /_/ // / /_/ // /_/ // / / / \n"
+                "\\____//_/\\__, // .___//_/ /_/  \n"
+                "        /____//_/              \n"
+                "+------------------------------+\n"
+                "|   GLYPH IRC SERVER %-8s  |\n"
+                "+------------------------------+\n\r\n",VERSION);
   // msg_client(c,"glyph IRC Server Version:%s\r\n",VERSION);
   msg_client(c,"made by: %s\r\n",AUTHORS);
   msg_client(c,"compile date: %s\r\n",COMPILE_DATE);
