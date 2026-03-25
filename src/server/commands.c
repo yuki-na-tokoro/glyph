@@ -150,7 +150,7 @@ int parse_msg(char *raw, struct command *out) {
   return 0;
 }
 
-void relay(struct client* source, char* receivers, char* raw) {
+void relay(struct client* source, bool include, char* receivers, char* raw) {
   
   char *receiver;
 
@@ -169,8 +169,9 @@ void relay(struct client* source, char* receivers, char* raw) {
 
       if (member == NULL) continue;
 
-      map_put(&rec_map, member->username, member);
-
+      if (!include || strcmp(source->username, member->username) != 0) {
+        map_put(&rec_map, member->username, member);
+      }
     }
 
     receiver = strtok(NULL, ",");
@@ -227,7 +228,7 @@ int join(struct client *c, struct command *cmd) {
     channel_name = strtok(NULL, ",");
   }
 
-  relay(c, channels_cpy, cmd->raw);
+  relay(c, true, channels_cpy, cmd->raw);
 
   return 0;
 }
@@ -310,13 +311,13 @@ int privmsg(struct client *client, struct command *cmd){
   char *receivers, *receiver;
   receivers = strtok(cmd->parameters, " ");
 
-  relay(client, receivers, cmd->raw);
+  relay(client, false, receivers, cmd->raw);
 
   return 0;
 }
 
 int part(struct client *client, struct command *cmd){
-  if (cmd->parameters== NULL)break;
+  if (cmd->parameters== NULL) return 0;
   
   return 0;
 }

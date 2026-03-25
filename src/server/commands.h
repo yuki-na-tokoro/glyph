@@ -44,7 +44,7 @@ int raw_msg(struct client *client, char *buffer);
 */
 int parse_msg(char *raw, struct command *msg);
 
-void relay(struct client* source, char* receivers, char* raw);
+void relay(struct client* source, bool include, char* receivers, char* raw);
 
 /**
 * @brief Setzt einen Nichnamen und vergleicht mit vorhandenen Nicknamen
