@@ -213,13 +213,12 @@ int join(struct client *c, struct command *cmd) {
   char *channel_name = strtok(channels, ",");
 
   while (channel_name != NULL) {
-    if (map_get(get_channel_map(), channel_name) == NULL) {
+      struct channel *channel = map_get(get_channel_map(), channel_name);
+    if (channel == NULL) {
 
       create_channel(channel_name, c);
 
     } else {
-
-      struct channel *channel = map_get(get_channel_map(), channel_name);
 
       map_put(&channel->members, c->nick, c);
       map_put(&c->channels, channel->name, channel);
