@@ -14,7 +14,7 @@
 #include "../hashtypes.h"
 #include "client.h"
 #include "data.h"
-#include "numerics.h"
+// #include "numerics.h"
 
  //TODO:
  // - When a user Joins check if the username already exists
@@ -49,6 +49,7 @@ void welcome_msg(struct client *client) {
   msg_client(client, ":glyph 422 %s :No MOTD\r\n", client->nick);
   logmsg("#welcome_msg(): client %s successfully registered", client->nick);
 }
+
 
 // TODO: make this more uh ... better?
 void handle_reg(struct client *client, struct command *cmd) {
@@ -316,9 +317,35 @@ int privmsg(struct client *client, struct command *cmd){
 }
 
 int part(struct client *client, struct command *cmd){
-  if (cmd->parameters == NULL){
-    msg_client(client, "Server %-3d : benoetigt mehr Parameter",RPL_NEEDMOREPARAMS);
-  };
+  /**
+  * CHECK INPUT/ERROR HANDLING
+  */
+  if (cmd->parameters== NULL){
+    return 0;
+  }
+  if (cmd->trailing != NULL){
+    return 0;
+  }
+
+  /**
+  * FUNCTION: Iteriere ueber @paramater(channel die verlassen werden sollen) und verlasse sie,
+  *           wenn sie ein gueltiger Channel sind. 
+  */
+  char *param,*paramslice;
+
+  strcpy(param, cmd->parameters);
+  paramslice = strtok(param," ");
+
+  while(paramslice != NULL){ //paramslice -> Channel der angeguckt wird
+
+    //falls kein # am channelanfng oder user nicht in Channel nimm nächsten param.
+    if(strcmp(strchr(paramslice, 1),"#")!=0||map_get(&client->channels, paramslice)==NULL) paramslice = strtok(NULL," "); continue;
+
+    //verlasse Channel
+    leave_channel(map_get(&client->channels, paramslice), client);
+    msg_client(client,"Server: Verlasse Channel %s");    
+    paramslice = strtok(NULL," ");
+  }
   return 0;
 }
 
