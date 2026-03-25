@@ -14,7 +14,7 @@
 #include "../hashtypes.h"
 #include "client.h"
 #include "data.h"
-// #include "numerics.h"
+#include "numerics.h"
 
  //TODO:
  // - When a user Joins check if the username already exists
@@ -49,7 +49,6 @@ void welcome_msg(struct client *client) {
   msg_client(client, ":glyph 422 %s :No MOTD\r\n", client->nick);
   logmsg("#welcome_msg(): client %s successfully registered", client->nick);
 }
-
 
 // TODO: make this more uh ... better?
 void handle_reg(struct client *client, struct command *cmd) {
@@ -317,8 +316,9 @@ int privmsg(struct client *client, struct command *cmd){
 }
 
 int part(struct client *client, struct command *cmd){
-  if (cmd->parameters== NULL) return 0;
-  
+  if (cmd->parameters == NULL){
+    msg_client(client, "Server %-3d : benoetigt mehr Parameter",RPL_NEEDMOREPARAMS);
+  };
   return 0;
 }
 
