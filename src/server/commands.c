@@ -160,14 +160,15 @@ int join(struct client *c, struct command *cmd) {
   char *channel_name = strtok(channels, ",");
 
   while (channel_name != NULL) {
-    if (map_get(get_channel_map(), channel_name) == NULL) {
+    tracemsg("channel: %s", channel_name);
+    struct channel *channel = map_get(get_channel_map(), channel_name);
+    if (channel == NULL) {
+      tracemsg("creating channel %s", channel_name);
 
       create_channel(channel_name, c);
 
     } else {
-
-      struct channel *channel = map_get(&c->channels, channel_name);
-
+      tracemsg("Joining existing Channel %s",channel_name);
       map_put(&channel->members, c->nick, c);
       map_put(&c->channels, channel->name, channel);
     }
@@ -257,15 +258,16 @@ int privmsg(struct client *client, struct command *cmd){
   param = cmd->parameters;
   chan = strtok(param," ");
 
-  while(chan != NULL){ //Ietriere über alle Channel die als Parameter gegeben sind
+  while(chan != NULL){ //Iteriere über alle Channel die als Parameter gegeben sind
     
     if (map_get(&client->channels, chan)==NULL)continue; // Falls der Channel nicht existiert nimm den nächsten.
     else {
+      //:Sende an alle in dem Channel
       struct channel *targetchan = map_get(&client->channels, chan); // speicher den Ziel-Channel
       // Gehe durch die die Map der C
       for (size_t i = 0; i < targetchan->members.cap; i++) {
         struct client *member = targetchan->members.buckets[i].value;
-        if (member != NULL) {
+        if (member != NULL && member->fd != client->fd) {
           msg_client(member, cmd->trailing);
         }
       }
