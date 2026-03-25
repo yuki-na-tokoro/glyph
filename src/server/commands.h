@@ -56,6 +56,11 @@ int raw_msg(struct client *client, char *buffer);
 int parse_msg(char *raw, struct command *msg);
 
 /**
+* @brief erstellt einen Channel
+*/
+int create_channel(struct client *client, char *channel_name);
+
+/**
 * @brief Setzt einen Nichnamen und vergleicht mit vorhandenen Nicknamen
 */
 int nick(struct client *c, struct command *a);
