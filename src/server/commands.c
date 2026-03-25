@@ -180,7 +180,7 @@ void relay(struct client* source, char* receivers, char* raw) {
 
     if (member == NULL) continue;
 
-    msg_client(member, ":%s %s", source->nick, raw);
+    msg_client(member, ":%s %s\r\n", source->nick, raw);
   }
 
   free(rec_map.buckets);
@@ -212,15 +212,14 @@ int join(struct client *c, struct command *cmd) {
   char *channel_name = strtok(channels, ",");
 
   while (channel_name != NULL) {
-    tracemsg("channel: %s", channel_name);
-    struct channel *channel = map_get(get_channel_map(), channel_name);
-    if (channel == NULL) {
-      tracemsg("creating channel %s", channel_name);
+    if (map_get(get_channel_map(), channel_name) == NULL) {
 
       create_channel(channel_name, c);
 
     } else {
-      tracemsg("Joining existing Channel %s",channel_name);
+
+      struct channel *channel = map_get(get_channel_map(), channel_name);
+
       map_put(&channel->members, c->nick, c);
       map_put(&c->channels, channel->name, channel);
     }
