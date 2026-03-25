@@ -76,10 +76,12 @@ int connect_to_server(char *host, char *port){
 
 
 /*
-TODO:   - Terminal User Interface für den Client mithilfe von ncurses implementieren (Mby Histroy implementieren)
-        - channelnamen und nickname an send_command übergeben für Commands die dies brauchen
+TODO:    (Mby Histroy implementieren)
+        
         - Feature das wenn man eine Nachricht eingibt und einen Log von vergangenen Eingaben behält,
           damit man bspw. Pfeil hoch drücken kann um die letzt Eingabe zu wiederholen
+          am besten neuer ifelse fall für pfeil hoch zwischen den backspace und den normale zeichen fall
+          der den tipp_buf auf den letzten command setzt.
 */
 
 void poll_loop(){
@@ -106,7 +108,14 @@ void poll_loop(){
     struct pollfd pfds[1];
     pfds[0].fd = sockfd;
     pfds[0].events = POLLIN;
-    
+    wmove(infos, 0, 0);
+    wclrtoeol(infos);
+    if(host==NULL){
+        wprintw(infos,"[ZEIT]   [%s]   [kein hostname]", nickname);
+    }else{
+        wprintw(infos,"[ZEIT]   [%s]   [%s]", nickname, host);
+    }
+    wrefresh(infos);
     wtimeout(eingabefeld, 0);
 
     while (true){  
@@ -131,37 +140,46 @@ void poll_loop(){
         int ch = wgetch(eingabefeld);
 
         if (ch != ERR){
-            if (ch == '\n' || ch == KEY_ENTER){
-                if (tbuf_index > 0){
-                    if (strcmp(tipp_buf, "/quit") == 0 || strcmp(tipp_buf, "/q") == 0){
+            if (ch == '\n' || ch == KEY_ENTER){ //wenn enter gedrückt wird wird buffer verarbeitet
+                if (tbuf_index > 0){    //prüft ob eingabe vorhanden
+                    if (strcmp(tipp_buf, "/quit") == 0 || strcmp(tipp_buf, "/q") == 0){ //prüft auf quit befehl -> quitet
                         break;
                     }
 
 
-                chat_print(tipp_buf);
-                send_command(&sockfd, tipp_buf, &host, &port, &nickname, &channelname);
+                chat_print(tipp_buf);   //eigabe wird auf screen geprintet
+                send_command(&sockfd, tipp_buf, &host, &port, &nickname, &channelname); //command wird gesendet
                 pfds[0].fd = sockfd;
-                memset(tipp_buf, 0, MSG_SIZE);
-                tbuf_index = 0;
+                memset(tipp_buf, 0, MSG_SIZE);  //tipbuf wird auf null gesetzt
+                tbuf_index = 0; 
 
                 
                 }
-            }else if (ch == KEY_BACKSPACE){
+            }else if (ch == KEY_BACKSPACE){ //wenn backspace gedrückt wird, dann wird letzter eingegebener character aus eingabe (tipbuf) gelöscht
                 if(tbuf_index >0){
                 tipp_buf[--tbuf_index] = '\0';
                
                 }
 
-            }else if (ch >= 32 && ch <= 126 && tbuf_index < MSG_SIZE - 1){
+            }else if (ch >= 32 && ch <= 126 && tbuf_index < MSG_SIZE - 1){  //wenn normale zecichen kommen werden sie an tippbuf angehängt 
                 tipp_buf[tbuf_index] = (char)ch;
                 tbuf_index++;
                 tipp_buf[tbuf_index] ='\0';
             }
 
         }
+        //eingabe wird im eingabefeld angezeigt screen wird refreshed
+        wmove(infos, 0, 0);
+        wclrtoeol(infos);
+        wprintw(infos,"[ZEIT]   [%s]   [%s]", nickname, host);
         wmove(eingabefeld, 1, 1);
         wclrtoeol(eingabefeld);
-        mvwprintw(eingabefeld, 1, 1,"> %s", tipp_buf);
+        if(channelname == NULL){
+            mvwprintw(eingabefeld, 1, 1,"[no channel] > %s", tipp_buf);
+        }else{
+             mvwprintw(eingabefeld, 1, 1,"[%s] > %s",channelname, tipp_buf);
+        }
+       
         box(eingabefeld, 0, 0);
         
         wnoutrefresh(eingabefeld);

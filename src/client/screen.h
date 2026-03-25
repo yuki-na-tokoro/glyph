@@ -5,6 +5,7 @@
 
   extern WINDOW *chatfeld;
   extern WINDOW *eingabefeld;
+  extern WINDOW *infos;
   void setupscreen();
 
   void chat_print(const char *text, ...);
