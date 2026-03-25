@@ -92,8 +92,6 @@ int raw_msg(struct client *client, char *buffer) {
 
   fn(client, &parsed);
 
-  free(parsed.command);
-  
   return 0;
 }
 
@@ -162,9 +160,7 @@ int join(struct client *c, struct command *cmd) {
   char *channel_name = strtok(channels, ",");
 
   while (channel_name != NULL) {
-    tracemsg("channel: %s", channel_name);
     if (map_get(get_channel_map(), channel_name) == NULL) {
-      tracemsg("creating channel %s", channel_name);
 
       create_channel(channel_name, c);
 
