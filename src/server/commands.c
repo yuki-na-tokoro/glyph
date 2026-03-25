@@ -35,6 +35,7 @@ void init_command_map() {
   cmd_fns_put("PONG", pong);
   cmd_fns_put("INFO", info);
   cmd_fns_put("TIME", time_cmd);
+  cmd_fns_put("VERSION", version);
   cmd_fns_put("PRIVMSG", privmsg);
   logmsg("#init_command_map(): done");
 }
@@ -315,47 +316,14 @@ int privmsg(struct client *client, struct command *cmd){
   return 0;
 }
 
+int part(struct client *client, struct command *cmd){
+  if (cmd->parameters== NULL)break;
+  
+  return 0;
+}
+
 int kill(struct client *c, struct command *a){
   return 0;
 }
   // close(clients[i]->fd);
   // free(clients[i]);
-
-int quit(struct client *c, struct command *a){
-  return 0;
-}
-
-int part(struct client *c, struct command *a){
-  return 0;
-}
-
-int topic(struct client *c, struct command *a){
-  return 0;
-}
-
-int names(struct client *c, struct command *a){
-  return 0;
-}
-
-int list(struct client *c, struct command *a){
-  return 0;
-}
-
-/**
-* LOW PRIORITY COMMANDS
-*/
-
-// int error(struct client *c, struct command *a);
-
-// int kick(struct client *c, struct command *a);
-
-// int oper(struct client *c, struct command *a){
-//   return 0; 
-// }
-
-// int notice(struct client *c, struct command *a);
-
-// int who(struct client *c, struct command *a);
-
-// int whois(struct client *c, struct command *a);
-
