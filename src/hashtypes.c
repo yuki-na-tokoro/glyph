@@ -46,6 +46,7 @@ void map_put(struct map *m, char *key, void *value) {
     }
 
     m->cap *= 2;
+    m->size = 0;
 
     struct entry *old = m->buckets;
 
