@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <poll.h>
 #include <ncurses.h>
+#include <time.h>
 
 #include "client.h"
 #include "../protocol.h"
@@ -120,7 +121,7 @@ void poll_loop(){
     wrefresh(infos);
     wtimeout(eingabefeld, 0);
 
-    chat_print( "   ______ __              __  \n"
+    timeless_chat_print( "   ______ __              __  \n"
                 "  / ____// /_  __ ____   / /_  \n"
                 " / / __ / / / / // __ \\ / __ \\ \n"
                 "/ /_/ // / /_/ // /_/ // / / / \n"
@@ -129,8 +130,8 @@ void poll_loop(){
                 "+------------------------------+\n"
                 "|   GLYPH IRC CLIENT: %-8s |\n"
                 "+------------------------------+\n",VERSION);
-    chat_print("made by: %s\n",AUTHORS);  
-    chat_print("compile date: %s\n",COMPILE_DATE);
+    timeless_chat_print("made by: %s\n",AUTHORS);  
+    timeless_chat_print("compile date: %s\n",COMPILE_DATE);
 
     while (true){  
         

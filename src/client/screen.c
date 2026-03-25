@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <ncurses.h>
 #include <stdarg.h>
+#include <time.h>
 
 #include "client.h"
 #include "../protocol.h"
@@ -41,14 +42,27 @@ void setupscreen(){
 
     infos = newwin(1, cols, rows - 4, 0);
     wbkgd(infos, COLOR_PAIR(2));
+    wattron(infos, A_BOLD);
     wprintw(infos,"[ZEIT]   [NICKNAME]   [SERVERNAME]");
     wrefresh(infos);
 
 }
 
 void chat_print(const char *text, ...){
+    //zeit berechnung (fast)wie in logging
+    time_t rawtime;
+    struct tm *timeinfo;
+    char timestr[16];
+
+    time(&rawtime);
+    timeinfo = localtime(&rawtime);
+    strftime(timestr, sizeof(timestr), "%H:%M", timeinfo);
+    
+
+
     va_list args;
     va_start(args, text);
+    wprintw(chatfeld,"[%s]", timestr);
     vw_printw(chatfeld, text, args); //text wird ins chatfeld geprintet - jetzt auch mit formatierung
     waddch(chatfeld, '\n');
 
@@ -66,15 +80,20 @@ void chat_print(const char *text, ...){
     prefresh(chatfeld, cam_wo, 0,0,0,rows-5, cols-1);   // refreshed das "sichtfeld" mit position von cam_wo
     doupdate();
 }
-/*
-void get_eingabe(char *buf){
-    wmove(eingabefeld, 0, 0);   //moved curser auf 0 0 im eingabefeld
-    wclrtoeol(eingabefeld); //cleared das eingabe feld
-    mvwprintw(eingabefeld, 0, 0, ">> ");    //setz curser auf 0 0 und printet >>
-    wrefresh(eingabefeld);  //refreshed das eingabe feld
-    echo(); //nutzereingaben werden sichtbar
-    wgetnstr(eingabefeld, buf, 255);    //liest nutzereingabe
-    noecho();   //nutzereingabe wird unsichtbar gemacht
-    wclrtoeol(eingabefeld);
+
+void timeless_chat_print(const char *text, ...){ //chatprint ohne timestamp
+    va_list args;
+    va_start(args, text);
+    
+    vw_printw(chatfeld, text, args); 
+    waddch(chatfeld, '\n');
+
+    va_end(args);
+    
+    int y,x;
+    getyx(chatfeld, y, x);    //sucht aktuell position im chatfeld
+    int cam_wo = (y >= rows - 4)?(y - (rows -4)) : 0;
+    prefresh(chatfeld, cam_wo, 0,0,0,rows-5, cols-1);   // refreshed das "sichtfeld" mit position von cam_wo
+    doupdate();
 }
-*/
+
