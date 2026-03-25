@@ -7,8 +7,8 @@
 
 //SERVER INFO
 #define VERSION "v0.1.0"
-#define AUTHORS "Vex W., Marjan Z."
-#define COMPILE_DATE "24.03.2026"
+#define AUTHORS "Vex W. & Marjan Z."
+#define COMPILE_DATE "25.03.2026"
 
 #define REGSTAT_DONE     0
 #define REGSTAT_NONE     1
