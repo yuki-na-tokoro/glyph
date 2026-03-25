@@ -31,8 +31,8 @@ void create_channel(char *name, struct client *op) {
   set_put(&channel->op, op->username);
 
   map_put(&channel->members, op->username, op);
-  map_put(&chn_map, name, &channel);
-  map_put(&op->channels, name, &channel);    
+  map_put(&chn_map, name, channel);
+  map_put(&op->channels, name, channel);    
 }
 
 void delete_channel(struct channel *channel) {
