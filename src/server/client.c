@@ -10,7 +10,6 @@
 #include "../logging.h"
 #include "data.h"
 #include "networking.h"
-#include "commands.h"
 
 int msg_client(struct client *c, char *fmt, ...) {
   char *msg;
