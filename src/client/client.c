@@ -107,6 +107,14 @@ void poll_loop(){
     memset(tipp_buf, 0, MSG_SIZE);
     int tbuf_index = 0;
 
+    //ZEIT:
+    time_t rawtime;
+    struct tm *timeinfo;
+    char timestr[16];
+    time(&rawtime);
+    timeinfo = localtime(&rawtime);
+    strftime(timestr, sizeof(timestr), "%H:%M", timeinfo);
+
     // Beej Abschnitt 7.2
     struct pollfd pfds[1];
     pfds[0].fd = sockfd;
@@ -133,6 +141,7 @@ void poll_loop(){
     timeless_chat_print("made by: %s\n",AUTHORS);  
     timeless_chat_print("compile date: %s\n",COMPILE_DATE);
 
+    
     while (true){  
         
         poll(pfds, 1, 50);
@@ -184,12 +193,19 @@ void poll_loop(){
 
         }
         //eingabe wird im eingabefeld angezeigt screen wird refreshed
+
+        time(&rawtime);
+        timeinfo = localtime(&rawtime);
+        strftime(timestr, sizeof(timestr), "%H:%M", timeinfo);
+
+
+
         wmove(infos, 0, 0);
         wclrtoeol(infos);
         if(host == NULL){
-            wprintw(infos, "[ZEIT]   [%s]   [kein host]", nickname);
+            wprintw(infos, "[%s]   [%s]   [kein host]",timestr, nickname);
         } else {
-            wprintw(infos, "[ZEIT]   [%s]   [%s]", nickname, host);
+            wprintw(infos, "[%s]   [%s]   [%s]",timestr, nickname, host);
         }
         wnoutrefresh(infos);
         wmove(eingabefeld, 1, 1);
