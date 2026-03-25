@@ -249,18 +249,33 @@ int isuser(struct client *cmd){
   return 1;
 }
 
-int privmsg(struct client *c, struct command *cmd){
+int privmsg(struct client *client, struct command *cmd){
   if (cmd->trailing == NULL){
     tracemsg("no message provided to PRIVMSG");
     // TODO: corect error msg
-    msg_client(c,":Server %s : missing arguments!\r\n",cmd->command);
+    msg_client(client,":Server %s : missing arguments!\r\n",cmd->command);
     return 0;
   }
-  char *param = cmd->parameters;
-  if(strcmp(strchr(param,1),"#")== 0){
-    // TODO: Send message to allf rom channel
-  }
-  
+
+  char *param,*chan;
+  param = cmd->parameters;
+  chan = strtok(param," ");
+
+  while(chan != NULL){ //Ietriere über alle Channel die als Parameter gegeben sind
+    
+    if (map_get(&client->channels, chan)==NULL)continue; // Falls der Channel nicht existiert nimm den nächsten.
+    else {
+      struct channel *targetchan = map_get(&client->channels, chan); // speicher den Ziel-Channel
+      // Gehe durch die die Map der C
+      for (size_t i = 0; i < targetchan->members.cap; i++) {
+        struct client *member = targetchan->members.buckets[i].value;
+        if (member != NULL) {
+          msg_client(member, cmd->trailing);
+        }
+      }
+    }
+    chan = strtok(NULL," ");
+  }   
   return 0;
 }
 
