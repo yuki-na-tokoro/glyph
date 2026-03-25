@@ -13,6 +13,10 @@
 #include "data.h"
 // #include "numerics.h"
 
+ //TODO:
+ // - When a user Joins check if the username already exists
+ // - when changinf username check i already exists
+  
 struct map cmd_fns;
 
 void cmd_fns_put(char* cmd_name, cmd_fn fn) {
@@ -225,18 +229,18 @@ int info(struct client *c, struct command *cmd){
     msg_client(c,":Server %s : Too many args!\r\n",cmd->command);
     return 1;
   }
-  msg_client(c, "   ______ __              __  \n"
-                "  / ____// /_  __ ____   / /_  \n"
-                " / / __ / / / / // __ \\ / __ \\ \n"
-                "/ /_/ // / /_/ // /_/ // / / / \n"
-                "\\____//_/\\__, // .___//_/ /_/  \n"
-                "        /____//_/              \n"
+  msg_client(c, "   ______ __              __\n"
+                "  / ____// /_  __ ____   / /_\n"
+                " / / __ / / / / // __ \\ / __ \\\n"
+                "/ /_/ // / /_/ // /_/ // / / /\n"
+                "\\____//_/\\_   // .___//_/ /_/\n"
+                "        /____//_/\n"
                 "+------------------------------+\n"
                 "|   GLYPH IRC SERVER %-8s  |\n"
-                "+------------------------------+\n\r\n",VERSION);
-  // msg_client(c,"glyph IRC Server Version:%s\r\n",VERSION);
-  msg_client(c,"made by: %s\r\n",AUTHORS);
-  msg_client(c,"compile date: %s\r\n",COMPILE_DATE);
+                "+------------------------------+\n"
+                " \n"
+                "made by: %s\n"
+                "compile date: %s\r\n",VERSION,AUTHORS,COMPILE_DATE);
   return 0;
 }
 
