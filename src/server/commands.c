@@ -51,6 +51,7 @@ void handle_reg(struct client *client, struct command *cmd) {
       client->regstatus = REGSTAT_NICK;
     } else {
       client->regstatus = REGSTAT_DONE;
+      create_channel(client->username, client);
       welcome_msg(client);
     }
   } else if (strcmp(cmd->command, "USER") == 0 && (client->regstatus == REGSTAT_NONE || client->regstatus == REGSTAT_NICK)) {
@@ -59,6 +60,7 @@ void handle_reg(struct client *client, struct command *cmd) {
       client->regstatus = REGSTAT_USER;
     } else {
       client->regstatus = REGSTAT_DONE;
+      create_channel(client->username, client);
       welcome_msg(client);
     }
   } else {
