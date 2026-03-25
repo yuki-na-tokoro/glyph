@@ -82,6 +82,8 @@ TODO:    (Mby Histroy implementieren)
           damit man bspw. Pfeil hoch drücken kann um die letzt Eingabe zu wiederholen
           am besten neuer ifelse fall für pfeil hoch zwischen den backspace und den normale zeichen fall
           der den tipp_buf auf den letzten command setzt.
+
+        - ich glaube host wird im poll loop nie zugeordnet. :( deswegen steht in der infoleiste immer nur kein host
 */
 
 void poll_loop(){
@@ -111,7 +113,7 @@ void poll_loop(){
     wmove(infos, 0, 0);
     wclrtoeol(infos);
     if(host==NULL){
-        wprintw(infos,"[ZEIT]   [%s]   [kein hostname]", nickname);
+        wprintw(infos,"[ZEIT]   [%s]   [kein host]", nickname);
     }else{
         wprintw(infos,"[ZEIT]   [%s]   [%s]", nickname, host);
     }
@@ -147,7 +149,7 @@ void poll_loop(){
                     }
 
 
-                chat_print(tipp_buf);   //eigabe wird auf screen geprintet
+                chat_print("%s: %s", nickname,tipp_buf);   //eigabe wird auf screen geprintet
                 send_command(&sockfd, tipp_buf, &host, &port, &nickname, &channelname); //command wird gesendet
                 pfds[0].fd = sockfd;
                 memset(tipp_buf, 0, MSG_SIZE);  //tipbuf wird auf null gesetzt
@@ -204,7 +206,7 @@ TODO:   - Wenn strtok verwendet wird schreibt das in den Befehlsbuffer d.h. wenn
 
 void print_answer(char *answer, char *nickname){
 
-    
+/*    
     if(nickname == NULL){
         char *copy = strdup(answer);
         char *line2 = strtok(copy, "\r\n");
@@ -232,7 +234,15 @@ void print_answer(char *answer, char *nickname){
         line = strtok(NULL, "\r\n");  //strtok macht in nächster zeile weiter
     }
     free(dupl); 
-
+*/
+    char *copy = strdup(answer);
+        char *line = strtok(copy, "\r\n");
+        while(line != NULL){
+            chat_print("%s", line);
+            line = strtok(NULL, "\r\n");
+        }
+        free(copy);
+        return;
 }
 
 
