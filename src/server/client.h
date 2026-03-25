@@ -32,4 +32,9 @@ bool push_client(struct client* clients[], int* ccount, struct client* c);
  */
 void close_clients(bool *mask, struct client* clients[], int* ccount);
 
+/**
+ * @brief closes and frees a client
+ */
+void close_client(struct client *client);
+
 #endif // CLIENT_H

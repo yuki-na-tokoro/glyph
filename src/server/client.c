@@ -8,7 +8,9 @@
 
 #include "client.h"
 #include "../logging.h"
+#include "data.h"
 #include "networking.h"
+#include "commands.h"
 
 int msg_client(struct client *c, char *fmt, ...) {
   char *msg;
@@ -43,8 +45,7 @@ void close_clients(bool *mask, struct client* clients[], int* ccount) {
     for (int i = 0; i < *ccount; i++) {
       if (mask[i+1]) {
         tracemsg("closing socket %d", clients[i]->fd);
-        close(clients[i]->fd);
-        free(clients[i]);
+        close_client(clients[i]);
         shift++;
       } else {
         clients[i-shift] = clients[i];
@@ -55,4 +56,19 @@ void close_clients(bool *mask, struct client* clients[], int* ccount) {
   }
 }
 
-
+void close_client(struct client *client) {
+  for (int i = 0; i < client->channels.cap; i++) {
+    struct channel *channel = client->channels.buckets[i].value;
+    if (channel != NULL) {
+      map_remove(&channel->members, client->username);
+      if (channel->members.size == 0) {
+        map_remove(get_channel_map(), channel->name);
+        free(channel);
+      } else {
+        set_remove(&channel->op, client->username);
+      }
+    }
+  }
+  close(client->fd);
+  free(client);
+}

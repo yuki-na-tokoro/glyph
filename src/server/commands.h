@@ -13,6 +13,11 @@ typedef int cmd_fn(struct client*, struct command*);
 void init_channel_map(void);
 
 /**
+* @brief 
+*/
+struct map* get_channel_map(void);
+
+/**
 * @brief TODO:...
 */
 void cmd_fns_put(char* cmd_name, cmd_fn fn);

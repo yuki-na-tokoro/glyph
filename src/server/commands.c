@@ -12,12 +12,14 @@
 #include "client.h"
 // #include "numerics.h"
 
-
-// hashmap: name -> function
 struct map cmd_fns, chn_map;
 
-void init_channel_map(void){
+void init_channel_map(void) {
   chn_map = map_init(64);
+}
+
+struct map* get_channel_map(void) {
+  return &chn_map;
 }
 
 void cmd_fns_put(char* cmd_name, cmd_fn fn) {
