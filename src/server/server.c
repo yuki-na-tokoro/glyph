@@ -19,6 +19,20 @@
 
 int main(void) {
 
+  logmsg("   ______ __              __");
+  logmsg("  / ____// /_  __ ____   / /_");
+  logmsg(" / / __ / / / / // __ \\ / __ \\");
+  logmsg("/ /_/ // / /_/ // /_/ // / / /");
+  logmsg("\\____//_/\\_   // .___//_/ /_/");
+  logmsg("        /____//_/");
+  logmsg("+------------------------------+");
+  logmsg("|   GLYPH IRC SERVER %-8s  |",VERSION);
+  logmsg("+------------------------------+");
+  logmsg("");
+  logmsg("made by: %s", AUTHORS);
+  logmsg("compile date: %s", COMPILE_DATE);
+  logmsg("");
+
   int status;
   struct addrinfo hints, *res;
   int sockfd;
