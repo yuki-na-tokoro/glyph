@@ -13,9 +13,9 @@ struct command commands[CLIENT_COMMANDS] = {
     {"Quit",        "/quit",        "QUIT\r\n",                 false,  MSG_SIZE, 0}, //
     {"List",        "/list",        "LIST\r\n",                 false,  MSG_SIZE, 0}, //
     {"Motd",        "/motd",        "MOTD\r\n",                 false,  MSG_SIZE, 0}, //
-    {"Time",        "/time",        "TIME\r\n",                 false,  MSG_SIZE, 0}, //
-    {"Info",        "/info",        "INFO\r\n",                 false,  MSG_SIZE, 0}, //
-    {"Version",     "/version",     "VERSION\r\n",              false,  MSG_SIZE, 0}, //
+    {"Time",        "/time",        "TIME\r\n",                 false,  MSG_SIZE, 0}, // Server Support
+    {"Info",        "/info",        "INFO\r\n",                 false,  MSG_SIZE, 0}, // Server Support
+    {"Version",     "/version",     "VERSION\r\n",              false,  MSG_SIZE, 0}, // Server Support
     {"Lusers",      "/lusers",      "LUSERS\r\n",               false,  MSG_SIZE, 0}, //
     {"Links",       "/links",       "LINKS\r\n",                false,  MSG_SIZE, 0}, //
     {"Admin",       "/admin",       "ADMIN\r\n",                false,  MSG_SIZE, 0}, //
@@ -24,13 +24,12 @@ struct command commands[CLIENT_COMMANDS] = {
     {"Rehash",      "/rehash",      "REHASH\r\n",               false,  MSG_SIZE, 0}, //
     {"Restart",     "/restart",     "RESTART\r\n",              false,  MSG_SIZE, 0}, //
     {"Map",         "/map",         "MAP\r\n",                  false,  MSG_SIZE, 0}, //
-    {"Users",       "/users",       "USERS\r\n",                false,  MSG_SIZE, 0}, //
+    {"Users",       "/users",       "USERS\r\n",                false,  MSG_SIZE, 0}, // Server Support
     {"Connect",     "/connect",     "CONNECT %s 6667\r\n",      false,  MSG_SIZE, 1}, //
-    {"Nickname",    "/nick",        "NICK %s\r\n",              false,  17,       1}, //
-    {"Passwort",    "/pass",        "PASS %s\r\n",              false,  MSG_SIZE, 1}, // Idk wie ich das testen soll
-    {"Join",        "/join",        "JOIN %s\r\n",              false,  MSG_SIZE, 1}, // 
-    {"Part",        "/part",        "PART %s\r\n",              true,   MSG_SIZE, 1}, //
-    {"Topic",       "/topic",       "TOPIC %s\r\n",             true,   MSG_SIZE, 1}, // Kann noch kein Topic setzen
+    {"Nickname",    "/nick",        "NICK %s\r\n",              false,  17,       1}, // Server Support
+    {"Passwort",    "/pass",        "PASS %s\r\n",              false,  MSG_SIZE, 1}, // Kann ich nicht auf einem public Server testen
+    {"Join",        "/join",        "JOIN %s\r\n",              false,  MSG_SIZE, 1}, // Server Support
+    {"Part",        "/part",        "PART %s\r\n",              true,   MSG_SIZE, 1}, // Server Support
     {"Names",       "/names",       "NAMES %s\r\n",             true,   MSG_SIZE, 1}, // 
     {"Whois",       "/whois",       "WHOIS %s\r\n",             true,   MSG_SIZE, 1}, //
     {"Who",         "/who",         "WHO %s\r\n",               false,  MSG_SIZE, 1}, //
@@ -38,7 +37,7 @@ struct command commands[CLIENT_COMMANDS] = {
     {"Whowas",      "/whowas",      "WHOWAS %s\r\n",            false,  MSG_SIZE, 1}, //
     {"Ison",        "/ison",        "ISON %s\r\n",              false,  MSG_SIZE, 1}, //
     {"Userhost",    "/userhost",    "USERHOST %s\r\n",          false,  MSG_SIZE, 1}, //
-    {"Ping",        "/ping",        "PING %s\r\n",              false,  MSG_SIZE, 1}, //
+    {"Ping",        "/ping",        "PING %s\r\n",              false,  MSG_SIZE, 1}, // Server Support
     {"Wallops",     "/wallops",     "WALLOPS :%s\r\n",          false,  MSG_SIZE, 1}, // Kann ich nicht auf einem public Server testen
     {"Stats",       "/stats",       "STATS %s\r\n",             false,  MSG_SIZE, 1}, //
     {"Knock",       "/knock",       "KNOCK %s\r\n",             false,  MSG_SIZE, 1}, //
@@ -46,19 +45,18 @@ struct command commands[CLIENT_COMMANDS] = {
     {"User",        "/user",        "USER %s 0 * :%s\r\n",      false,  MSG_SIZE, 2}, //
     {"Invite",      "/invite",      "INVITE %s %s\r\n",         false,  MSG_SIZE, 2}, //
     {"Mode",        "/mode",        "MODE %s %s\r\n",           false,  MSG_SIZE, 2}, //
-    {"Msg",         "/msg",         "PRIVMSG %s :%s\r\n",       false,  MSG_SIZE, 2}, //
-    {"Notice",      "/notice",      "NOTICE %s :%s\r\n",        false,  MSG_SIZE, 2}, //
+    {"Msg",         "/msg",         "PRIVMSG %s :%s\r\n",       true,   MSG_SIZE, 2}, // Server Support
+    {"Notice",      "/notice",      "NOTICE %s :%s\r\n",        true,   MSG_SIZE, 2}, //
     {"Oper",        "/oper",        "OPER %s %s\r\n",           false,  MSG_SIZE, 2}, // Kann ich nicht auf einem public Server testen
-    {"Kill",        "/kill",        "KILL %s :%s\r\n",          false,  MSG_SIZE, 2}, // Kann ich nicht auf einem public Server testen
-    {"Squit",       "/squit",       "SQUIT %s %s\r\n",          false,  MSG_SIZE, 2}, // Kann ich nicht auf einem public Server testen
+    {"Kill",        "/kill",        "KILL %s :%s\r\n",          true,   MSG_SIZE, 2}, // Kann ich nicht auf einem public Server testen
+    {"Squit",       "/squit",       "SQUIT %s %s\r\n",          true,   MSG_SIZE, 2}, // Kann ich nicht auf einem public Server testen
+    {"Topic",       "/topic",       "TOPIC %s :%s\r\n",         true,   MSG_SIZE, 2}, // 
     {"Kick",        "/kick",        "KICK %s %s :%s\r\n",       false,  MSG_SIZE, 3}, //
 };
 
 /*
-TODO:   - Topic umbauen sodass ein Topic gesetzt werden kann
-        - Refactoren weil dieser Shit ist hella unübersichtlich
+TODO:   - Refactoren weil dieser Shit ist hella unübersichtlich
         - Handeln wenn Nickname bereits vergeben
-
 */
 
 int send_command(int *sockfd, char *input, char **host, char **port, char **nickname, char **channelname){
@@ -127,11 +125,11 @@ int send_command(int *sockfd, char *input, char **host, char **port, char **nick
                     arg1 = strtok(NULL, " ");
                 }
 
-                if(arg1 == NULL && commands[i].channel != true){    // keine Argument gegeben und Channel kann nicht automatisch übergeben werden
+                if(arg1 == NULL && commands[i].exception != true){    // keine Argument gegeben und Channel kann nicht automatisch übergeben werden
                     chat_print("Zu wenige Argumente übergeben");
                     return -1;
                 }
-                else if(commands[i].channel == true){
+                else if(commands[i].exception == true){
                     if(*channelname == NULL){
                         chat_print("Keinem Channel beigetreten");
                         return -1;
@@ -195,13 +193,46 @@ int send_command(int *sockfd, char *input, char **host, char **port, char **nick
                 return 0;
             }
             case 2: {   // Zwei Argumente übergeben
+                
                 char *arg1 = NULL;
                 char *arg2;
-                if(strcmp(comm, "/msg") == 0 || strcmp(comm, "/notice") == 0 || strcmp(comm, "/kill") == 0 || strcmp(comm, "/squit") == 0){  // Falls PRIVMSG oder NOTICE weil die brauchen mehr Space für die Nachricht
-                    arg1 = strtok(NULL, " ");   //  Liest den Channel 
-                    arg2 = strtok(NULL, "");    // Liest den Rest der Nachricht
-                    if(arg2 == NULL){
-                        chat_print("Zu wenig Argumente übergeben");
+
+                if(commands[i].exception == true){  // Diese Commands brauchen mehr Platz für ihre Inputs
+
+                    char *rest = strtok(NULL, "");  // Rest des USer Inputs nach comm
+
+                    if(rest != NULL && rest[0] == '#'){ // Falls der Channelnamen eingegeben wurde wird dieser übertragen
+                        arg1 = strtok(rest, " ");
+                        arg2 = strtok(NULL, "");
+                    }
+                    else{
+                        arg1 = *channelname;    // Falls Channelname nicht übergeben wird wird dieser automatisch eingesetzt
+                        arg2 = rest;
+                    }
+                    if(strcmp(comm, "/topic") == 0){
+                        if(arg1 == NULL){
+                            chat_print("Keinem Channel beigetreten");
+                            return -1;
+                        }
+                        if(arg2 == NULL){   // Falls nur das Topic abgerufen werden soll
+                            count = snprintf(msg, commands[i].size, "TOPIC %s\r\n", arg1);
+                        }
+                        else{
+                            count = snprintf(msg, commands[i].size, commands[i].format, arg1, arg2);    // Nachricht in das Serverformat bringen
+                        }
+
+                        if(count >= commands[i].size){
+                            chat_print("Eingabe zu lang");
+                            
+                            return -1;
+                        }
+
+                        send_msg(*sockfd, msg);
+
+                        return 0;
+                    }
+                    else if(arg1 == NULL || arg2 == NULL){
+                        chat_print("Zu wenige Argumente übergeben");
                         return -1;
                     }
                 }
