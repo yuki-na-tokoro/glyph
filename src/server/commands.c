@@ -48,7 +48,7 @@ void welcome_msg(struct client *client) {
   msg_client(client, ":glyph 004 %s glyph %s\r\n", client->nick, VERSION);
   msg_client(client, ":glyph 005 %s CASEMAPPING=ascii CHANLIMIT=#: CHANNELLEN=32 CHANTYPES=#\r\n", client->nick);
   msg_client(client, ":glyph 422 %s :No MOTD\r\n", client->nick);
-  logmsg("#welcome_msg(): client %s successfully registered", client->nick);
+  logmsg("#welcome_msg(): client %s successfully registered", client->username);
 }
 
 
@@ -56,7 +56,10 @@ void welcome_msg(struct client *client) {
 void handle_reg(struct client *client, struct command *cmd) {
 
   if (strcmp(cmd->command, "NICK") == 0 && (client->regstatus == REGSTAT_NONE || client->regstatus == REGSTAT_USER)) {
-    nick(client, cmd);
+
+    char *nick = strtok(cmd->parameters, " ");
+    client->nick = nick;
+
     if (client->regstatus == REGSTAT_NONE) {
       client->regstatus = REGSTAT_NICK;
     } else {
@@ -65,9 +68,12 @@ void handle_reg(struct client *client, struct command *cmd) {
       welcome_msg(client);
     }
   } else if (strcmp(cmd->command, "USER") == 0 && (client->regstatus == REGSTAT_NONE || client->regstatus == REGSTAT_NICK)) {
+
     char *username = strtok(cmd->parameters, " ");
+
     client->username = username;
     client->realname = cmd->trailing;
+
     if (client->regstatus == REGSTAT_NONE) {
       client->regstatus = REGSTAT_USER;
     } else {
@@ -153,6 +159,29 @@ int parse_msg(char *raw, struct command *out) {
   return 0;
 }
 
+struct map channels_to_receivers(struct map* channel_map) {
+
+  struct map rec_map = map_init(64);
+
+  for (int i = 0; i < channel_map->cap; i++)  {
+
+    struct channel *channel = channel_map->buckets[i].value;
+
+    if (channel == NULL) continue;
+
+    for (int j = 0; j < channel->members.cap; j++) {
+
+      struct client *member = channel->members.buckets[j].value;
+
+      if (member == NULL) continue;
+      
+      map_put(&rec_map, member->username, member);
+    }
+  }
+
+  return rec_map;
+}
+
 struct map parse_receivers(struct client* source, char* receivers) {
   
   char *receiver = strtok(receivers, ",");
@@ -179,7 +208,6 @@ struct map parse_receivers(struct client* source, char* receivers) {
   return rec_map;
 }
 
-// TODO: another function that takes char* receivers, char* trailing and char* fmt 
 void relay(struct client* source, bool include, struct map* rec_map, char* raw) {
 
   for (int i = 0; i < rec_map->cap; i++) {
@@ -227,7 +255,11 @@ void relay_multi(struct client *source, char* fmt, char *receivers, char* traili
 
 int nick(struct client *c, struct command *cmd) {
   char *nick = strtok(cmd->parameters, " ");
-  relay(c, true, &c->channels, cmd->raw);
+
+  struct map rec_map = channels_to_receivers(&c->channels);
+  relay(c, true, &rec_map, cmd->raw);
+  free(rec_map.buckets);
+
   c->nick = nick;
   return 0;
 }
