@@ -185,45 +185,45 @@ void poll_loop(){
                 }
 
             }else if (ch >= 32 && ch <= 126 && tbuf_index < MSG_SIZE - 1){  //wenn normale zecichen kommen werden sie an tippbuf angehängt 
-                tipp_buf[tbuf_index] = (char)ch;
-                tbuf_index++;
-                tipp_buf[tbuf_index] ='\0';
+                tipp_buf[tbuf_index] = (char)ch;    //schreibt gedrücktes zeichen in tipp_buf
+                tbuf_index++;   //erhöt den Tippbuffindex
+                tipp_buf[tbuf_index] ='\0'; //fügt nullterminator hinzu
             }
 
         }
         //eingabe wird im eingabefeld angezeigt screen wird refreshed
 
-        time(&rawtime);
-        timeinfo = localtime(&rawtime);
-        strftime(timestr, sizeof(timestr), "%H:%M", timeinfo);
+        time(&rawtime); //holtsystemzeit und speichert auf rawtime
+        timeinfo = localtime(&rawtime); //wandelt zeit in lokale zeitstruktur um 
+        strftime(timestr, sizeof(timestr), "%H:%M", timeinfo);  //formatiert den string
 
 
 
-        wmove(infos, 0, 0);
-        wclrtoeol(infos);
+        wmove(infos, 0, 0); //setzt curser auf 0 0 im infofenster
+        wclrtoeol(infos);   //cleared infozeile
         if(host == NULL){
-            wprintw(infos, "[%s]   [%s]   [kein host]",timestr, nickname);
+            wprintw(infos, "[%s]   [%s]   [kein host]",timestr, nickname);  //schreibt infos in info
         } else {
             wprintw(infos, "[%s]   [%s]   [%s]",timestr, nickname, host);
         }
-        wnoutrefresh(infos);
-        wmove(eingabefeld, 1, 1);
-        wclrtoeol(eingabefeld);
-        if(channelname == NULL){
+        wnoutrefresh(infos);    // infos refreshed
+        wmove(eingabefeld, 1, 1);   // setzt curser in eingabefeld auf 1 1 
+        wclrtoeol(eingabefeld); //cleared eingabefeld
+        if(channelname == NULL){    //schreibt tippbuf ins eingabefeld je nach verfügbarkeit mit oder ohne channel
             mvwprintw(eingabefeld, 1, 1,"[no channel] > %s", tipp_buf);
         }else{
              mvwprintw(eingabefeld, 1, 1,"[%s] > %s",channelname, tipp_buf);
         }
        
-        box(eingabefeld, 0, 0);
+        box(eingabefeld, 0, 0); //schreibt die box neu
         
-        wnoutrefresh(eingabefeld);
-        doupdate();
+        wnoutrefresh(eingabefeld);  //speichert die änderungen von eingabefeld ab
+        doupdate(); //refreshed eingabe feld
         
     } 
 
 
-    endwin();
+    endwin();   //beendet ncurses fenster 
     // free(port);
     free(host);
     free(channelname);
