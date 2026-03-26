@@ -8,6 +8,7 @@
 
 #include "client.h"
 #include "../logging.h"
+#include "commands.h"
 #include "data.h"
 #include "networking.h"
 
@@ -64,6 +65,7 @@ void close_client(struct client *client) {
   for (size_t i = 0; i < client->channels.cap; i++) {
     struct channel *channel = client->channels.buckets[i].value;
     if (channel != NULL) {
+      relay_multi(client, "PART %s", channel->name, "");
       leave_channel(channel, client);
     }
   }
