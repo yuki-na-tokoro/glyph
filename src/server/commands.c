@@ -239,7 +239,7 @@ void relay(struct client* source, bool include, struct map* rec_map, char* raw) 
   }
 }
 
-void relay_multi(struct client *source, char* fmt, char *receivers, char* trailing) {
+void relay_multi(struct client *source, bool include, char* fmt, char *receivers, char* trailing) {
 
   char *receiver = strtok(receivers, ",");
 
@@ -257,6 +257,7 @@ void relay_multi(struct client *source, char* fmt, char *receivers, char* traili
       struct client *member = channel->members.buckets[i].value;
 
       if (member == NULL) continue;
+      if (!include && strcmp(member->username, source->username) == 0) continue;
 
       char *msg;
 
@@ -334,7 +335,7 @@ int join(struct client *client, struct command *cmd) {
   for (size_t i = 0; i < channel_set.cap; i++) {
     if (channel_set.buckets[i] == NULL) continue;
 
-    relay_multi(client, "JOIN %s", channel_set.buckets[i], "");
+    relay_multi(client, true, "JOIN %s", channel_set.buckets[i], "");
   }
 
   free(channel_set.buckets);
@@ -471,9 +472,9 @@ int part(struct client *client, struct command *cmd){
     if (channel_set.buckets[i] == NULL) continue;
 
     if (cmd->trailing != NULL) {
-      relay_multi(client, "PART %s :%s", channel_name, cmd->trailing);
+      relay_multi(client, true, "PART %s :%s", channel_name, cmd->trailing);
     } else {
-      relay_multi(client, "PART %s", channel_name, "");
+      relay_multi(client, true, "PART %s", channel_name, "");
     }
   }
 

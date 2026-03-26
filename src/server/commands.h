@@ -73,7 +73,7 @@ void relay(struct client* source, bool include, struct map* rec_map, char* raw);
 /**
 * 
 */
-void relay_multi(struct client *source, char* fmt, char *receivers, char* trailing);
+void relay_multi(struct client *source, bool include, char* fmt, char *receivers, char* trailing);
 
 /**
 * @brief Setzt einen Nichnamen und vergleicht mit vorhandenen Nicknamen

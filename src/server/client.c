@@ -65,7 +65,7 @@ void close_client(struct client *client) {
   for (size_t i = 0; i < client->channels.cap; i++) {
     struct channel *channel = client->channels.buckets[i].value;
     if (channel != NULL) {
-      relay_multi(client, "PART %s", channel->name, "");
+      relay_multi(client, false, "PART %s", channel->name, "");
       leave_channel(channel, client);
     }
   }
