@@ -76,8 +76,8 @@ void chat_print(const char *text, ...){
 
     va_end(args);
     
-    int y,x;
-    getyx(chatfeld, y, x);    //sucht aktuell position im chatfeld
+    int y = getcury(chatfeld); //sucht aktuell position im chatfeld
+       
     int cam_wo = (y >= rows - 5)?(y - (rows -5)) : 0;
     /*if (akt_line < 999){
         akt_line += 1;  //aktuelle line wird erhöht solange kleiner 9999 da padgröße 1000, wenn die größe des pads ereicht ist wird einfach die älteste zeile gelöscht und alles rutscht ein hoch
@@ -98,8 +98,7 @@ void timeless_chat_print(const char *text, ...){ //chatprint ohne timestamp
 
     va_end(args);
     
-    int y,x;
-    getyx(chatfeld, y, x);    //sucht aktuell position im chatfeld
+    int y = getcury(chatfeld); //sucht aktuell position im chatfeld
     int cam_wo = (y >= rows - 5)?(y - (rows - 5)) : 0;
     prefresh(chatfeld, cam_wo, 0,1,0,rows-5, cols-1);   // refreshed das "sichtfeld" mit position von cam_wo
     wrefresh(head);
