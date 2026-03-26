@@ -57,7 +57,7 @@ void handle_reg(struct client *client, struct command *cmd) {
 
     //check if there is a nick collision
     if (set_contains(get_nicks(), nick)) {
-      // TODO: reply
+      msg_client(client, ":glyph %d :nickname %s already in use",RPL_NICKNAMEINUSE,nick);
       return; 
     }
   
@@ -81,7 +81,7 @@ void handle_reg(struct client *client, struct command *cmd) {
 
     // check if username is taken
     if (set_contains(get_users(), username)) {
-      // TODO: reply
+      msg_client(client, ":glyph %d :username %s already in use",RPL_NICKNAMEINUSE,username);
       return; 
     }
 
@@ -132,7 +132,8 @@ int raw_msg(struct client *client, char *buffer) {
 int parse_msg(char *raw, struct command *out) {
 
   if ((out->raw = calloc(strlen(raw) + 1, sizeof(char))) == NULL) {
-    // TODO: error handling
+    errormsg("#parse_mg(): could'nt reserve memory for command -> buffer !");
+    exit(1);
   }
 
   strcpy(out->raw, raw);
@@ -152,7 +153,8 @@ int parse_msg(char *raw, struct command *out) {
     body = strtok(NULL, "");
   } else {
     if ((body = malloc(strlen(raw) * sizeof(char) + 1)) == NULL) {
-      // TODO: error handling
+      errormsg("#parse_mg(): malloc error while reserving for temp buffer body!");
+      exit(1);
     }
     strcpy(body, raw);
   }
@@ -269,7 +271,8 @@ void relay_multi(struct client *source, bool include, char* fmt, char *receivers
       char *msg;
 
       if (asprintf(&msg, fmt, channel->name, trailing) < 0) {
-        // TODO: error handling
+        errormsg("#relay_multi(): asprintf error");
+        exit(1);
       }
 
       msg_client(member, ":%s %s\r\n", source->nick, msg);
@@ -286,8 +289,8 @@ void relay_multi(struct client *source, bool include, char* fmt, char *receivers
 int nick(struct client *c, struct command *cmd) {
   char *nick = strtok(cmd->parameters, " ");
 
-  if (set_contains(get_nicks(), nick)) {
-    // TODO: reply
+  if (set_contains(get_nicks(), nick)) {  
+    msg_client(c, ":glyph %d :nickname %s already in use",RPL_NICKNAMEINUSE,nick);
     return 0;
   }
 
@@ -308,7 +311,7 @@ int nick(struct client *c, struct command *cmd) {
 }
 
 int user(struct client *c, struct command *cmd) {
-  // TODO: decline
+  msg_client(c, ":glyph : username cant be changed !");
   return 0;
 }
 
@@ -371,12 +374,7 @@ int version(struct client *c, struct command *cmd){
 }
 
 int time_cmd(struct client *c, struct command *cmd){
-  if (cmd->parameters != NULL || cmd->trailing != NULL){
-    tracemsg("Invalid params provided to TIME");
-    // TODO: corect error msg
-    msg_client(c,"Too Many Arguments!\r\n");
-    return 1;
-  }
+
   time_t rawtime;
   struct tm *timeinfo;
   char timestr[80];
@@ -391,12 +389,7 @@ int time_cmd(struct client *c, struct command *cmd){
 }
 
 int info(struct client *c, struct command *cmd){
-  if (cmd->parameters != NULL || cmd->trailing != NULL){
-    tracemsg("Invalid params provided to INFO");
-    // TODO: corect error msg
-    msg_client(c,":Server %s : Too many args!\r\n",cmd->command);
-    return 1;
-  }
+
   msg_client(c, "   ______ __              __\n"
                 "  / ____// /_  __ ____   / /_\n"
                 " / / __ / / / / // __ \\ / __ \\\n"
@@ -416,8 +409,7 @@ int privmsg(struct client *client, struct command *cmd){
 
   if (cmd->trailing == NULL){
     tracemsg("no message provided to PRIVMSG");
-    // TODO: corect error msg
-    msg_client(client,":Server %s : missing arguments!\r\n",cmd->command);
+    msg_client(client,":glyph %s: %s missing arguments!\r\n",RPL_NEEDMOREPARAMS,cmd->command);
     return 0;
   }
 
