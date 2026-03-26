@@ -192,7 +192,10 @@ struct map parse_receivers(struct client* source, char* receivers) {
 
     struct channel *channel = map_get(&source->channels, receiver); 
     
-    if (channel == NULL) continue; // Falls der Channel nicht existiert nimm den nächsten.
+    if (channel == NULL) {
+      receiver = strtok(NULL, ",");
+      continue;
+    }
 
     for (size_t i = 0; i < channel->members.cap; i++) {
       struct client *member = channel->members.buckets[i].value;
@@ -202,6 +205,7 @@ struct map parse_receivers(struct client* source, char* receivers) {
       map_put(&rec_map, member->username, member);
     }
 
+    tracemsg("next: %s", receiver);
     receiver = strtok(NULL, ",");
   }
 
@@ -228,7 +232,10 @@ void relay_multi(struct client *source, char* fmt, char *receivers, char* traili
 
     struct channel *channel = map_get(&source->channels, receiver); 
     
-    if (channel == NULL) continue; // Falls der Channel nicht existiert nimm den nächsten.
+    if (channel == NULL) {
+      receiver = strtok(NULL, ",");
+      continue;
+    }
 
     for (size_t i = 0; i < channel->members.cap; i++) {
 
@@ -256,11 +263,16 @@ void relay_multi(struct client *source, char* fmt, char *receivers, char* traili
 int nick(struct client *c, struct command *cmd) {
   char *nick = strtok(cmd->parameters, " ");
 
+  leave_channel(map_get(get_channel_map(), c->nick), c);
+
   struct map rec_map = channels_to_receivers(&c->channels);
   relay(c, true, &rec_map, cmd->raw);
   free(rec_map.buckets);
 
   c->nick = nick;
+
+  create_channel(nick, c);
+  
   return 0;
 }
 
