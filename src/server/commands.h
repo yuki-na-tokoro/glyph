@@ -132,13 +132,12 @@ int privmsg(struct client *client, struct command *cmd);
 int part(struct client *client, struct command *cmd);
 
 /**
-* @brief setzt einen USER in einem Channel auf OPERATOR
-*        -> Der ausführende Nutzer muss jedoch die richtigen Permissions haben. -> muss OP sein.
-* 
-* @param c -> client/user
-* @param a -> commands args....
+*
+************************************************************************
+* !!! @NOTICE: UNIMPLEMENTED UND UNUSED COMMANDS AFTER THIS COMMENT !!!
+************************************************************************
+*
 */
-int oper(struct client *client, struct command *cmd);
 
 /**
 * @brief Gesendet von einem Client der die Verbindung zum Server abbrechen will
@@ -147,22 +146,21 @@ int oper(struct client *client, struct command *cmd);
 */
 int quit(struct client *client, struct command *cmd);
 
-/**
-*/
 int stats(struct client *client, struct command *cmd);
 
-/**
-*/
 int notice(struct client *client, struct command *cmd);
 
-/**
-*
-*/
 int list(struct client *client, struct command *cmd);
 
-/**
-*
-*/
 int kick(struct client *client, struct command *cmd);
+
+/**
+* @brief setzt einen USER in einem Channel auf OPERATOR
+*        -> Der ausführende Nutzer muss jedoch die richtigen Permissions haben. -> muss OP sein.
+* 
+* @param c -> client/user
+* @param a -> commands args....
+*/
+int oper(struct client *client, struct command *cmd);
 
 #endif // COMMANDS_H
