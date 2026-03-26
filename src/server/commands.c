@@ -64,7 +64,9 @@ void handle_reg(struct client *client, struct command *cmd) {
       welcome_msg(client);
     }
   } else if (strcmp(cmd->command, "USER") == 0 && (client->regstatus == REGSTAT_NONE || client->regstatus == REGSTAT_NICK)) {
-    user(client, cmd);
+    char *username = strtok(cmd->parameters, " ");
+    client->username = username;
+    client->realname = cmd->trailing;
     if (client->regstatus == REGSTAT_NONE) {
       client->regstatus = REGSTAT_USER;
     } else {
@@ -150,11 +152,9 @@ int parse_msg(char *raw, struct command *out) {
   return 0;
 }
 
-void relay(struct client* source, bool include, char* receivers, char* raw) {
+struct map parse_receivers(struct client* source, char* receivers) {
   
-  char *receiver;
-
-  receiver = strtok(receivers, ",");
+  char *receiver = strtok(receivers, ",");
 
   struct map rec_map = map_init(64);
 
@@ -169,35 +169,39 @@ void relay(struct client* source, bool include, char* receivers, char* raw) {
 
       if (member == NULL) continue;
 
-      if (!include || strcmp(source->username, member->username) != 0) {
-        map_put(&rec_map, member->username, member);
-      }
+      map_put(&rec_map, member->username, member);
     }
 
     receiver = strtok(NULL, ",");
-  }   
+  }
 
-  for (int i = 0; i < rec_map.cap; i++) {
-    struct client *member = rec_map.buckets[i].value;
+  return rec_map;
+}
 
-    if (member == NULL) continue;
+// TODO: another function that takes char* receivers, char* trailing and char* fmt 
+void relay(struct client* source, bool include, struct map* rec_map, char* raw) {
+
+  for (int i = 0; i < rec_map->cap; i++) {
+
+    struct client *member = rec_map->buckets[i].value;
+
+    if (member == NULL || (!include && strcmp(source->username, member->username) == 0)) continue;
 
     msg_client(member, ":%s %s\r\n", source->nick, raw);
   }
 
-  free(rec_map.buckets);
 }
+
 
 int nick(struct client *c, struct command *cmd) {
   char *nick = strtok(cmd->parameters, " ");
+  relay(c, true, &c->channels, cmd->raw);
   c->nick = nick;
   return 0;
 }
 
 int user(struct client *c, struct command *cmd) {
-  char *username = strtok(cmd->parameters, " ");
-  c->username = username;
-  c->realname = cmd->trailing;
+  // TODO: decline
   return 0;
 }
 
@@ -228,7 +232,11 @@ int join(struct client *c, struct command *cmd) {
     channel_name = strtok(NULL, ",");
   }
 
-  relay(c, true, channels_cpy, cmd->raw);
+  struct map rec_map = parse_receivers(c, channels_cpy);
+
+  relay(c, true, &rec_map, cmd->raw);
+
+  free(rec_map.buckets);
 
   return 0;
 }
@@ -301,6 +309,7 @@ int isuser(struct client *cmd){
 }
 
 int privmsg(struct client *client, struct command *cmd){
+
   if (cmd->trailing == NULL){
     tracemsg("no message provided to PRIVMSG");
     // TODO: corect error msg
@@ -311,7 +320,11 @@ int privmsg(struct client *client, struct command *cmd){
   char *receivers, *receiver;
   receivers = strtok(cmd->parameters, " ");
 
-  relay(client, false, receivers, cmd->raw);
+  struct map rec_map = parse_receivers(client, receivers);
+
+  relay(client, false, &rec_map, cmd->raw);
+
+  free(rec_map.buckets);
 
   return 0;
 }
@@ -331,26 +344,31 @@ int part(struct client *client, struct command *cmd){
   * FUNCTION: Iteriere ueber @paramater(channel die verlassen werden sollen) und verlasse sie,
   *           wenn sie ein gueltiger Channel sind. 
   */
-  char *param,*paramslice;
+  char *channels = strtok(cmd->parameters, " ");
 
-  strcpy(param, cmd->parameters);
-  paramslice = strtok(param," ");
+  struct map rec_map = parse_receivers(client, channels);
 
-  while(paramslice != NULL){ //paramslice -> Channel der angeguckt wird
+  for (int i = 0; i < rec_map.cap; i++) {
 
-    //falls kein # am channelanfang oder user nicht in Channel nimm nächsten param.
-    if(strcmp(strchr(paramslice, 1),"#")!=0||map_get(&client->channels, paramslice)==NULL) paramslice = strtok(NULL," "); continue;
+    if (rec_map.buckets[i].value == NULL) continue;
+    if (rec_map.buckets[i].key[0] != '#') continue;
 
-    //verlasse Channel
-    leave_channel(map_get(&client->channels, paramslice), client);
-    msg_client(client,"Server: Verlasse Channel %s");    
-    paramslice = strtok(NULL," ");
+    leave_channel(rec_map.buckets[i].value, client);
+
+    struct map channel = map_init(2);
+
+    map_put(&channel, rec_map.buckets[i].key, rec_map.buckets[i].value);
+
+    relay(client, true, &channel, cmd->raw);
+
+    free(channel.buckets);
   }
+
+  free(rec_map.buckets);
+
   return 0;
 }
 
 int kill(struct client *c, struct command *a){
   return 0;
 }
-  // close(clients[i]->fd);
-  // free(clients[i]);
