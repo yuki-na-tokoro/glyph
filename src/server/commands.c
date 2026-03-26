@@ -15,10 +15,6 @@
 #include "client.h"
 #include "data.h"
 // #include "numerics.h"
-
- //TODO:
- // - When a user Joins check if the username already exists
- // - when changinf username check i already exists
   
 struct map cmd_fns;
 
@@ -58,7 +54,15 @@ void handle_reg(struct client *client, struct command *cmd) {
   if (strcmp(cmd->command, "NICK") == 0 && (client->regstatus == REGSTAT_NONE || client->regstatus == REGSTAT_USER)) {
 
     char *nick = strtok(cmd->parameters, " ");
+
+    if (set_contains(get_nicks(), nick)) {
+      // TODO: reply
+      return; 
+    }
+
     client->nick = nick;
+
+    set_put(get_nicks(), nick);
 
     if (client->regstatus == REGSTAT_NONE) {
       client->regstatus = REGSTAT_NICK;
@@ -71,8 +75,15 @@ void handle_reg(struct client *client, struct command *cmd) {
 
     char *username = strtok(cmd->parameters, " ");
 
+    if (set_contains(get_users(), username)) {
+      // TODO: reply
+      return; 
+    }
+
     client->username = username;
     client->realname = cmd->trailing;
+
+    set_put(get_users(), username);
 
     if (client->regstatus == REGSTAT_NONE) {
       client->regstatus = REGSTAT_USER;
@@ -262,6 +273,14 @@ void relay_multi(struct client *source, char* fmt, char *receivers, char* traili
 
 int nick(struct client *c, struct command *cmd) {
   char *nick = strtok(cmd->parameters, " ");
+
+  if (set_contains(get_nicks(), nick)) {
+    // TODO: reply
+    return 0;
+  }
+
+  set_remove(get_nicks(), c->nick);
+  set_put(get_nicks(), nick);
 
   leave_channel(map_get(get_channel_map(), c->nick), c);
 

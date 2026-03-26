@@ -10,6 +10,7 @@
 #include <arpa/inet.h>
 #include <stdbool.h>
 
+#include "data.h"
 #include "networking.h"
 #include "client.h"
 #include "../protocol.h"
@@ -48,6 +49,7 @@ int main(void) {
 
   init_channel_map();
   init_command_map();
+  init_name_sets();
 
   for (;;) {
 

@@ -1,12 +1,14 @@
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "data.h"
 #include "../logging.h"
-#include "client.h"
 
 struct map chn_map;
+
+struct set nicks;
+
+struct set users;
 
 void init_channel_map(void) {
   chn_map = map_init(64);
@@ -14,6 +16,19 @@ void init_channel_map(void) {
 
 struct map* get_channel_map(void) {
   return &chn_map;
+}
+
+void init_name_sets(void) {
+  nicks = set_init(64);
+  users = set_init(64);
+}
+
+struct set* get_nicks(void) {
+  return &nicks;
+}
+
+struct set* get_users(void) {
+  return &users;
 }
 
 void create_channel(char *name, struct client *op) {
@@ -46,6 +61,7 @@ void leave_channel(struct channel *channel, struct client *client) {
   debugmsg("#leave_channel(): client %s left channel %s", client->username, channel->name);
  
   map_remove(&channel->members, client->username);
+  map_remove(&client->channels, channel->name);
 
   if (channel->members.size == 0) {
     delete_channel(channel);

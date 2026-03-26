@@ -53,6 +53,12 @@ void init_channel_map(void);
 */
 struct map* get_channel_map(void);
 
+void init_name_sets(void);
+
+struct set* get_nicks(void);
+
+struct set* get_users(void);
+
 void create_channel(char *name, struct client *op);
 
 void delete_channel(struct channel *channel);

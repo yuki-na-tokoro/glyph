@@ -63,6 +63,8 @@ void close_client(struct client *client) {
       leave_channel(channel, client);
     }
   }
+  set_remove(get_nicks(), client->nick);
+  set_remove(get_users(), client->username);
   close(client->fd);
   free(client);
 }
