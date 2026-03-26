@@ -53,6 +53,7 @@ void map_put(struct map *m, char *key, void *value) {
     m->buckets = calloc(m->cap, sizeof(struct entry));
 
     for (size_t j = 0; j < m->cap / 2; j++) {
+      if (old[j].value == NULL) continue;
       map_put(m, old[j].key, old[j].value);
     }
 
