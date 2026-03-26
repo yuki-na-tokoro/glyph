@@ -228,7 +228,7 @@ void relay_multi(struct client *source, char* fmt, char *receivers, char* traili
 
   char *receiver = strtok(receivers, ",");
 
-  while(receiver != NULL) { //Ietriere über alle Channel die als Parameter gegeben sind
+  while(receiver != NULL) { //Iteriere über alle Channel die als Parameter gegeben sind
 
     struct channel *channel = map_get(&source->channels, receiver); 
     
