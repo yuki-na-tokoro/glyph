@@ -36,7 +36,8 @@ void create_channel(char *name, struct client *op) {
   struct channel *channel;
 
   if ((channel = malloc(sizeof(struct channel))) == NULL)  {
-    // TODO: error handling
+    errormsg("SERVER: !!COULDNT RESERVE MEMORY FOR NEW CHANNEL!!");
+    exit(1);
   }
 
   strcpy(channel->name, name);
