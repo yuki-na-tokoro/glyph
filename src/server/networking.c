@@ -17,9 +17,6 @@
 #include "commands.h"
 #include "data.h"
 
-
-// TODO: Add extra Data to Client struct
-        
 int init_socket(struct addrinfo* res) {
 
   int sockfd;
@@ -195,6 +192,8 @@ int handle_socket_poll(struct pollfd spollfd, struct client *clients[MAX_CONN], 
     errormsg("#handle_socket_poll(): calloc error");
     return 1;
   }
+
+  memset(c, 0, sizeof(struct client));
 
   int rc = accept_client(spollfd.fd, c);
   

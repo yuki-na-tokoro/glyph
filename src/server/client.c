@@ -22,7 +22,11 @@ int msg_client(struct client *c, char *fmt, ...) {
   }
 
   va_end(args);
-  tracemsg("#msg_client(): \"%s\" -> %s", msg, c->username);
+  if (c->username != NULL) {
+    tracemsg("#msg_client(): \"%s\" -> %s", msg, c->username);
+  } else {
+    tracemsg("#msg_client(): \"%s\" -> socket %d", msg, c->fd);
+  }
   int ret = send(c->fd, msg, strlen(msg), 0);
   free(msg);
   return ret;
