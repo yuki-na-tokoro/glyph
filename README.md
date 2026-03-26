@@ -79,3 +79,18 @@
   | SQUIT | `SQUIT <server> <reason>\r\n` | Server-Link trennen |
   | REHASH | `REHASH\r\n` | Server-Config neu laden |
   | RESTART | `RESTART\r\n` | Server neu starten |
+
+## Server-Commands
+  
+  | Command | Syntax | Beschreibung |
+  |---------|--------|--------------|
+  | NICK | `NICK <nickname>\r\n` | Nickname setzen/ändern |
+  | USER | `USER <user> 0 * :<realname>\r\n` | User registrieren |
+  | JOIN | `JOIN <#channel>\r\n` | Channel betreten |
+  | PART | `PART <#channel> [:<reason>]\r\n` | Channel verlassen |
+  | PRIVMSG | `PRIVMSG <target> :<message>\r\n` | Nachricht an Channel oder User |
+  | PING | `PING <token>\r\n` | Verbindung prüfen |
+  | PONG | `PONG <token>\r\n` | Antwort auf PING |
+  | INFO | `INFO\r\n` | Info über den Server |
+  | TIME | `TIME\r\n` | Lokalzeit des Servers |
+  | VERSION | `VERSION\r\n` | Server-Version abfragen |
