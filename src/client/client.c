@@ -167,10 +167,9 @@ void poll_loop(){
             if (ch == '\n' || ch == KEY_ENTER){ //wenn enter gedrückt wird wird buffer verarbeitet
                 if (tbuf_index > 0){    //prüft ob eingabe vorhanden
                     if (strcmp(tipp_buf, "/quit") == 0 || strcmp(tipp_buf, "/q") == 0){ //prüft auf quit befehl -> quitet
+                        if(sockfd != -1) send_msg(sockfd, "QUIT [User closed connection]");
                         break;
                     }
-
-
                 chat_print("<%s> %s", nickname,tipp_buf);   //eigabe wird auf screen geprintet
                 send_command(&sockfd, tipp_buf, &host, &port, &nickname, &channelname); //command wird gesendet
                 pfds[0].fd = sockfd;
