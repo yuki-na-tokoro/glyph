@@ -171,7 +171,7 @@ void poll_loop(){
                     }
 
 
-                chat_print("%s: %s", nickname,tipp_buf);   //eigabe wird auf screen geprintet
+                chat_print("<%s> %s", nickname,tipp_buf);   //eigabe wird auf screen geprintet
                 send_command(&sockfd, tipp_buf, &host, &port, &nickname, &channelname); //command wird gesendet
                 pfds[0].fd = sockfd;
                 memset(tipp_buf, 0, MSG_SIZE);  //tipbuf wird auf null gesetzt
@@ -240,35 +240,63 @@ TODO:   - Wenn strtok verwendet wird schreibt das in den Befehlsbuffer d.h. wenn
 
 void print_answer(char *answer, char *nickname){
 
+    char *saveptr = NULL;
     
-    if(nickname == NULL){
-        char *copy = strdup(answer);
-        char *line2 = strtok(copy, "\r\n");
-        while(line2 != NULL){
-            chat_print("%s", line2);
-            line2 = strtok(NULL, "\r\n");
-        }
-        free(copy);
-        return;
-    }
-
     char *dupl = strdup(answer);    // macht ne kopie vom string damit "echter" string nicht kaput gemacht wird
-    char *line = strtok(dupl, "\r\n");    //spaltet string an zeilen ende auf
+    char *line = strtok_r(dupl, "\r\n", &saveptr);    //spaltet string an zeilen ende auf
     while (line != NULL){
         if(strlen(line) > 0){
             char *posnick = strstr(line, nickname); //sucht position vom Nickname
             char *poscol = (posnick != NULL) ? strchr(posnick, ':') : NULL; //sucht position vom Doppelpunkt nach Nickname
 
             if(posnick == NULL || poscol == NULL){
-                chat_print("%s", line);
+                char uname[32];
+                char *uname_start = strchr(line,':'); //username anfang suchen
+                
+                char *uname_end = (uname_start != NULL) ?strchr(line, '!') : NULL;
+
+                if(uname_start != NULL && uname_end != NULL){
+                    uname_start += 1;
+                    size_t uname_len = uname_end - uname_start;
+                    
+                    if (uname_len > 31){
+                        uname_len = 31;
+                    }
+
+                    
+                    strncpy(uname,uname_start, uname_len);
+                    uname[uname_len] = '\0';
+
+                    char *msg_start = strchr(uname_end, ':');
+                    if(msg_start != NULL){
+                        msg_start += 1;
+                        chat_print("<%s> %s", uname, msg_start);
+                    }else{
+                        chat_print("<%s> %s", uname, uname_end);
+                    }
+                    
+                    
+                    
+                }else{
+                    chat_print("%s", line);
+                }
+
+
+
+
+
+
+                
             }else{
-                chat_print("%s", poscol + 1); // zeilen inhalt nach doppelpunkt geprintet
+                chat_print("%s", poscol); // zeilen inhalt nach doppelpunkt geprintet
             }
         }
-        line = strtok(NULL, "\r\n");  //strtok macht in nächster zeile weiter
+        line = strtok_r(NULL, "\r\n", &saveptr);  //strtok macht in nächster zeile weiter
     }
+
     free(dupl); 
-/*
+
+    /*
     char *copy = strdup(answer);
         char *line = strtok(copy, "\r\n");
         while(line != NULL){
