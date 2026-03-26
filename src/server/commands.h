@@ -4,6 +4,10 @@
 
 typedef int cmd_fn(struct client*, struct command*);
 
+struct cmd_fn_container {
+  cmd_fn *fn;
+};
+
 /**
 * @brief adds the commands to the commadns map
 *

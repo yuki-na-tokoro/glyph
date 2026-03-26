@@ -19,7 +19,9 @@
 struct map cmd_fns;
 
 void cmd_fns_put(char* cmd_name, cmd_fn fn) {
-  map_put(&cmd_fns, cmd_name, (void*)fn);
+  struct cmd_fn_container *con = malloc(sizeof(struct cmd_fn_container));
+  con->fn = fn;
+  map_put(&cmd_fns, cmd_name, con);
 }
 
 void init_command_map() {
@@ -102,7 +104,9 @@ int raw_msg(struct client *client, char *buffer) {
 
   parse_msg(buffer, &parsed);
 
-  cmd_fn* fn = ((cmd_fn*)map_get(&cmd_fns, parsed.command));
+  struct cmd_fn_container *con =  map_get(&cmd_fns, parsed.command);
+
+  cmd_fn *fn = con->fn;
 
   if (fn == NULL) {
     return 0;
