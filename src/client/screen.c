@@ -70,7 +70,7 @@ void chat_print(const char *text, ...){
 
     va_list args;
     va_start(args, text);
-    wprintw(chatfeld,"[%s]", timestr);
+    wprintw(chatfeld,"[%s] ", timestr);
     vw_printw(chatfeld, text, args); //text wird ins chatfeld geprintet - jetzt auch mit formatierung
     waddch(chatfeld, '\n');
 

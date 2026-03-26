@@ -240,7 +240,7 @@ TODO:   - Wenn strtok verwendet wird schreibt das in den Befehlsbuffer d.h. wenn
 
 void print_answer(char *answer, char *nickname){
 
-/*    
+    
     if(nickname == NULL){
         char *copy = strdup(answer);
         char *line2 = strtok(copy, "\r\n");
@@ -268,7 +268,7 @@ void print_answer(char *answer, char *nickname){
         line = strtok(NULL, "\r\n");  //strtok macht in nächster zeile weiter
     }
     free(dupl); 
-*/
+/*
     char *copy = strdup(answer);
         char *line = strtok(copy, "\r\n");
         while(line != NULL){
@@ -277,6 +277,7 @@ void print_answer(char *answer, char *nickname){
         }
         free(copy);
         return;
+        */
 }
 
 
