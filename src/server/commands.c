@@ -418,7 +418,7 @@ int privmsg(struct client *client, struct command *cmd){
     return 0;
   }
 
-  char *receivers, *receiver;
+  char *receivers;
   receivers = strtok(cmd->parameters, " ");
 
   tracemsg("#privmsg(): %s -> %s", client->username, receivers);
