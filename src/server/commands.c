@@ -418,9 +418,16 @@ int privmsg(struct client *client, struct command *cmd){
 
   tracemsg("#privmsg(): %s -> %s", client->username, receivers);
 
+  char *msg;
+
+  if (asprintf(&msg, "> %s", cmd->trailing) < 0) {
+    errormsg("#privmsg(): asprintf error");
+    exit(1);
+  }
+
   struct map rec_map = parse_receivers(client, receivers);
 
-  relay(client, false, &rec_map, cmd->raw);
+  relay(client, false, &rec_map, msg);
 
   free(rec_map.buckets);
 
