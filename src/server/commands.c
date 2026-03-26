@@ -174,13 +174,13 @@ struct map channels_to_receivers(struct map* channel_map) {
 
   struct map rec_map = map_init(64);
 
-  for (int i = 0; i < channel_map->cap; i++)  {
+  for (size_t i = 0; i < channel_map->cap; i++)  {
 
     struct channel *channel = channel_map->buckets[i].value;
 
     if (channel == NULL) continue;
 
-    for (int j = 0; j < channel->members.cap; j++) {
+    for (size_t j = 0; j < channel->members.cap; j++) {
 
       struct client *member = channel->members.buckets[j].value;
 
@@ -225,7 +225,7 @@ struct map parse_receivers(struct client* source, char* receivers) {
 
 void relay(struct client* source, bool include, struct map* rec_map, char* raw) {
 
-  for (int i = 0; i < rec_map->cap; i++) {
+  for (size_t i = 0; i < rec_map->cap; i++) {
 
     struct client *member = rec_map->buckets[i].value;
 
@@ -327,7 +327,7 @@ int join(struct client *client, struct command *cmd) {
     tracemsg("next channel: %s", channel_name);
   }
 
-  for (int i = 0; i < channel_set.cap; i++) {
+  for (size_t i = 0; i < channel_set.cap; i++) {
     if (channel_set.buckets[i] == NULL) continue;
 
     relay_multi(client, "JOIN %s", channel_set.buckets[i], "");
@@ -463,7 +463,7 @@ int part(struct client *client, struct command *cmd){
     channel_name = strtok(NULL, ",");
   }
 
-  for (int i = 0; i < channel_set.cap; i++) {
+  for (size_t i = 0; i < channel_set.cap; i++) {
     if (channel_set.buckets[i] == NULL) continue;
 
     if (cmd->trailing != NULL) {
