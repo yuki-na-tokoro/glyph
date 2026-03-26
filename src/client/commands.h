@@ -14,12 +14,6 @@
       int argc; // Anzahl an Argumenten
   };
 
-/**
- * @brief   Fordert den Nutzer zur Eingabe auf, überprüft diese und übergibt
- *
- * @return input     Eingabe des Nutzers
- */  
-char *get_input(void);
 
 /**
  * @brief   Bekommt den Input vom Nutzer und in Form eines Commands und
@@ -27,6 +21,7 @@ char *get_input(void);
  *
  * @param sockfd    File Descriptor vom Socket
  * @param input     Eingabe des Nutzers
+ * @return  Fehlercode
  */
 int send_command(int *sockfd, char *input, char **host, char **port, char **nickname, char **channelname);
 
@@ -37,8 +32,5 @@ int send_command(int *sockfd, char *input, char **host, char **port, char **nick
  * @return  Nummer des Commands im Array
  */
   int what_command(char *input);
-
-  extern struct command commands[];
-  extern int commands_len;
 
   #endif
