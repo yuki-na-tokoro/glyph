@@ -477,7 +477,3 @@ int part(struct client *client, struct command *cmd){
 
   return 0;
 }
-
-int kill(struct client *c, struct command *a){
-  return 0;
-}
