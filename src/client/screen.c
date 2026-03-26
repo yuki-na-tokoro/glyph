@@ -44,13 +44,13 @@ void setupscreen(){
 
     infos = newwin(1, cols, rows - 4, 0);
     wbkgd(infos, COLOR_PAIR(2));
-    wattron(infos, A_BOLD);
+    wattron(infos, A_BOLD); //setzt infosfenster auf fett gedruckt schrifft
     wprintw(infos,"[ZEIT]   [NICKNAME]   [SERVERNAME]");
     wrefresh(infos);
 
     head = newwin(1, cols, 0,0);
     wbkgd(head, COLOR_PAIR(2));
-    wattron(head, A_BOLD);
+    wattron(head, A_BOLD);  //setzt headfenster auf fett gedruckte schrifft
     mvwprintw(head,0, ((cols/2 )- 6),"GLYPH CLIENT");
     wrefresh(head);
 
@@ -79,12 +79,7 @@ void chat_print(const char *text, ...){
     int y = getcury(chatfeld); //sucht aktuell position im chatfeld
        
     int cam_wo = (y >= rows - 5)?(y - (rows -5)) : 0;
-    /*if (akt_line < 999){
-        akt_line += 1;  //aktuelle line wird erhöht solange kleiner 9999 da padgröße 1000, wenn die größe des pads ereicht ist wird einfach die älteste zeile gelöscht und alles rutscht ein hoch
-
-    }
-    int cam_wo = (akt_line > (rows - 4)) ? akt_line - (rows - 4) : 0;   //cam_wo berechnet was im sichtfeld angezeigt wird bzw. wo die unterste zeile des anzuzeigenden ist
-    */
+    
     prefresh(chatfeld, cam_wo, 0,1,0,rows-4, cols-1);   // refreshed das "sichtfeld" mit position von cam_wo
     doupdate();
 }
