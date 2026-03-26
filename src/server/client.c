@@ -22,6 +22,7 @@ int msg_client(struct client *c, char *fmt, ...) {
   }
 
   va_end(args);
+  tracemsg("#msg_client(): \"%s\" -> %s", msg, c->username);
   int ret = send(c->fd, msg, strlen(msg), 0);
   free(msg);
   return ret;

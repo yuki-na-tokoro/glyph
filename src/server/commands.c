@@ -35,8 +35,9 @@ void init_command_map() {
   cmd_fns_put("PONG", pong);
   cmd_fns_put("INFO", info);
   cmd_fns_put("TIME", time_cmd);
-  // cmd_fns_put("VERSION", version);
+  cmd_fns_put("VERSION", version);
   cmd_fns_put("PRIVMSG", privmsg);
+  cmd_fns_put("PART", part);
   logmsg("#init_command_map(): done");
 }
 
@@ -189,7 +190,38 @@ void relay(struct client* source, bool include, struct map* rec_map, char* raw) 
 
     msg_client(member, ":%s %s\r\n", source->nick, raw);
   }
+}
 
+void relay_multi(struct client *source, char* fmt, char *receivers, char* trailing) {
+
+  char *receiver = strtok(receivers, ",");
+
+  while(receiver != NULL) { //Ietriere über alle Channel die als Parameter gegeben sind
+
+    struct channel *channel = map_get(&source->channels, receiver); 
+    
+    if (channel == NULL) continue; // Falls der Channel nicht existiert nimm den nächsten.
+
+    for (size_t i = 0; i < channel->members.cap; i++) {
+
+      struct client *member = channel->members.buckets[i].value;
+
+      if (member == NULL) continue;
+
+      char *msg;
+
+      if (asprintf(&msg, fmt, channel->name, trailing) < 0) {
+        // TODO: error handling
+      }
+
+      msg_client(member, ":%s %s\r\n", source->nick, msg);
+
+      free(msg);
+
+    }
+
+    receiver = strtok(NULL, ",");
+  }
 }
 
 
@@ -205,38 +237,40 @@ int user(struct client *c, struct command *cmd) {
   return 0;
 }
 
-int join(struct client *c, struct command *cmd) {
+int join(struct client *client, struct command *cmd) {
 
   char *channels = strtok(cmd->parameters, " ");
-  char *channels_cpy;
-  if ((channels_cpy = malloc((strlen(channels) + 1) * sizeof(char)))) {
-    // TODO: error handling
-  }
-
-  strcpy(channels_cpy, channels);
 
   char *channel_name = strtok(channels, ",");
 
+  struct set channel_set = set_init(16);
+
   while (channel_name != NULL) {
-      struct channel *channel = map_get(get_channel_map(), channel_name);
+
+    if (channel_name[0] != '#') continue;
+
+    struct channel *channel = map_get(get_channel_map(), channel_name);
+
     if (channel == NULL) {
-
-      create_channel(channel_name, c);
-
+      create_channel(channel_name, client);
     } else {
+      map_put(&channel->members, client->username, client);
+      map_put(&client->channels, channel_name, channel);
+    };
 
-      map_put(&channel->members, c->nick, c);
-      map_put(&c->channels, channel->name, channel);
-    }
+    set_put(&channel_set, channel_name);
 
     channel_name = strtok(NULL, ",");
+    tracemsg("next channel: %s", channel_name);
   }
 
-  struct map rec_map = parse_receivers(c, channels_cpy);
+  for (int i = 0; i < channel_set.cap; i++) {
+    if (channel_set.buckets[i] == NULL) continue;
 
-  relay(c, true, &rec_map, cmd->raw);
+    relay_multi(client, "JOIN %s", channel_set.buckets[i], "");
+  }
 
-  free(rec_map.buckets);
+  free(channel_set.buckets);
 
   return 0;
 }
@@ -320,6 +354,8 @@ int privmsg(struct client *client, struct command *cmd){
   char *receivers, *receiver;
   receivers = strtok(cmd->parameters, " ");
 
+  tracemsg("#privmsg(): %s -> %s", client->username, receivers);
+
   struct map rec_map = parse_receivers(client, receivers);
 
   relay(client, false, &rec_map, cmd->raw);
@@ -336,9 +372,6 @@ int part(struct client *client, struct command *cmd){
   if (cmd->parameters== NULL){
     return 0;
   }
-  if (cmd->trailing != NULL){
-    return 0;
-  }
 
   /**
   * FUNCTION: Iteriere ueber @paramater(channel die verlassen werden sollen) und verlasse sie,
@@ -346,25 +379,38 @@ int part(struct client *client, struct command *cmd){
   */
   char *channels = strtok(cmd->parameters, " ");
 
-  struct map rec_map = parse_receivers(client, channels);
+  char *channel_name = strtok(channels, ",");
 
-  for (int i = 0; i < rec_map.cap; i++) {
+  struct set channel_set = set_init(16);
 
-    if (rec_map.buckets[i].value == NULL) continue;
-    if (rec_map.buckets[i].key[0] != '#') continue;
+  while (channel_name != NULL) {
 
-    leave_channel(rec_map.buckets[i].value, client);
+    if (channel_name[0] != '#') continue;
 
-    struct map channel = map_init(2);
+    struct channel *channel = map_get(get_channel_map(), channel_name);
 
-    map_put(&channel, rec_map.buckets[i].key, rec_map.buckets[i].value);
+    if (channel == NULL) continue;
 
-    relay(client, true, &channel, cmd->raw);
+    tracemsg("%s parting from %s", client->username, channel_name);
 
-    free(channel.buckets);
+    set_put(&channel_set, channel_name);
+
+    leave_channel(channel, client);
+
+    channel_name = strtok(NULL, ",");
   }
 
-  free(rec_map.buckets);
+  for (int i = 0; i < channel_set.cap; i++) {
+    if (channel_set.buckets[i] == NULL) continue;
+
+    if (cmd->trailing != NULL) {
+      relay_multi(client, "PART %s :%s", channel_name, cmd->trailing);
+    } else {
+      relay_multi(client, "PART %s", channel_name, "");
+    }
+  }
+
+  free(channel_set.buckets);
 
   return 0;
 }
