@@ -249,30 +249,30 @@ void print_answer(char *answer, char *nickname){
             char *posnick = strstr(line, nickname); //sucht position vom Nickname
             char *poscol = (posnick != NULL) ? strchr(posnick, ':') : NULL; //sucht position vom Doppelpunkt nach Nickname
 
-            if(posnick == NULL || poscol == NULL){
-                char uname[32];
+            if(posnick == NULL || poscol == NULL){  //wenn keine "normale" Servernachricht (nachrichtt von andern user)
+                char uname[32]; //username zwischenspeicher
                 char *uname_start = strchr(line,':'); //username anfang suchen
                 
-                char *uname_end = (uname_start != NULL) ?strchr(line, '!') : NULL;
+                char *uname_end = (uname_start != NULL) ?strchr(line, '!') : NULL;  //username ende suchen
 
                 if(uname_start != NULL && uname_end != NULL){
-                    uname_start += 1;
-                    size_t uname_len = uname_end - uname_start;
+                    uname_start += 1;   //username anfang um eins verschieben damit kein : merh dabei ist
+                    size_t uname_len = uname_end - uname_start; // länge von Username berechnen
                     
-                    if (uname_len > 31){
+                    if (uname_len > 31){    //sicherheitsüberpüfung dass username nicht zu lang 
                         uname_len = 31;
                     }
 
                     
-                    strncpy(uname,uname_start, uname_len);
+                    strncpy(uname,uname_start, uname_len);  //copiert den username auf username
                     uname[uname_len] = '\0';
 
-                    char *msg_start = strchr(uname_end, ':');
+                    char *msg_start = strchr(uname_end, ':');   //sucht nach message start
                     if(msg_start != NULL){
-                        msg_start += 1;
-                        chat_print("<%s> %s", uname, msg_start);
+                        msg_start += 1; //messagestart um eins verschoben, damit kein doppelpunkt ist
+                        chat_print("<%s> %s", uname, msg_start);    //print username + message
                     }else{
-                        chat_print("<%s> %s", uname, uname_end);
+                        chat_print("<%s> %s", uname, uname_end);    //falls messagestar nicht gefunden wird wird trotzdem was geprintet
                     }
                     
                     
