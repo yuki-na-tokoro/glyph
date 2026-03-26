@@ -358,7 +358,7 @@ int pong(struct client *c, struct command *cmd) {
 }
 
 
-int version(struct client *c, struct command *a){
+int version(struct client *c, struct command *cmd){
   msg_client(c, "Current glyph version is :%s", VERSION);  
   return 0;
 }
@@ -403,11 +403,6 @@ int info(struct client *c, struct command *cmd){
                 "made by: %s\n"
                 "compile date: %s\r\n",VERSION,AUTHORS,COMPILE_DATE);
   return 0;
-}
-
-int isuser(struct client *cmd){
-  // TODO: check if user exists
-  return 1;
 }
 
 int privmsg(struct client *client, struct command *cmd){

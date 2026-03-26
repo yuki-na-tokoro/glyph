@@ -115,13 +115,6 @@ int time_cmd(struct client *client, struct command *cmd);
 int info(struct client *client, struct command *cmd);
 
 /**
-* @brief Gibt eine 1 zurück falls der User c existiert. WEnn nicht eine 0.
-*
-* @param c -> client / user
-*/
-int isuser(struct client *client);
-
-/**
 * @brief Sendet eine private Nachricht an einen User
 * oder wenn ziel mit einem # beginnt an einen Channel -> Liste von Usern
 *
