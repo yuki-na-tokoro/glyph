@@ -1,4 +1,4 @@
-
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -6,6 +6,7 @@
 #include "../logging.h"
 #include "client.h"
 #include "numerics.h"
+#include "commands.h"
 
 struct map chn_map;
 
@@ -45,6 +46,15 @@ void delete_channel(struct channel *channel) {
 
 void leave_channel(struct channel *channel, struct client *client) {
   debugmsg("#leave_channel(): client %s left channel %s", client->username, channel->name);
+
+  for (size_t i = 0; i < channel->members.cap; i++){
+    struct client *member = channel->members.buckets[i].value;
+
+    if(member != NULL){
+      msg_client(client,"Server: %-9s verleasst den Channel !");
+    }
+  }
+  
   map_remove(&channel->members, client->username);
   if (channel->members.size == 0) {
     delete_channel(channel);

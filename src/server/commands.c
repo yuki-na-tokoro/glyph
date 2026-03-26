@@ -35,7 +35,7 @@ void init_command_map() {
   cmd_fns_put("PONG", pong);
   cmd_fns_put("INFO", info);
   cmd_fns_put("TIME", time_cmd);
-  cmd_fns_put("VERSION", version);
+  // cmd_fns_put("VERSION", version);
   cmd_fns_put("PRIVMSG", privmsg);
   logmsg("#init_command_map(): done");
 }
@@ -338,7 +338,7 @@ int part(struct client *client, struct command *cmd){
 
   while(paramslice != NULL){ //paramslice -> Channel der angeguckt wird
 
-    //falls kein # am channelanfng oder user nicht in Channel nimm nächsten param.
+    //falls kein # am channelanfang oder user nicht in Channel nimm nächsten param.
     if(strcmp(strchr(paramslice, 1),"#")!=0||map_get(&client->channels, paramslice)==NULL) paramslice = strtok(NULL," "); continue;
 
     //verlasse Channel
