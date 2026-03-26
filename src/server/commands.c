@@ -2,6 +2,7 @@
 #include <stdarg.h>
 #include <stdarg.h>
 #include <stdbool.h>
+// #include <stdio.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,12 +14,11 @@
 #include "../hashtypes.h"
 #include "client.h"
 #include "data.h"
-#include "numerics.h"
+// #include "numerics.h"
   
 struct map cmd_fns;
 
 void cmd_fns_put(char* cmd_name, cmd_fn fn) {
-  // Wrapper for function pointers
   struct cmd_fn_container *con = malloc(sizeof(struct cmd_fn_container));
   con->fn = fn;
   map_put(&cmd_fns, cmd_name, con);
@@ -49,39 +49,36 @@ void welcome_msg(struct client *client) {
   logmsg("#welcome_msg(): client %s successfully registered", client->username);
 }
 
+
 // TODO: make this more uh ... better?
 void handle_reg(struct client *client, struct command *cmd) {
-  // check if the command sent is NICK and if any of the 2 REG_PARAMS is fulfilled
+
   if (strcmp(cmd->command, "NICK") == 0 && (client->regstatus == REGSTAT_NONE || client->regstatus == REGSTAT_USER)) {
+
     char *nick = strtok(cmd->parameters, " ");
 
-    //check if there is a nick collision
     if (set_contains(get_nicks(), nick)) {
-      msg_client(client, ":glyph %d :nickname %s already in use",RPL_NICKNAMEINUSE,nick);
+      // TODO: reply
       return; 
     }
-  
+
     client->nick = nick;
+
     set_put(get_nicks(), nick);
 
-    //update regsta
     if (client->regstatus == REGSTAT_NONE) {
       client->regstatus = REGSTAT_NICK;
-    }
-    else {
+    } else {
       client->regstatus = REGSTAT_DONE;
       create_channel(client->nick, client);
       welcome_msg(client);
     }
-  }
-  //if command sent is USER and REGSTAT is either NONE or NICK
-  else if (strcmp(cmd->command, "USER") == 0 && (client->regstatus == REGSTAT_NONE || client->regstatus == REGSTAT_NICK)) {
+  } else if (strcmp(cmd->command, "USER") == 0 && (client->regstatus == REGSTAT_NONE || client->regstatus == REGSTAT_NICK)) {
 
     char *username = strtok(cmd->parameters, " ");
 
-    // check if username is taken
     if (set_contains(get_users(), username)) {
-      msg_client(client, ":glyph %d :username %s already in use",RPL_NICKNAMEINUSE,username);
+      // TODO: reply
       return; 
     }
 
@@ -90,7 +87,6 @@ void handle_reg(struct client *client, struct command *cmd) {
 
     set_put(get_users(), username);
 
-    //update regstat
     if (client->regstatus == REGSTAT_NONE) {
       client->regstatus = REGSTAT_USER;
     } else {
@@ -98,9 +94,7 @@ void handle_reg(struct client *client, struct command *cmd) {
       create_channel(client->nick, client);
       welcome_msg(client);
     }
-  }
-  // if user is not registered
-  else {
+  } else {
     msg_client(client, ":glyph 451 * :You have not registered");
   }
 }
@@ -132,8 +126,7 @@ int raw_msg(struct client *client, char *buffer) {
 int parse_msg(char *raw, struct command *out) {
 
   if ((out->raw = calloc(strlen(raw) + 1, sizeof(char))) == NULL) {
-    errormsg("#parse_mg(): could'nt reserve memory for command -> buffer !");
-    exit(1);
+    // TODO: error handling
   }
 
   strcpy(out->raw, raw);
@@ -153,8 +146,7 @@ int parse_msg(char *raw, struct command *out) {
     body = strtok(NULL, "");
   } else {
     if ((body = malloc(strlen(raw) * sizeof(char) + 1)) == NULL) {
-      errormsg("#parse_mg(): malloc error while reserving for temp buffer body!");
-      exit(1);
+      // TODO: error handling
     }
     strcpy(body, raw);
   }
@@ -171,7 +163,6 @@ int parse_msg(char *raw, struct command *out) {
   cmd = strtok(body, " ");
   tracemsg("cmd: %s", cmd);
   params = strtok(NULL, "");
-
   tracemsg("params: %s", params);
   tracemsg("trailing: %s", trailing);
  
@@ -212,7 +203,7 @@ struct map parse_receivers(struct client* source, char* receivers) {
 
   struct map rec_map = map_init(64);
 
-  while(receiver != NULL) {
+  while(receiver != NULL) { //Ietriere über alle Channel die als Parameter gegeben sind
 
     struct channel *channel = map_get(&source->channels, receiver); 
     
@@ -252,7 +243,7 @@ void relay_multi(struct client *source, bool include, char* fmt, char *receivers
 
   char *receiver = strtok(receivers, ",");
 
-  while(receiver != NULL) {
+  while(receiver != NULL) { //Iteriere über alle Channel die als Parameter gegeben sind
 
     struct channel *channel = map_get(&source->channels, receiver); 
     
@@ -271,8 +262,7 @@ void relay_multi(struct client *source, bool include, char* fmt, char *receivers
       char *msg;
 
       if (asprintf(&msg, fmt, channel->name, trailing) < 0) {
-        errormsg("#relay_multi(): asprintf error");
-        exit(1);
+        // TODO: error handling
       }
 
       msg_client(member, ":%s %s\r\n", source->nick, msg);
@@ -289,8 +279,8 @@ void relay_multi(struct client *source, bool include, char* fmt, char *receivers
 int nick(struct client *c, struct command *cmd) {
   char *nick = strtok(cmd->parameters, " ");
 
-  if (set_contains(get_nicks(), nick)) {  
-    msg_client(c, ":glyph %d :nickname %s already in use",RPL_NICKNAMEINUSE,nick);
+  if (set_contains(get_nicks(), nick)) {
+    // TODO: reply
     return 0;
   }
 
@@ -311,7 +301,7 @@ int nick(struct client *c, struct command *cmd) {
 }
 
 int user(struct client *c, struct command *cmd) {
-  msg_client(c, ":glyph : username cant be changed !");
+  // TODO: decline
   return 0;
 }
 
@@ -374,7 +364,12 @@ int version(struct client *c, struct command *cmd){
 }
 
 int time_cmd(struct client *c, struct command *cmd){
-
+  if (cmd->parameters != NULL || cmd->trailing != NULL){
+    tracemsg("Invalid params provided to TIME");
+    // TODO: corect error msg
+    msg_client(c,"Too Many Arguments!\r\n");
+    return 1;
+  }
   time_t rawtime;
   struct tm *timeinfo;
   char timestr[80];
@@ -389,7 +384,12 @@ int time_cmd(struct client *c, struct command *cmd){
 }
 
 int info(struct client *c, struct command *cmd){
-
+  if (cmd->parameters != NULL || cmd->trailing != NULL){
+    tracemsg("Invalid params provided to INFO");
+    // TODO: corect error msg
+    msg_client(c,":Server %s : Too many args!\r\n",cmd->command);
+    return 1;
+  }
   msg_client(c, "   ______ __              __\n"
                 "  / ____// /_  __ ____   / /_\n"
                 " / / __ / / / / // __ \\ / __ \\\n"
@@ -409,7 +409,8 @@ int privmsg(struct client *client, struct command *cmd){
 
   if (cmd->trailing == NULL){
     tracemsg("no message provided to PRIVMSG");
-    msg_client(client,":glyph %s: %s missing arguments!\r\n",RPL_NEEDMOREPARAMS,cmd->command);
+    // TODO: corect error msg
+    msg_client(client,":Server %s : missing arguments!\r\n",cmd->command);
     return 0;
   }
 
@@ -448,9 +449,14 @@ int part(struct client *client, struct command *cmd){
   */
   char *channels = strtok(cmd->parameters, " ");
 
-  char *channel_name = strtok(channels, ",");
+  char **saveptr;
 
-  struct set channel_set = set_init(16);
+  if ((saveptr = malloc(sizeof(char**))) == NULL) {
+    errormsg("#part(): malloc error");
+    exit(1);
+  }
+
+  char *channel_name = strtok_r(channels, ",", saveptr);
 
   while (channel_name != NULL) {
 
@@ -462,24 +468,18 @@ int part(struct client *client, struct command *cmd){
 
     tracemsg("%s parting from %s", client->username, channel_name);
 
-    set_put(&channel_set, channel_name);
-
-    leave_channel(channel, client);
-
-    channel_name = strtok(NULL, ",");
-  }
-
-  for (size_t i = 0; i < channel_set.cap; i++) {
-    if (channel_set.buckets[i] == NULL) continue;
-
     if (cmd->trailing != NULL) {
       relay_multi(client, true, "PART %s :%s", channel_name, cmd->trailing);
     } else {
       relay_multi(client, true, "PART %s", channel_name, "");
     }
+
+    leave_channel(channel, client);
+
+    channel_name = strtok_r(NULL, ",", saveptr);
   }
 
-  free(channel_set.buckets);
+  free(saveptr);
 
   return 0;
 }
