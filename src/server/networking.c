@@ -38,6 +38,7 @@ int init_socket(struct addrinfo* res) {
     exit(1);
   }
 
+  // set socket to not block for polling
   if(set_nonblocking(sockfd)) {
     exit(1);
   }
@@ -78,6 +79,8 @@ int accept_client(int sockfd, struct client* c) {
   struct sockaddr_storage client_addr;
 
   socklen_t addr_size = sizeof client_addr;
+
+  // accepting socket
   int fd = accept(sockfd, (struct sockaddr *) &client_addr, &addr_size);
 
   if (fd == -1) {
@@ -88,10 +91,12 @@ int accept_client(int sockfd, struct client* c) {
     return 0;
   }
 
+  // set to non-blocking
   if (set_nonblocking(fd)) {
     return -1;
   };
 
+  // save info in client struct
   c->fd = fd;
   if ((c->buffer = calloc(MSG_SIZE, sizeof(char))) == NULL) {
     errormsg("#accept_client(): calloc error");
@@ -105,10 +110,11 @@ int accept_client(int sockfd, struct client* c) {
 
 int handle_client_poll(struct pollfd fds[], struct client *clients[MAX_CONN], int *ccount, bool *mask) {
 
-  int rc;
+  int rc; // var for return codes
   
-  char buffer[MSG_SIZE];
+  char buffer[MSG_SIZE]; // buffer for messages
   
+  // check all polled client sockets
   for (int i = 1; i < *ccount + 1; i++) {
 
     if (fds[i].revents == 0) {
@@ -125,6 +131,7 @@ int handle_client_poll(struct pollfd fds[], struct client *clients[MAX_CONN], in
 
       tracemsg("polling returned on socket %d", fds[i].fd);
       
+      // read from socket
       rc = recv(fds[i].fd, buffer, sizeof(buffer), 0);
 
       if (rc > 0) {
@@ -146,6 +153,7 @@ int handle_client_poll(struct pollfd fds[], struct client *clients[MAX_CONN], in
         break;
       }
 
+      // append read bytes to buffer
       strcat(clients[i-1]->buffer, buffer);
       
       size_t buflen = strlen(clients[i-1]->buffer);
@@ -155,6 +163,7 @@ int handle_client_poll(struct pollfd fds[], struct client *clients[MAX_CONN], in
       char* ret;
       uint msglen;
 
+      // check if full messages are in the buffer
       while ((ret = strstr(clients[i-1]->buffer, "\r\n")) != NULL) {
         msglen = strlen(clients[i-1]->buffer) - strlen(ret);
 
