@@ -8,6 +8,7 @@
 - Networking in C: [Beej's guide to Network Programming](https://beej.us/guide/bgnet/)
 - IRC Protocol -> for Communication: [Better IRC Guide](https://modern.ircdocs.horse/) [IRC](https://www.rfc-editor.org/rfc/rfc1459)
 - git commit conventions: [Conventional Commit Messages](https://gist.github.com/qoomon/5dfcdf8eec66a051ecd85625518cfd13)
+- ncurses tutorial: [Curses (ncurses) tutorial](https://github.com/mcdaniel/curses_tutorial)
 
 ## Client-Commands
 
