@@ -201,7 +201,11 @@ int send_command(int *sockfd, char *input, char **host, char **port, char **nick
 
                     char *rest = strtok(NULL, "");  // Rest des USer Inputs nach comm
 
-                    if(rest != NULL && rest[0] == '#'){ // Falls der Channelnamen eingegeben wurde wird dieser übertragen
+                    if(rest != NULL && strcmp(comm, "/msg") == 0){
+                        arg1 = strtok(rest, " ");
+                        arg2 = strtok(NULL, "");
+                    }
+                    else if(rest != NULL && rest[0] == '#'){ // Falls der Channelnamen eingegeben wurde wird dieser übertragen
                         arg1 = strtok(rest, " ");
                         arg2 = strtok(NULL, "");
                     }
