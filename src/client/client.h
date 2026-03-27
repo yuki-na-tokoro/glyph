@@ -3,8 +3,7 @@
 
 #define VERSION "v0.1.0"
 #define AUTHORS "Phil P.S. & Jona S."
-#define COMPILE_DATE "25.03.2026"
-
+#define COMPILE_DATE __DATE__ " " __TIME__
 
 /**
  * @brief   Formatiert die Nachrichten vom Server 
