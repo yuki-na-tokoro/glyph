@@ -214,9 +214,9 @@ struct map parse_receivers(struct client* source, char* receivers) {
 
   while(receiver != NULL) {
 
-    struct channel *channel = map_get(&source->channels, receiver); 
+    struct channel *channel = map_get(get_channel_map(), receiver); 
     
-    if (channel == NULL) {
+    if (channel == NULL || (channel->name[0] == '#' && map_get(&channel->members, source->username) == NULL)) {
       receiver = strtok(NULL, ",");
       continue;
     }
