@@ -174,7 +174,7 @@ int handle_client_poll(struct pollfd fds[], struct client *clients[MAX_CONN], in
 
         raw_msg(clients[i-1], buffer);
 
-        clients[i-1]->buffer = ret + 2;
+        strcpy(clients[i-1]->buffer, strdup(ret + 2));
       }
     }
 
