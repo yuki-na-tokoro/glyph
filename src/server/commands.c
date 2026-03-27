@@ -112,9 +112,7 @@ int raw_msg(struct client *client, char *buffer) {
 
   struct cmd_fn_container *con =  map_get(&cmd_fns, parsed.command);
 
-  cmd_fn *fn = con->fn;
-
-  if (fn == NULL) {
+  if (con == NULL) {
     return 0;
   }
 
@@ -124,7 +122,7 @@ int raw_msg(struct client *client, char *buffer) {
     return 0;
   }
 
-  fn(client, &parsed);
+  con->fn(client, &parsed);
 
   return 0;
 }
