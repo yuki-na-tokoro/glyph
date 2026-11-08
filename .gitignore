@@ -9,6 +9,11 @@
 .vscode/launch.json
 .vscode/settings.json
 
+# clangd
+
+/.cache/clangd/
+/compile_commands.json
+
 # direnv
 
 /.direnv

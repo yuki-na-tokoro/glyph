@@ -65,6 +65,9 @@
             nativeBuildInputs = with pkgs; [
               autoreconfHook
               pkg-config
+
+              clang-tools
+              bear
             ];
 
             buildInputs = with pkgs; [
