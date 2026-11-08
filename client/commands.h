@@ -3,7 +3,7 @@
 
   #define CLIENT_COMMANDS 42
 
-  #include "../protocol.h"
+  #include "protocol.h"
 
   struct command {
       char *name;   // Name des Commands für Prints etc.

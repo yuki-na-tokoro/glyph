@@ -1,13 +1,11 @@
 #ifndef DATA_H
 #define DATA_H
 
-#include "../protocol.h"
-#include "../hashtypes.h"
+#include "protocol.h"
+#include "hashtypes.h"
 
 
 //SERVER INFO
-#define VERSION "v0.1.0"
-#define AUTHORS "Vex W. & Marjan Z."
 #define COMPILE_DATE __DATE__ " " __TIME__
 
 #define REGSTAT_DONE     0

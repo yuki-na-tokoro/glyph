@@ -10,11 +10,13 @@
 #include <arpa/inet.h>
 #include <stdbool.h>
 
+#include <config.h>
+
 #include "data.h"
 #include "networking.h"
 #include "client.h"
-#include "../protocol.h"
-#include "../logging.h"
+#include "protocol.h"
+#include "logging.h"
 #include "commands.h"
 
 int main(void) {
@@ -26,10 +28,9 @@ int main(void) {
   logmsg("\\____//_/\\_   // .___//_/ /_/");
   logmsg("        /____//_/");
   logmsg("+------------------------------+");
-  logmsg("|   GLYPH IRC SERVER %-8s  |",VERSION);
+  logmsg("|   GLYPH IRC SERVER %-8s  |", VERSION);
   logmsg("+------------------------------+");
   logmsg("");
-  logmsg("made by: %s", AUTHORS);
   logmsg("compile date: %s", COMPILE_DATE);
   logmsg("");
 

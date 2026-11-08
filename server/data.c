@@ -2,7 +2,7 @@
 #include <string.h>
 
 #include "data.h"
-#include "../logging.h"
+#include "logging.h"
 
 struct map chn_map;
 

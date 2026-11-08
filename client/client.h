@@ -1,8 +1,6 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
-#define VERSION "v0.1.0"
-#define AUTHORS "Phil P.S. & Jona S."
 #define COMPILE_DATE __DATE__ " " __TIME__
 
 /**

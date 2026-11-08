@@ -9,8 +9,10 @@
 #include <ncurses.h>
 #include <time.h>
 
+#include <config.h>
+
 #include "client.h"
-#include "../protocol.h"
+#include "protocol.h"
 #include "commands.h"
 #include "screen.h"
 
@@ -137,9 +139,8 @@ void poll_loop(){
                 "        /____//_/              \n"
                 "+------------------------------+\n"
                 "|   GLYPH IRC CLIENT: %-8s |\n"
-                "+------------------------------+\n",VERSION);
-    timeless_chat_print("made by: %s\n",AUTHORS);  
-    timeless_chat_print("compile date: %s\n",COMPILE_DATE);
+                "+------------------------------+\n", VERSION);
+    timeless_chat_print("compile date: %s\n", COMPILE_DATE);
 
     
     while (true){  

@@ -7,7 +7,7 @@
 #include <time.h>
 
 #include "client.h"
-#include "../protocol.h"
+#include "protocol.h"
 #include "commands.h"
 
 

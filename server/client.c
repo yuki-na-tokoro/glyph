@@ -7,7 +7,7 @@
 #include <unistd.h>
 
 #include "client.h"
-#include "../logging.h"
+#include "logging.h"
 #include "commands.h"
 #include "data.h"
 #include "networking.h"

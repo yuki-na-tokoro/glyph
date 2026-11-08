@@ -12,7 +12,7 @@
 #include <stdbool.h>
 
 #include "networking.h"
-#include "../logging.h"
+#include "logging.h"
 #include "client.h"
 #include "commands.h"
 #include "data.h"

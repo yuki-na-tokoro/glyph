@@ -8,9 +8,11 @@
 #include <unistd.h>
 #include <time.h>
 
+#include <config.h>
+
 #include "commands.h"
-#include "../logging.h"
-#include "../hashtypes.h"
+#include "logging.h"
+#include "hashtypes.h"
 #include "client.h"
 #include "data.h"
 #include "numerics.h"
@@ -398,8 +400,7 @@ int info(struct client *c, struct command *cmd){
                 "|   GLYPH IRC SERVER %-8s  |\n"
                 "+------------------------------+\n"
                 " \n"
-                "made by: %s\n"
-                "compile date: %s\r\n",VERSION,AUTHORS,COMPILE_DATE);
+                "compile date: %s\r\n", VERSION, COMPILE_DATE);
   return 0;
 }
 

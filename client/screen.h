@@ -1,7 +1,7 @@
   #ifndef SCREEN_H
   #define SCREEN_H
 
-  #include "../protocol.h"
+  #include "protocol.h"
 
   extern WINDOW *chatfeld;  // Ausgabefeld wo chat_print ausgibt
   extern WINDOW *eingabefeld; // Feld wo der Nutzer Eingaben tätigt
@@ -29,4 +29,4 @@
   void timeless_chat_print(const char *text, ...);
 
   #endif
-  
+                
